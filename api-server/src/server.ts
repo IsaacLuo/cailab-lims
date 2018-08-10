@@ -3,6 +3,19 @@ import {Request, Response, NextFunction} from 'express'
 import verifyGoogleToken from './googleOauth'
 import cors from 'cors'
 import * as bodyParser from 'body-parser'
+import jwt from 'jsonwebtoken'
+import mongoose from 'mongoose'
+import secret from '../secret.json'
+import {User} from './models'
+
+mongoose.connect(
+  secret.mongoDB.url,
+  {
+    useNewUrlParser: true,
+    user: secret.mongoDB.username,
+    pass: secret.mongoDB.password, 
+  }
+);
 
 const app = express()
 
@@ -24,7 +37,31 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
     console.log(req.body)
     const {name, email} = await verifyGoogleToken(req.body.token);
     console.log(`verified user ${name} ${email}`)
-    res.json({message: `welcome ${name}`})
+    try {
+      const user = await User.findOne({email})
+      console.log(`found user ${user}`)
+      if (!user) {
+        // no user, create one
+        const newUser = new User({
+          name,
+          email,
+          authType: 'google',
+          group: ['guests'],
+        });
+        console.log(`new user: ${newUser}`)
+        await newUser.save()
+      }
+    } catch (err) {
+      console.log(err)
+    }
+    const token = jwt.sign({
+        user:email,
+        name,
+      }, 
+      secret.jwt.key,
+      {expiresIn:'1h'})
+    res.json({message: `welcome ${name}`, token,})
+    
   } catch (err) {
     res.status(401).json({message: err})
   }

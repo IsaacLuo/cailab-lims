@@ -37,7 +37,9 @@ class App extends React.Component {
           token: response.tokenId,
         }
       )
-      alert (res.data.message)
+      alert (res.data.message);
+      localStorage.setItem('token',res.data.token);
+      localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
     } catch (err) {
       console.error (err)
     }
