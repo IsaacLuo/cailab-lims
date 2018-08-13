@@ -7,6 +7,9 @@ import logo from './logo.svg';
 
 import {serverURL, googleAuthURL} from './config';
 
+import Users from './Users'
+import 'element-theme-default'
+
 class App extends React.Component {
   public render() {
     return (
@@ -24,6 +27,7 @@ class App extends React.Component {
           onSuccess={this.loginSuccessful}
           onFailure={this.loginFailed}
         />
+        <Users/>
       </div>
     );
   }

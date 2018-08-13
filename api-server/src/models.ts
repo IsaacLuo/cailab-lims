@@ -8,5 +8,5 @@ export const User = mongoose.model('User', {
   passwordHash: String,
   passwordSalt: String,
   name: String,
-  group: [String],
+  groups: [String],
 });
