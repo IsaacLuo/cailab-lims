@@ -15,3 +15,14 @@ export function ActionLogin (
     data: {username, profilePicture, groups}
   }
 }
+
+export const LOGIN_DIALOG_VISIBLE = 'SHOW_LOGIN';
+
+export function ActionLoginDialogVisible (
+  visible: boolean,
+) {
+  return {
+    type: LOGIN_DIALOG_VISIBLE,
+    data: {visible},
+  }
+}
