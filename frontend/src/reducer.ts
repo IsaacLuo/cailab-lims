@@ -8,6 +8,7 @@ function myReducer(state :IStoreState = {
   groups: [],
   loginDialogVisible: false,
 }, action: IAction) {
+  console.log('action:', action)
   switch (action.type) {
     case LOGIN_DIALOG_VISIBLE:
       return {...state, loginDialogVisible: action.data.visible}

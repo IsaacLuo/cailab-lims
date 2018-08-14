@@ -32,17 +32,17 @@ class LoginDialog extends React.Component<ILoginDialogProps, any> {
       <Dialog
         title="Login"
         size="tiny"
-        visible={ this.props.dialogVisible }
+        visible={this.props.dialogVisible}
         onCancel={ this.onCancel }
         lockScroll={ false }
       >
         <Dialog.Body>
+          <p>Use your google account to login</p>
           <GoogleLogin
             clientId={googleAuthURL}
             buttonText="Login"
             onSuccess={this.loginSuccessful}
             onFailure={this.loginFailed}
-            style={{background:'none'}}
           />
         </Dialog.Body>
       </Dialog>
@@ -75,7 +75,7 @@ class LoginDialog extends React.Component<ILoginDialogProps, any> {
 }
 
 const mapStateToProps = (state: IStoreState) => ({
-  loginDialogVisible: state.loginDialogVisible,
+  dialogVisible: state.loginDialogVisible,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
