@@ -4,6 +4,7 @@ import reducer from './reducer'
 export interface IStoreState {
   loggedIn: boolean,
   username: string,
+  fullName: string,
   profilePicture: string,
   groups: string[],
 

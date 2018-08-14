@@ -5,7 +5,10 @@ import { IStoreState } from './store';
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
-import {ActionLoginDialogVisible} from './actions'
+import {
+  ActionLoginDialogVisible,
+  ActionSetLoginInformation,
+} from './actions'
 
 
 import axios from 'axios'
@@ -20,6 +23,7 @@ export interface ILoginDialogProps {
   dialogVisible: boolean,
 
   setDialogVisible: (visible:boolean)=>void,
+  setLoginInformation: (name :string, groups: string[]) => void,
 }
 
 class LoginDialog extends React.Component<ILoginDialogProps, any> {
@@ -63,15 +67,16 @@ class LoginDialog extends React.Component<ILoginDialogProps, any> {
       Notification({title:'success', message: res.data.message})
       localStorage.setItem('token',res.data.token);
       localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
+      this.props.setDialogVisible(false);
+      this.props.setLoginInformation(res.data.name, res.data.groups);
     } catch (err) {
-      console.error (err)
+      Notification.error({title:'error', message:err});
     }
   }
 
   private loginFailed = (response :any) => {
     console.warn(response)
   }
-
 }
 
 const mapStateToProps = (state: IStoreState) => ({
@@ -79,7 +84,8 @@ const mapStateToProps = (state: IStoreState) => ({
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
-  setDialogVisible: visible => dispatch(ActionLoginDialogVisible(visible)),
+  setDialogVisible: (visible :boolean) => dispatch(ActionLoginDialogVisible(visible)),
+  setLoginInformation: (name :string, groups: string[]) => dispatch(ActionSetLoginInformation(name, groups)),
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LoginDialog))

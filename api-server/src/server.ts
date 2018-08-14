@@ -109,7 +109,7 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
       }, 
       secret.jwt.key,
       {expiresIn:'1h'})
-    res.json({message: `welcome ${name}`, token,})
+    res.json({message: `welcome ${name}`, token, name, email, groups})
     
   } catch (err) {
     res.status(401).json({message: err})

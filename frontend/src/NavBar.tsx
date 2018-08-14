@@ -7,7 +7,10 @@ import { IStoreState } from './store';
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
-import {ActionLoginDialogVisible} from './actions'
+import {
+  ActionLoginDialogVisible,
+  ActionClearLoginInformation,
+} from './actions'
 
 import {Menu} from 'element-react'
 
@@ -16,13 +19,15 @@ import {Menu} from 'element-react'
 export interface INavBarProps {
   loggedIn: boolean,
   username: string,
+  groups: string[],
 
   setDialogVisible: (visible:boolean)=>void,
+  clearLoginInformation: ()=>void,
 }
 
 class NavBar extends React.Component<INavBarProps, any> {
   public render() {
-    const {loggedIn, username} = this.props;
+    const {loggedIn, username, groups} = this.props;
 
     return (
       <div>
@@ -33,7 +38,13 @@ class NavBar extends React.Component<INavBarProps, any> {
           <Menu.Item index="2-2">primers</Menu.Item>
           <Menu.Item index="2-3">yeasts</Menu.Item>
         </Menu.SubMenu>
-        <Menu.Item index="login">{loggedIn ? username : 'log in'}</Menu.Item>
+        {loggedIn ?
+        <Menu.SubMenu index="user" title={username}>
+          <Menu.Item index="logout">log out</Menu.Item>
+          {groups.indexOf('administrators')>=0 && <Menu.Item index="user management">user management</Menu.Item>}
+        </Menu.SubMenu> :
+        <Menu.Item index="login">log in</Menu.Item>
+        }
         </Menu>
       </div>
     );
@@ -45,18 +56,23 @@ class NavBar extends React.Component<INavBarProps, any> {
         console.log('login');
         this.props.setDialogVisible(true);
       break;
+
+      case 'logout':
+        this.props.clearLoginInformation();
+      break;
     }
   }
 }
 
-
 const mapStateToProps = (state :IStoreState) => ({
   loggedIn: state.loggedIn,
-  username: state.username,
+  username: state.fullName,
+  groups: state.groups,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   setDialogVisible: visible => dispatch(ActionLoginDialogVisible(visible)),
+  clearLoginInformation: ()=> dispatch(ActionClearLoginInformation()),
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(NavBar))

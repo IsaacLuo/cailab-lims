@@ -26,3 +26,31 @@ export function ActionLoginDialogVisible (
     data: {visible},
   }
 }
+
+export const SET_LOGIN_INFORMATION = 'SET_LOGIN_INFORMATION';
+export function ActionSetLoginInformation (
+  name: string,
+  groups: string[],
+) {
+  return {
+    type: SET_LOGIN_INFORMATION,
+    data: {
+      name,
+      groups,
+    }
+  }
+}
+
+export const CLEAR_LOGIN_INFORMATION = 'CLEAR_LOGIN_INFORMATION';
+export function ActionClearLoginInformation() {
+  return {
+    type: CLEAR_LOGIN_INFORMATION,
+  }
+}
+
+export const VERIFY_MYSELF = 'VERIFY_MYSELF';
+export function ActionVerifyMyself() {
+  return {
+    type: VERIFY_MYSELF,
+  }
+}
