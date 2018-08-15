@@ -9,13 +9,18 @@ import secret from '../secret.json'
 import {User} from './models'
 
 interface IUserInfo {
-    username: String,
-    email: String,
-    groups: [String],
+    username: string,
+    fullName: string,
+    email: string,
+    groups: [string],
+}
+interface IUserJWT extends IUserInfo {
+  iat: number,
+  exp: number,
 }
 
 interface Request extends express.Request {
-  currentUser :IUserInfo,
+  currentUser :IUserJWT,
 }
 
 mongoose.connect(
@@ -45,7 +50,7 @@ app.use((req :Request, res :Response, next: NextFunction) => {
   if (auth) {
     const [tokenType, token] = auth.split(' ');
     if (tokenType === 'bearer') {  
-      jwt.verify(token, secret.jwt.key, (err, decoded :IUserInfo) => {
+      jwt.verify(token, secret.jwt.key, (err, decoded :IUserJWT) => {
         if (!err) {
           console.log('verified user');
           console.log(decoded);
@@ -69,6 +74,14 @@ function userMustBeAdmin (req :Request, res :Response, next: NextFunction) {
     next();
   } else {
     res.status(401).json({message: 'require admin'})
+  }
+}
+
+function userMustLoggedIn (req :Request, res :Response, next: NextFunction) {
+  if (req.currentUser) {
+    next();
+  } else {
+    res.status(401).json({message: 'require log in'})
   }
 }
 
@@ -104,6 +117,7 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
     }
     const token = jwt.sign({
         username: email,
+        fullName: name,
         email,
         groups,
       }, 
@@ -153,6 +167,23 @@ app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res:
     res.status(404).json({message: 'user not found', err})
   }
 })
+
+app.get('/api/currentUser', userMustLoggedIn, async (req :Request, res: Response) => {
+  const {username, fullName, email, groups, exp} = req.currentUser;
+  const now = Math.floor(Date.now());
+  let payload :{username :string, fullName :string, groups: string[], token?:string} = {username, fullName, groups}
+  if (now < exp && exp - now < 1200) {
+    payload.token = jwt.sign({
+      username,
+      fullName,
+      email,
+      groups,
+    }, 
+    secret.jwt.key,
+    {expiresIn:'1h'})
+  }
+  res.json(payload);
+});
 
 app.listen(8000, (err) => {
   console.log('api server on 8000');

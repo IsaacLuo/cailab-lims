@@ -13,8 +13,9 @@ import Users from './Users'
 import NavBar from './NavBar'
 
 import LoginDialog from './LoginDialog'
+import ActionPanel from './ActionPanel';
 
-class App extends React.Component {
+class App extends React.Component<any, any> {
   public render() {
     return (
       <BrowserRouter>
@@ -27,6 +28,7 @@ class App extends React.Component {
         <NavBar />
         <LoginDialog/>
         <Route path='/users' component={Users} />
+        <ActionPanel/>
       </div>
       </Provider>
       </BrowserRouter>
