@@ -60,6 +60,13 @@ export default class Users extends React.Component<IUserProps, IUserState> {
       {
         label: 'user',
         prop: 'isUsers',
+        width: 100,
+        render: (data :any, col :any, index :number) => {
+          return <Checkbox 
+            checked={data.isUsers}
+            onChange={this.onChangeUsers.bind(this,data)} 
+          />
+        }
       },
     ];
     return (
@@ -78,6 +85,19 @@ export default class Users extends React.Component<IUserProps, IUserState> {
     console.log(data.email, value)
     try {
       await axios.put(`${serverURL}/api/user/${data.email}/privilege`, {administrators: value}, getAuthHeader())
+      await this.getUsers()
+    } catch (err) {
+      Notification.error({
+        title: 'error',
+        message: 'unable to change the privilege',
+      });
+    }
+  }
+
+  private onChangeUsers = async (data: any, value:boolean) => {
+    console.log(data.email, value)
+    try {
+      await axios.put(`${serverURL}/api/user/${data.email}/privilege`, {users: value}, getAuthHeader())
       await this.getUsers()
     } catch (err) {
       Notification.error({
