@@ -4,7 +4,7 @@ import * as React from 'react'
 
 // react-router-redux
 import { IStoreState } from './store';
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import {
@@ -32,7 +32,9 @@ class NavBar extends React.Component<INavBarProps, any> {
     return (
       <div>
         <Menu defaultActive="1" className="el-menu-demo" mode="horizontal" onSelect={this.onSelect}>
-        <Menu.Item index="1">home</Menu.Item>
+        <Link to="/">
+          <Menu.Item index="1">home</Menu.Item>
+        </Link>
         <Menu.SubMenu index="2" title="tables">
           <Menu.Item index="2-1">backteria</Menu.Item>
           <Menu.Item index="2-2">primers</Menu.Item>
@@ -41,7 +43,10 @@ class NavBar extends React.Component<INavBarProps, any> {
         {loggedIn ?
         <Menu.SubMenu index="user" title={username}>
           <Menu.Item index="logout">log out</Menu.Item>
-          {groups.indexOf('administrators')>=0 && <Menu.Item index="user management">user management</Menu.Item>}
+          {groups.indexOf('administrators')>=0 && 
+          <Link to="/users"><Menu.Item index="user management">
+            user management
+          </Menu.Item></Link>}
         </Menu.SubMenu> :
         <Menu.Item index="login">log in</Menu.Item>
         }

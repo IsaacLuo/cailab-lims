@@ -1,7 +1,5 @@
 import * as React from 'react';
 import './App.css';
-import logo from './logo.svg';
-
 import 'element-theme-default'
 
 import { BrowserRouter } from 'react-router-dom'
@@ -13,20 +11,20 @@ import Users from './Users'
 import NavBar from './NavBar'
 
 import LoginDialog from './LoginDialog'
+import ActionPanel from './ActionPanel';
 
-class App extends React.Component {
+class App extends React.Component<any, any> {
   public render() {
     return (
       <BrowserRouter>
       <Provider store={store}>
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
+        <header>
         <NavBar />
+        </header>
         <LoginDialog/>
         <Route path='/users' component={Users} />
+        <ActionPanel/>
       </div>
       </Provider>
       </BrowserRouter>

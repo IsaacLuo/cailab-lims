@@ -24,11 +24,13 @@ export interface ILoginDialogProps {
 
   setDialogVisible: (visible:boolean)=>void,
   setLoginInformation: (name :string, groups: string[]) => void,
+  getMyStatus: () => void,
 }
 
 class LoginDialog extends React.Component<ILoginDialogProps, any> {
   constructor(props: ILoginDialogProps) {
     super(props);
+    props.getMyStatus();
   }
 
   public render() {
@@ -86,6 +88,8 @@ const mapStateToProps = (state: IStoreState) => ({
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   setDialogVisible: (visible :boolean) => dispatch(ActionLoginDialogVisible(visible)),
   setLoginInformation: (name :string, groups: string[]) => dispatch(ActionSetLoginInformation(name, groups)),
+  getMyStatus: ()=>dispatch({type:'GET_MY_STATUS'})
+
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LoginDialog))
