@@ -4,11 +4,7 @@ import {
   LOGIN_DIALOG_VISIBLE,
   SET_LOGIN_INFORMATION,
   CLEAR_LOGIN_INFORMATION,
-  VERIFY_MYSELF,
 } from './actions'
-import axios from '../node_modules/axios';
-import { serverURL } from './config';
-import getAuthHeader from './authHeader';
 
 function myReducer(state :IStoreState = {
   loggedIn: false,
