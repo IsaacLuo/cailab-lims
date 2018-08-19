@@ -12,7 +12,8 @@
   },
   "scripts": {
     "start": "ts-node src/server.ts",
-    "dev": "node ./node_modules/nodemon/bin/nodemon.js"
+    "dev": "node ./node_modules/nodemon/bin/nodemon.js",
+    "importDB": "ts-node src/script/importDB.ts"
   },
   "devDependencies": {
     "nodemon": "^1.18.3",
