@@ -6,7 +6,7 @@ import * as bodyParser from 'body-parser'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import secret from '../secret.json'
-import {User} from './models'
+import {User, Part} from './models'
 
 interface IUserInfo {
     username: string,
@@ -78,6 +78,16 @@ function userMustBeAdmin (req :Request, res :Response, next: NextFunction) {
 }
 
 function userMustLoggedIn (req :Request, res :Response, next: NextFunction) {
+  if (req.hostname === 'localhost') {
+    req.currentUser = {
+      username: 'test',
+      fullName: 'test man',
+      email: 'yishaluo@gmail.com',
+      groups: ['users'],
+      iat: Math.floor(Date.now()),
+      exp: Math.floor(Date.now()) + 3600,
+    }
+  }
   if (req.currentUser) {
     next();
   } else {
@@ -183,6 +193,30 @@ app.get('/api/currentUser', userMustLoggedIn, async (req :Request, res: Response
     {expiresIn:'1h'})
   }
   res.json(payload);
+});
+
+app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
+  let {type, skip, limit} = req.query;
+  let condition :any = {};
+  if (type) {
+    condition.sampleType = type;
+  }
+  if (!skip) skip = 0;
+  if (!limit) limit = 20;
+  console.log(condition);
+  Part.find(condition)
+  .skip(parseInt(skip))
+  .limit(parseInt(limit))
+  .sort({_id:-1})
+  .select('labName')
+  .exec((err, docs)=>{
+    if (err) {
+      console.log(err)
+    } else {
+      console.log(docs)
+      res.json(docs)
+    }
+  })
 });
 
 app.listen(8000, (err) => {

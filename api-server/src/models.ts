@@ -18,41 +18,48 @@ export const Part = mongoose.model('Part', {
   ownerUserId: Schema.Types.ObjectId,
   dbV1Id: Number,
   sampleType: String,
-  comments: String,
-  date: Date,
-  
-
-  //primers only
-  description: String,
-  sequence: String,
-  orientation: String,
-  meltingTemperature: Number,
-  concentration: String,
-  vendor: String,
-  
-  //bacteria only
-  plasmidName: String,
-  hostStrain: String,
-
-  //yeasts only
-  parents: [String],
-  genotype: [String],
-  plasmidType: String,
-
-  //bacteria and yeasts
-  markers: [String],
+  comment: String,
+  createdAt: Date,
+  modifiedAt: Date,
+  date: Date, 
   tags: [String],
+  content: {
+    //primers only
+    description: String,
+    sequence: String,
+    orientation: String,
+    meltingTemperature: Number,
+    concentration: String,
+    vendor: String,
+    
+    //bacteria only
+    plasmidName: String,
+    hostStrain: String,
 
-  attachment: {
+    //yeasts only
+    parents: [String],
+    genotype: [String],
+    plasmidType: String,
+
+    //bacteria and yeasts
+    markers: [String],
+    // all
+    customData: Schema.Types.Mixed,
+  },
+  attachment: [{
     fileName: String,
     contentType: String,
-    data: Buffer,
-  },
-
-  customData: Schema.Types.Mixed,
-  history: Schema.Types.Mixed,
+    fileSize: Number,
+    fileId: Schema.Types.ObjectId,
+  }],
   container: {
     type: String,
     barcode: String,
-  }
+  },
+  history: Schema.Types.Mixed,
+});
+
+export const FileData = mongoose.model('FileData', {
+  name: String,
+  data: Buffer,
 });
