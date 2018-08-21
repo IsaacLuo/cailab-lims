@@ -6,6 +6,7 @@
     "axios": "^0.18.0",
     "element-react": "./../element-react",
     "element-theme-default": "^1.4.13",
+    "qs": "^6.5.2",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "react-google-login": "^3.2.1",

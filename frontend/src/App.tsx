@@ -12,6 +12,7 @@ import NavBar from './NavBar'
 
 import LoginDialog from './LoginDialog'
 import ActionPanel from './ActionPanel';
+import PartsList from './PartsList';
 
 class App extends React.Component<any, any> {
   public render() {
@@ -23,6 +24,7 @@ class App extends React.Component<any, any> {
         <NavBar />
         </header>
         <LoginDialog/>
+        <Route path='/parts/bacteria' render={this.renderBacteriaComponent} />
         <Route path='/users' component={Users} />
         <ActionPanel/>
       </div>
@@ -30,6 +32,8 @@ class App extends React.Component<any, any> {
       </BrowserRouter>
     );
   }
+
+  private renderBacteriaComponent = props => <PartsList sampleType="bacterium"/>
 }
 
 export default App;

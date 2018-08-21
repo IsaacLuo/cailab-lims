@@ -78,16 +78,16 @@ function userMustBeAdmin (req :Request, res :Response, next: NextFunction) {
 }
 
 function userMustLoggedIn (req :Request, res :Response, next: NextFunction) {
-  if (req.hostname === 'localhost') {
-    req.currentUser = {
-      username: 'test',
-      fullName: 'test man',
-      email: 'yishaluo@gmail.com',
-      groups: ['users'],
-      iat: Math.floor(Date.now()),
-      exp: Math.floor(Date.now()) + 3600,
-    }
-  }
+  // if (req.hostname === 'localhost') {
+  //   req.currentUser = {
+  //     username: 'test',
+  //     fullName: 'test man',
+  //     email: 'yishaluo@gmail.com',
+  //     groups: ['users'],
+  //     iat: Math.floor(Date.now()),
+  //     exp: Math.floor(Date.now()) + 3600,
+  //   }
+  // }
   if (req.currentUser) {
     next();
   } else {
@@ -208,7 +208,7 @@ app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
   .skip(parseInt(skip))
   .limit(parseInt(limit))
   .sort({_id:-1})
-  .select('labName')
+  // .select('labName')
   .exec((err, docs)=>{
     if (err) {
       console.log(err)

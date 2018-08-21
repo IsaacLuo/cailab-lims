@@ -36,7 +36,7 @@ class NavBar extends React.Component<INavBarProps, any> {
           <Menu.Item index="1">home</Menu.Item>
         </Link>
         <Menu.SubMenu index="2" title="tables">
-          <Menu.Item index="2-1">backteria</Menu.Item>
+          <Link to="/parts/bacteria"><Menu.Item index="bacteria">bacteria</Menu.Item></Link>
           <Menu.Item index="2-2">primers</Menu.Item>
           <Menu.Item index="2-3">yeasts</Menu.Item>
         </Menu.SubMenu>
