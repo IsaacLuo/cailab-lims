@@ -3,6 +3,12 @@ import reducer from './reducer'
 import saga from './saga'
 import createSagaMiddleware from 'redux-saga'
 
+interface IPartsCount {
+  bacteria: number,
+  primers: number,
+  yeasts: number,
+}
+
 export interface IStoreState {
   loggedIn: boolean,
   username: string,
@@ -11,7 +17,8 @@ export interface IStoreState {
   groups: string[],
 
   loginDialogVisible: boolean,
-  
+
+  partsCount: IPartsCount,
 }
 
 /* tslint-disable no-underscore-dangle */

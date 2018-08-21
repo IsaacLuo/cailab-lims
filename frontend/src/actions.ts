@@ -54,3 +54,11 @@ export function ActionVerifyMyself() {
     type: VERIFY_MYSELF,
   }
 }
+
+export const SET_PARTS_COUNT = 'SET_PARTS_COUNT';
+export function ActionSetPartsCount(data) {
+  return {
+    type: SET_PARTS_COUNT,
+    data,
+  }
+}

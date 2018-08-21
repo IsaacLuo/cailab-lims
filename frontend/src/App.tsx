@@ -2,6 +2,11 @@ import * as React from 'react';
 import './App.css';
 import 'element-theme-default'
 
+import { i18n } from 'element-react'
+import locale from 'element-react/src/locale/lang/en'
+
+i18n.use(locale);
+
 import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import store from './store'

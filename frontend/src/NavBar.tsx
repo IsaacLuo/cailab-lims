@@ -14,8 +14,6 @@ import {
 
 import {Menu} from 'element-react'
 
-
-
 export interface INavBarProps {
   loggedIn: boolean,
   username: string,
@@ -23,9 +21,18 @@ export interface INavBarProps {
 
   setDialogVisible: (visible:boolean)=>void,
   clearLoginInformation: ()=>void,
+  refreshPartsCount: ()=>void,
 }
 
 class NavBar extends React.Component<INavBarProps, any> {
+  constructor(props :INavBarProps) {
+    super(props);
+  }
+
+  public componentDidMount () {
+    this.props.refreshPartsCount();
+  }
+
   public render() {
     const {loggedIn, username, groups} = this.props;
 
@@ -78,6 +85,7 @@ const mapStateToProps = (state :IStoreState) => ({
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   setDialogVisible: visible => dispatch(ActionLoginDialogVisible(visible)),
   clearLoginInformation: ()=> dispatch(ActionClearLoginInformation()),
+  refreshPartsCount: () => dispatch({type:'GET_PARTS_COUNT'}),
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(NavBar))

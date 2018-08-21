@@ -72,7 +72,7 @@ class LoginDialog extends React.Component<ILoginDialogProps, any> {
       this.props.setDialogVisible(false);
       this.props.setLoginInformation(res.data.name, res.data.groups);
     } catch (err) {
-      Notification.error({title:'error', message:err});
+      Notification.error({title:'error', message:err.toLocaleString()});
     }
   }
 

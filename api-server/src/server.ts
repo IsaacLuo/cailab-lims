@@ -78,16 +78,16 @@ function userMustBeAdmin (req :Request, res :Response, next: NextFunction) {
 }
 
 function userMustLoggedIn (req :Request, res :Response, next: NextFunction) {
-  // if (req.hostname === 'localhost') {
-  //   req.currentUser = {
-  //     username: 'test',
-  //     fullName: 'test man',
-  //     email: 'yishaluo@gmail.com',
-  //     groups: ['users'],
-  //     iat: Math.floor(Date.now()),
-  //     exp: Math.floor(Date.now()) + 3600,
-  //   }
-  // }
+  if (req.headers['test-token'] === 'a30aa7f7de512963a03c') {
+    req.currentUser = {
+      username: 'test',
+      fullName: 'test man',
+      email: 'yishaluo@gmail.com',
+      groups: ['users'],
+      iat: Math.floor(Date.now()),
+      exp: Math.floor(Date.now()) + 3600,
+    }
+  }
   if (req.currentUser) {
     next();
   } else {
@@ -180,8 +180,9 @@ app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res:
 
 app.get('/api/currentUser', userMustLoggedIn, async (req :Request, res: Response) => {
   const {username, fullName, email, groups, exp} = req.currentUser;
-  const now = Math.floor(Date.now());
-  let payload :{username :string, fullName :string, groups: string[], token?:string} = {username, fullName, groups}
+  const now = Math.floor(Date.now()/1000);
+  console.log({exp, now})
+  let payload :{username :string, fullName :string, groups: string[], token?:string, tokenExpireIn?:number} = {username, fullName, groups}
   if (now < exp && exp - now < 1200) {
     payload.token = jwt.sign({
       username,
@@ -191,6 +192,8 @@ app.get('/api/currentUser', userMustLoggedIn, async (req :Request, res: Response
     }, 
     secret.jwt.key,
     {expiresIn:'1h'})
+  } else {
+    payload.tokenExpireIn = exp - now;
   }
   res.json(payload);
 });
@@ -203,7 +206,6 @@ app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
   }
   if (!skip) skip = 0;
   if (!limit) limit = 20;
-  console.log(condition);
   Part.find(condition)
   .skip(parseInt(skip))
   .limit(parseInt(limit))
@@ -212,11 +214,23 @@ app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
   .exec((err, docs)=>{
     if (err) {
       console.log(err)
+      res.status(500).json({err})
     } else {
       console.log(docs)
-      res.json(docs)
+      res.json(docs);
     }
   })
+});
+
+app.get('/api/parts/count', userMustLoggedIn, async (req :Request, res: Response) => {
+  try {
+    const bacteria = await Part.count({sampleType:'bacterium'}).exec();
+    const primers = await Part.count({sampleType:'primer'}).exec();
+    const yeasts = await Part.count({sampleType:'yeast'}).exec();
+    res.json({ bacteria, primers, yeasts });
+  } catch (err) {
+    res.status(500).json({err})
+  }
 });
 
 app.listen(8000, (err) => {

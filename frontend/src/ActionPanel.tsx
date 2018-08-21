@@ -13,12 +13,13 @@ import getAuthHeader from './authHeader';
 
 interface IProps {
   dispatchGetMyStatus: ()=>void,
+  dispatchGetPartsCount: ()=>void,
 }
 interface IState {
   message: string,
 }
 
-class LoginDialog extends React.Component<IProps, IState> {
+class ActionPanel extends React.Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
     this.state = {message: ''};
@@ -26,9 +27,11 @@ class LoginDialog extends React.Component<IProps, IState> {
 
   public render() {
     return (
-      <div>
-        <Button onClick={this.props.dispatchGetMyStatus} >getMyStatus</Button>
+      <div style={{background:'#aaa'}}>
+        <div>action panel</div>
+        <Button onClick={this.props.dispatchGetMyStatus} >GET_MY_STATUS</Button>
         <Button onClick={this.getPartList} >getPartList</Button>
+        <Button onClick={this.props.dispatchGetPartsCount} >GET_PARTS_COUNT</Button>
         <div style={{textAlign:'left'}}><pre>{this.state.message}</pre></div>
       </div>
     );
@@ -45,7 +48,9 @@ const mapStateToProps = (state: IStoreState) => ({
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   dispatchGetMyStatus: () => dispatch({type: 'GET_MY_STATUS'}),
+  dispatchGetPartsCount: () => dispatch({type: 'GET_PARTS_COUNT'}),
+  
   // setLoginInformation: (name :string, groups: string[]) => dispatch(ActionSetLoginInformation(name, groups)),
 })
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LoginDialog))
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ActionPanel))

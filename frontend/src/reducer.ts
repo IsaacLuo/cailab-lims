@@ -4,6 +4,7 @@ import {
   LOGIN_DIALOG_VISIBLE,
   SET_LOGIN_INFORMATION,
   CLEAR_LOGIN_INFORMATION,
+  SET_PARTS_COUNT,
 } from './actions'
 
 function myReducer(state :IStoreState = {
@@ -13,6 +14,11 @@ function myReducer(state :IStoreState = {
   profilePicture: '',
   groups: [],
   loginDialogVisible: false,
+  partsCount: {
+    bacteria: 0,
+    primers: 0,
+    yeasts: 0,
+  }
 }, action: IAction) {
   console.log('action:', action)
   switch (action.type) {
@@ -34,6 +40,12 @@ function myReducer(state :IStoreState = {
         groups: [],
         profilePicture: '',
         loggedIn: false,
+      }
+
+    case SET_PARTS_COUNT:
+      return {
+        ...state,
+        partsCount: action.data,
       }
   }
   return state;

@@ -30,3 +30,7 @@
 a {
   text-decoration: none;
 }
+
+.cell {
+  word-break: normal !important;
+}
