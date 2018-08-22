@@ -34,3 +34,20 @@ a {
 .cell {
   word-break: normal !important;
 }
+
+.partDetailPanel td {
+  border: 0px !important;
+}
+.partDetailPanel .el-table {
+  border: 0px !important;
+  background-color: transparent !important;
+}
+.partDetailPanel tr {
+  background-color: transparent !important;
+}
+.partDetailPanel .el-table::before {
+  height: 0px !important;
+}
+.partDetailPanel .el-table::after {
+  width: 0px !important;
+}

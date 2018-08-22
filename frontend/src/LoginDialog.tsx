@@ -25,6 +25,7 @@ export interface ILoginDialogProps {
   setDialogVisible: (visible:boolean)=>void,
   setLoginInformation: (name :string, groups: string[]) => void,
   getMyStatus: () => void,
+  refreshPartsCount: () => void,
 }
 
 class LoginDialog extends React.Component<ILoginDialogProps, any> {
@@ -71,6 +72,7 @@ class LoginDialog extends React.Component<ILoginDialogProps, any> {
       localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
       this.props.setDialogVisible(false);
       this.props.setLoginInformation(res.data.name, res.data.groups);
+      this.props.refreshPartsCount();
     } catch (err) {
       Notification.error({title:'error', message:err.toLocaleString()});
     }
@@ -88,7 +90,8 @@ const mapStateToProps = (state: IStoreState) => ({
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   setDialogVisible: (visible :boolean) => dispatch(ActionLoginDialogVisible(visible)),
   setLoginInformation: (name :string, groups: string[]) => dispatch(ActionSetLoginInformation(name, groups)),
-  getMyStatus: ()=>dispatch({type:'GET_MY_STATUS'})
+  getMyStatus: ()=>dispatch({type:'GET_MY_STATUS'}),
+  refreshPartsCount: () => dispatch({type:'GET_PARTS_COUNT'}),
 
 })
 

@@ -30,6 +30,8 @@ class App extends React.Component<any, any> {
         </header>
         <LoginDialog/>
         <Route path='/parts/bacteria' render={this.renderBacteriaComponent} />
+        <Route path='/parts/primers' render={this.renderPrimersComponent} />
+        <Route path='/parts/yeasts' render={this.renderYeastsComponent} />
         <Route path='/users' component={Users} />
         <ActionPanel/>
       </div>
@@ -39,6 +41,8 @@ class App extends React.Component<any, any> {
   }
 
   private renderBacteriaComponent = props => <PartsList sampleType="bacterium"/>
+  private renderPrimersComponent = props => <PartsList sampleType="primer"/>
+  private renderYeastsComponent = props => <PartsList sampleType="yeast"/>
 }
 
 export default App;

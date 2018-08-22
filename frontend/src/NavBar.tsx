@@ -44,8 +44,8 @@ class NavBar extends React.Component<INavBarProps, any> {
         </Link>
         <Menu.SubMenu index="2" title="tables">
           <Link to="/parts/bacteria"><Menu.Item index="bacteria">bacteria</Menu.Item></Link>
-          <Menu.Item index="2-2">primers</Menu.Item>
-          <Menu.Item index="2-3">yeasts</Menu.Item>
+          <Link to="/parts/primers"><Menu.Item index="primers">primers</Menu.Item></Link>
+          <Link to="/parts/yeasts"><Menu.Item index="yeasts">yeasts</Menu.Item></Link>
         </Menu.SubMenu>
         {loggedIn ?
         <Menu.SubMenu index="user" title={username}>

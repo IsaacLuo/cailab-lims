@@ -6,7 +6,7 @@ import * as bodyParser from 'body-parser'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import secret from '../secret.json'
-import {User, Part} from './models'
+import {User, Part, FileData} from './models'
 
 interface IUserInfo {
     username: string,
@@ -204,25 +204,40 @@ app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
   if (type) {
     condition.sampleType = type;
   }
-  if (!skip) skip = 0;
-  if (!limit) limit = 20;
-  Part.find(condition)
-  .skip(parseInt(skip))
-  .limit(parseInt(limit))
-  .sort({_id:-1})
+  let parts = Part.find(condition)
+  
+  if (skip) parts = parts.skip(parseInt(skip))
+  if (limit) parts = parts.limit(parseInt(limit))
+  parts.sort({_id:-1})
   // .select('labName')
-  .exec((err, docs)=>{
+  .exec((err, data)=>{
     if (err) {
       console.log(err)
       res.status(500).json({err})
     } else {
-      console.log(docs)
-      res.json(docs);
+      res.json(data);
     }
   })
 });
 
 app.get('/api/parts/count', userMustLoggedIn, async (req :Request, res: Response) => {
+  let {type} = req.query;
+  let condition :any = {};
+  if (type) {
+    condition.sampleType = type;
+  }
+  Part.count(condition)
+  .exec((err, data)=>{
+    if (err) {
+      console.log(err)
+      res.status(500).json({err})
+    } else {
+      res.json({count: data});
+    }
+  })
+});
+
+app.get('/api/parts/countAll', userMustLoggedIn, async (req :Request, res: Response) => {
   try {
     const bacteria = await Part.count({sampleType:'bacterium'}).exec();
     const primers = await Part.count({sampleType:'primer'}).exec();
@@ -232,6 +247,23 @@ app.get('/api/parts/count', userMustLoggedIn, async (req :Request, res: Response
     res.status(500).json({err})
   }
 });
+
+
+// ============================attachments=====================================
+app.get('/api/attachments/:id', userMustLoggedIn, async (req :Request, res: Response) => {
+  try {
+    const {id} = req.params;
+    console.log('getting file', id)
+    if(id === undefined) {
+      res.status(404).json({message: 'file not found'})
+    }
+    const file = await FileData.findOne({_id:id});
+    res.send(file.data)
+  } catch (err) {
+    res.status(404).json({err})
+  }
+});
+// ----------------------------------------------------------------------------
 
 app.listen(8000, (err) => {
   console.log('api server on 8000');
