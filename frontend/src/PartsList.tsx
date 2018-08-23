@@ -22,6 +22,7 @@ interface IColumn {
   prop: string,
   width?: number,
   minWidth?: number,
+  sortable?: boolean|string,
   render?: (data:any, column:any, index:number) => void,
 }
 
@@ -52,6 +53,7 @@ interface IState {
   loading: boolean,
 
   userFilter: string,
+  sortMethod: {order?:'ascending'|'descending', prop?:string},
 }
 
 class PartsList extends React.Component<IProps, IState> {
@@ -69,6 +71,7 @@ class PartsList extends React.Component<IProps, IState> {
       total: 0,
       loading: true,
       userFilter: '',
+      sortMethod: {order:undefined, prop:undefined},
     };
     this.fetchPartsData();
     this.props.getUserList();
@@ -103,6 +106,7 @@ class PartsList extends React.Component<IProps, IState> {
           columns={this.state.columns}
           data={this.state.data}
           stripe={true}
+          onSortChange={this.onTableSortChange}
         />
               </Loading>
         <Pagination
@@ -138,6 +142,11 @@ class PartsList extends React.Component<IProps, IState> {
     this.setState({userFilter: value}, this.fetchPartsData);
   }
 
+  private onTableSortChange = (sortProp: {column:any, order:'ascending'|'descending', prop:string}) => {
+    const {order, prop} = sortProp;
+    this.setState({sortMethod: {order, prop}}, this.fetchPartsData);
+  }
+
   private generateCoulumnTitle () :Array<IColumn|IExpandedPanel> {
     const {sampleType} = this.props;
     switch (sampleType) {
@@ -158,7 +167,7 @@ class PartsList extends React.Component<IProps, IState> {
         expandPannel: data => {
           const attachmentRows = data && data.attachment && data.attachment.map(att => 
           <div key={att.fileId}>
-            <a href="#"
+            <a href={`/parts/attachment/${att.fileId}`}
               onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
             >
               {att.fileName},
@@ -179,26 +188,31 @@ class PartsList extends React.Component<IProps, IState> {
       {
         label: "lab name",
         prop: "labName",
+        sortable: "custom",
         width:100,
       },
       {
         label: "personal name",
         prop: "personalName",
+        sortable: "custom",
         width:100,
       },
       {
         label: "other names",
         prop: "tags",
+        sortable: "custom",
         width:100,
       },
       {
         label: "host strain",
         prop: "hostStrain",
+        sortable: "custom",
         width: 180,
       },
       {
         label: "comment",
         prop: "comment",
+        sortable: "custom",
         minWidth: 200,
         render: (row, column, index) =>
           <div style={{
@@ -210,11 +224,13 @@ class PartsList extends React.Component<IProps, IState> {
       {
         label: "markers",
         prop: "markers",
+        sortable: "custom",
         width: 100,
       },
       {
         label: "date",
         prop: "date",
+        sortable: "custom",
         width: 180,
       },
       {
@@ -224,7 +240,7 @@ class PartsList extends React.Component<IProps, IState> {
         render: (row, column, index) =>
         <div>
           {row.attachment && row.attachment[0] &&
-            (<a href="#"
+            (<a href={`/parts/attachment/${row.attachment[0].id}`}
               onClick={this.onClickAttachment.bind(this,row.attachment[0].fileId, row.attachment[0].fileName)}
             >
               <Icon name="document" />
@@ -242,7 +258,7 @@ class PartsList extends React.Component<IProps, IState> {
         expandPannel: data => {
           const attachmentRows = data && data.attachment && data.attachment.map(att => 
           <div key={att.fileId}>
-            <a href="#"
+            <a href={`/parts/attachment/${att.fileId}`}
               onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
             >
               {att.fileName},
@@ -287,21 +303,25 @@ class PartsList extends React.Component<IProps, IState> {
       {
         label: "lab name",
         prop: "labName",
+        sortable: "custom",
         width:100,
       },
       {
         label: "personal name",
         prop: "personalName",
+        sortable: "custom",
         width:150,
       },
       {
         label: "other names",
         prop: "tags",
+        sortable: "custom",
         width:100,
       },
       {
         label: "comment",
         prop: "comment",
+        sortable: "custom",
         minWidth: 200,
         render: (data, column, index) =>
           <div style={{
@@ -313,6 +333,7 @@ class PartsList extends React.Component<IProps, IState> {
       {
         label: "date",
         prop: "date",
+        sortable: "custom",
         width: 180,
       },
       {
@@ -322,7 +343,7 @@ class PartsList extends React.Component<IProps, IState> {
         render: (row, column, index) =>
         <div>
           {row.attachment && row.attachment[0] &&
-            (<a href="#"
+            (<a href={`/parts/attachment/${row.attachment[0].id}`}
               onClick={this.onClickAttachment.bind(this,row.attachment[0].fileId, row.attachment[0].fileName)}
             >
               <Icon name="document" />
@@ -340,7 +361,7 @@ class PartsList extends React.Component<IProps, IState> {
           expandPannel: data => {
             const attachmentRows = data && data.attachment && data.attachment.map(att => 
             <div key={att.fileId}>
-              <a href="#"
+              <a href={`/parts/attachment/${att.fileId}`}
                 onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
               >
                 {att.fileName},
@@ -384,21 +405,25 @@ class PartsList extends React.Component<IProps, IState> {
         {
           label: "lab name",
           prop: "labName",
+          sortable: "custom",
           width:100,
         },
         {
           label: "personal name",
           prop: "personalName",
+          sortable: "custom",
           width:150,
         },
         {
           label: "other names",
           prop: "tags",
+          sortable: "custom",
           width:100,
         },
         {
           label: "comment",
           prop: "comment",
+          sortable: "custom",
           minWidth: 200,
           render: (data, column, index) =>
             <div style={{
@@ -410,16 +435,19 @@ class PartsList extends React.Component<IProps, IState> {
         {
           label: "parents",
           prop: "parents",
+          sortable: "custom",
           width: 180,
         },
         {
           label: "markers",
           prop: "markers",
+          sortable: "custom",
           width: 180,
         },
         {
           label: "date",
           prop: "date",
+          sortable: "custom",
           width: 180,
         },
         {
@@ -429,7 +457,7 @@ class PartsList extends React.Component<IProps, IState> {
           render: (row, column, index) =>
           <div>
             {row.attachment && row.attachment[0] &&
-              (<a href="#"
+              (<a href={`/parts/attachment/${row.attachment[0].id}`}
                 onClick={this.onClickAttachment.bind(this,row.attachment[0].fileId, row.attachment[0].fileName)}
               >
                 <Icon name="document" />
@@ -453,7 +481,7 @@ class PartsList extends React.Component<IProps, IState> {
 
   private async fetchPartsData() {
     const {sampleType} = this.props;
-    const {skip, limit, userFilter} = this.state;
+    const {skip, limit, userFilter, sortMethod} = this.state;
 
     const total = await this.getCount();
     this.setState({total, loading: true})
@@ -462,7 +490,9 @@ class PartsList extends React.Component<IProps, IState> {
       type: sampleType,
       skip,
       limit,
-      ownerUserId: userFilter,
+      user: userFilter,
+      sortBy: sortMethod.prop,
+      desc: sortMethod.order === 'descending' ? true : false,
     }),
     getAuthHeader());
     console.log(res)

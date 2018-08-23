@@ -52,8 +52,8 @@ app.use((req :Request, res :Response, next: NextFunction) => {
     if (tokenType === 'bearer') {  
       jwt.verify(token, secret.jwt.key, (err, decoded :IUserJWT) => {
         if (!err) {
-          console.log('verified user');
-          console.log(decoded);
+          // console.log('verified user');
+          // console.log(decoded);
           req.currentUser = decoded;
         } else {
           console.log('bad verification');
@@ -186,21 +186,29 @@ app.get('/api/currentUser', userMustLoggedIn, async (req :Request, res: Response
 // ===========================parts======================================
 
 app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
-  let {type, skip, limit, ownerUserId} = req.query;
+  let {type, skip, limit, user, sortBy, desc} = req.query;
   let condition :any = {};
   if (type) {
     condition.sampleType = type;
   }
-  if (ownerUserId) {
-    condition.ownerUserId = ownerUserId
+  if (user) {
+    condition.ownerUserId = user
   }
   let parts = Part.find(condition)
-  
+  if (sortBy) {
+    if (desc === 'true') {
+      parts = parts.sort({[sortBy]: -1});
+    } else {
+      parts = parts.sort({[sortBy]: 1});
+    }
+  } else {
+    parts = parts.sort({_id:-1});
+  }
   if (skip) parts = parts.skip(parseInt(skip))
   if (limit) parts = parts.limit(parseInt(limit))
-  parts.sort({_id:-1})
+
   // .select('labName')
-  .exec((err, data)=>{
+  parts.exec((err, data)=>{
     if (err) {
       console.log(err)
       res.status(500).json({err})
