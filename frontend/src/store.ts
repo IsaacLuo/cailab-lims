@@ -2,6 +2,8 @@ import {createStore, applyMiddleware} from 'redux'
 import reducer from './reducer'
 import saga from './saga'
 import createSagaMiddleware from 'redux-saga'
+import {IUserInfo} from './types'
+
 
 interface IPartsCount {
   bacteria: number,
@@ -15,10 +17,9 @@ export interface IStoreState {
   fullName: string,
   profilePicture: string,
   groups: string[],
-
   loginDialogVisible: boolean,
-
   partsCount: IPartsCount,
+  allUsers: IUserInfo[],
 }
 
 /* tslint-disable no-underscore-dangle */

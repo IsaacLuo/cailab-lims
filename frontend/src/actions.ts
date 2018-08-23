@@ -62,3 +62,11 @@ export function ActionSetPartsCount(data) {
     data,
   }
 }
+
+export const SET_ALL_USER_NAMES = 'SET_ALL_USER_NAMES';
+export function ActionSetAllUserNames(data) {
+  return {
+    type: SET_ALL_USER_NAMES,
+    data,
+  }
+}

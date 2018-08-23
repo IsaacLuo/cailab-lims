@@ -5,6 +5,7 @@ import {
   SET_LOGIN_INFORMATION,
   CLEAR_LOGIN_INFORMATION,
   SET_PARTS_COUNT,
+  SET_ALL_USER_NAMES,
 } from './actions'
 
 function myReducer(state :IStoreState = {
@@ -18,7 +19,8 @@ function myReducer(state :IStoreState = {
     bacteria: 0,
     primers: 0,
     yeasts: 0,
-  }
+  },
+  allUsers: [],
 }, action: IAction) {
   console.log('action:', action)
   switch (action.type) {
@@ -40,6 +42,12 @@ function myReducer(state :IStoreState = {
         groups: [],
         profilePicture: '',
         loggedIn: false,
+      }
+
+    case SET_ALL_USER_NAMES:
+      return {
+        ...state,
+        allUsers: action.data,
       }
 
     case SET_PARTS_COUNT:

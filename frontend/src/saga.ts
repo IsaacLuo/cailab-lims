@@ -1,8 +1,12 @@
-import {call, all, fork, put, takeEvery, takeLatest} from 'redux-saga/effects'
+import {call, all, fork, put,takeLatest} from 'redux-saga/effects'
 import axios from 'axios'
 import {serverURL} from './config'
 import getAuthHeader from './authHeader'
-import {ActionSetLoginInformation, ActionSetPartsCount} from './actions'
+import {
+  ActionSetLoginInformation, 
+  ActionSetPartsCount,
+  ActionSetAllUserNames,
+} from './actions'
 
 export function* getMyStatus() {
   const res = yield call(axios.get,serverURL+'/api/currentUser', getAuthHeader());
@@ -15,8 +19,14 @@ export function* getMyStatus() {
   yield put(ActionSetLoginInformation(fullName, groups));
 }
 
-export function* watchGetMyStatus() {
-  yield takeEvery('GET_MY_STATUS', getMyStatus);
+export function* getUserList() {
+  const res = yield call(axios.get,serverURL+'/api/users/names/', getAuthHeader());
+  yield put(ActionSetAllUserNames(res.data));
+}
+
+export function* watchMyInformation() {
+  yield takeLatest('GET_MY_STATUS', getMyStatus);
+  yield takeLatest('GET_USER_LIST', getUserList);
 }
 
 export function* getPartsCount() {
@@ -30,7 +40,7 @@ export function* watchParts() {
 
 export default function* rootSaga() {
   yield all([
-    fork(watchGetMyStatus),
+    fork(watchMyInformation),
     fork(watchParts),
   ]);
 }

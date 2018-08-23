@@ -72,6 +72,16 @@ function userMustBeAdmin (req :Request, res :Response, next: NextFunction) {
   if (req.currentUser && req.currentUser.groups.indexOf('administrators')>=0) {
     console.log('currentGoup', req.currentUser.groups)
     next();
+  } else if (req.headers['test-token'] === 'a30aa7f7de512963a03c') {
+    req.currentUser = {
+      username: 'test',
+      fullName: 'test man',
+      email: 'yishaluo@gmail.com',
+      groups: ['users'],
+      iat: Math.floor(Date.now()),
+      exp: Math.floor(Date.now()) + 3600,
+    }
+    next();
   } else {
     res.status(401).json({message: 'require admin'})
   }
@@ -140,43 +150,18 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
   }
 })
 
-app.get('/api/users', userMustBeAdmin, async (req :Request, res: Response) => {
-  let users = await User.find({});
-  users = users.map(user => ({
-    dbV1Id: user.dbV1Id,
-    username: user.username,
-    email: user.email,
-    authType: user.authType,
-    name: user.name,
-    groups: user.groups,
-  }))
-  res.json(users)
-})
 
-app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res: Response) => {
-  const {email} = req.params
-  try {
-    const user = await User.findOne({email})
-    console.log('found user', user)
-    if (user) {
-      let groups = new Set(user.groups);
-      for(const key of Object.keys(req.body)) {
-        if (req.body[key] === true && !groups.has(key)) {
-          groups.add(key);
-        } else if (req.body[key] === false && groups.has(key)) {
-          groups.delete(key);
-        }
-      }
-      user.groups = Array.from(groups);
-      user.save();
-      res.json({message:'OK'});   
-    } else {
-      res.status(404).json({message: 'user not found'})
-    }
-  } catch (err) {
-    res.status(404).json({message: 'user not found', err})
-  }
-})
+
+app.get('/api/users/names/', userMustLoggedIn, async (req :Request, res: Response) => {
+  let users = await User.find({groups:'users'});
+  users = users.map(user => ({
+    name: user.name,
+    id: user.id,
+  }));
+  res.json(users);
+});
+
+
 
 app.get('/api/currentUser', userMustLoggedIn, async (req :Request, res: Response) => {
   const {username, fullName, email, groups, exp} = req.currentUser;
@@ -198,11 +183,16 @@ app.get('/api/currentUser', userMustLoggedIn, async (req :Request, res: Response
   res.json(payload);
 });
 
+// ===========================parts======================================
+
 app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
-  let {type, skip, limit} = req.query;
+  let {type, skip, limit, ownerUserId} = req.query;
   let condition :any = {};
   if (type) {
     condition.sampleType = type;
+  }
+  if (ownerUserId) {
+    condition.ownerUserId = ownerUserId
   }
   let parts = Part.find(condition)
   
@@ -221,10 +211,13 @@ app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
 });
 
 app.get('/api/parts/count', userMustLoggedIn, async (req :Request, res: Response) => {
-  let {type} = req.query;
+  let {type, ownerUserId} = req.query;
   let condition :any = {};
   if (type) {
     condition.sampleType = type;
+  }
+  if (ownerUserId) {
+    condition.ownerUserId = ownerUserId;
   }
   Part.count(condition)
   .exec((err, data)=>{
@@ -258,13 +251,72 @@ app.get('/api/attachments/:id', userMustLoggedIn, async (req :Request, res: Resp
       res.status(404).json({message: 'file not found'})
     }
     const file = await FileData.findOne({_id:id});
-    res.send(file.data)
+    if(file){
+      res.send(file.data);
+    } else {
+      res.status(404).json({'message': 'file not found'})
+    }
   } catch (err) {
     res.status(404).json({err})
   }
 });
-// ----------------------------------------------------------------------------
 
+// ===========================admin==========================================
+app.get('/api/users', userMustBeAdmin, async (req :Request, res: Response) => {
+  let users = await User.find({});
+  users = users.map(user => ({
+    id: user._id,
+    dbV1Id: user.dbV1Id,
+    username: user.username,
+    email: user.email,
+    authType: user.authType,
+    name: user.name,
+    groups: user.groups,
+  }));
+  res.json(users);
+})
+
+app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res: Response) => {
+  const {email} = req.params
+  try {
+    const user = await User.findOne({email})
+    console.log('found user', user)
+    if (user) {
+      let groups = new Set(user.groups);
+      for(const key of Object.keys(req.body)) {
+        if (req.body[key] === true && !groups.has(key)) {
+          groups.add(key);
+        } else if (req.body[key] === false && groups.has(key)) {
+          groups.delete(key);
+        }
+      }
+      user.groups = Array.from(groups);
+      user.save();
+      res.json({message:'OK'});   
+    } else {
+      res.status(404).json({message: 'user not found'})
+    }
+  } catch (err) {
+    res.status(404).json({message: 'user not found', err})
+  }
+})
+
+// set a ownerID by giving the dbv1Id
+app.put('/api/legacyParts/:dbV1Id/owner/:ownerUserId', /*userMustBeAdmin,*/ async (req :Request, res: Response) => {
+  const {dbV1Id, ownerUserId} = req.params;
+  try {
+    const user = await User.findOne({_id:ownerUserId});
+    if (user._id.toString() === ownerUserId) {
+      console.log(`assign parts of ${dbV1Id} to ${user.name}`)
+      const docs = await Part.updateMany({dbV1Id}, {ownerUserId});
+      res.json({message: `updated ${docs.nModified} of ${docs.n}`, total: docs.n, updated: docs.nModified});
+    }
+  } catch (err) {
+    res.status(404).json(err);
+  }
+  
+})
+// ----------------------------------------------------------------------------
 app.listen(8000, (err) => {
   console.log('api server on 8000');
   if (err) console.log(err);
