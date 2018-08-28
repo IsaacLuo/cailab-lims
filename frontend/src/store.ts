@@ -3,6 +3,7 @@ import reducer from './reducer'
 import saga from './saga'
 import createSagaMiddleware from 'redux-saga'
 import {IUserInfo} from './types'
+import {IPart} from './types'
 
 
 interface IPartsCount {
@@ -12,14 +13,25 @@ interface IPartsCount {
 }
 
 export interface IStoreState {
+
+  // UI visible controls
+  loginDialogVisible: boolean,
+  newPartDialogVisible: boolean,
+
+  // UI content
+  renderingParts: IPart[],
+
+  // user state controls
   loggedIn: boolean,
   username: string,
   fullName: string,
   profilePicture: string,
   groups: string[],
-  loginDialogVisible: boolean,
+  
+  // parts information
   partsCount: IPartsCount,
   allUsers: IUserInfo[],
+  
 }
 
 /* tslint-disable no-underscore-dangle */

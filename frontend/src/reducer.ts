@@ -6,6 +6,7 @@ import {
   CLEAR_LOGIN_INFORMATION,
   SET_PARTS_COUNT,
   SET_ALL_USER_NAMES,
+  SET_NEW_PART_DIALOG_VISIBLE,
 } from './actions'
 
 function myReducer(state :IStoreState = {
@@ -21,6 +22,8 @@ function myReducer(state :IStoreState = {
     yeasts: 0,
   },
   allUsers: [],
+  newPartDialogVisible: false,
+  renderingParts: [],
 }, action: IAction) {
   console.log('action:', action)
   switch (action.type) {
@@ -54,6 +57,12 @@ function myReducer(state :IStoreState = {
       return {
         ...state,
         partsCount: action.data,
+      }
+
+    case SET_NEW_PART_DIALOG_VISIBLE:
+      return {
+        ...state,
+        newPartDialogVisible: action.data,
       }
   }
   return state;

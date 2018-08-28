@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/webpack": "^4.4.11",
+    "@types/webpack-env": "^1.13.6",
     "axios": "^0.18.0",
     "element-react": "./../element-react",
     "element-theme-default": "^1.4.13",

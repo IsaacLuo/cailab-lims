@@ -17,7 +17,7 @@
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     // "types": ["gapi", "gapi.auth2"],
-    "noUnusedLocals": true
+    "noUnusedLocals": false,
   },
   "exclude": [
     "node_modules",

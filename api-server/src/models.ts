@@ -14,13 +14,18 @@ export const User = mongoose.model('User', {
 
 export const Part = mongoose.model('Part', {
   labName: String,
+  labPrefix: String,
+  labId: Number,
+  personalPrefix: String,
+  personalId: Number,
   personalName: String,
+
   ownerUserId: Schema.Types.ObjectId,
   dbV1Id: Number,
   sampleType: String,
   comment: String,
   createdAt: Date,
-  modifiedAt: Date,
+  updatedAt: Date,
   date: Date, 
   tags: [String],
   content: {
@@ -46,7 +51,7 @@ export const Part = mongoose.model('Part', {
     // all
     customData: Schema.Types.Mixed,
   },
-  attachment: [{
+  attachments: [{
     fileName: String,
     contentType: String,
     fileSize: Number,
@@ -63,3 +68,8 @@ export const FileData = mongoose.model('FileData', {
   name: String,
   data: Buffer,
 });
+
+export const PartsIdCounter = mongoose.model('PartsIdCounter', {
+  name: String,
+  count: Number,
+})

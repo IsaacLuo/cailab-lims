@@ -196,13 +196,25 @@ app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
   }
   let parts = Part.find(condition)
   if (sortBy) {
-    if (desc === 'true') {
-      parts = parts.sort({[sortBy]: -1});
+    let realSortBy = sortBy;
+    if (sortBy === 'personalName') {
+      if (desc === 'true') {
+        parts = parts.sort({'personalName': -1, 'personalId': -1});
+      } else {
+        parts = parts.sort({'personalName': 1, 'personalId': 1});
+      }
     } else {
-      parts = parts.sort({[sortBy]: 1});
+      if (sortBy === 'labName') {
+          realSortBy = 'labId';
+      }
+      if (desc === 'true') {
+        parts = parts.sort({[realSortBy]: -1});
+      } else {
+        parts = parts.sort({[realSortBy]: 1});
+      }
     }
   } else {
-    parts = parts.sort({_id:-1});
+    parts = parts.sort({labId:-1});
   }
   if (skip) parts = parts.skip(parseInt(skip))
   if (limit) parts = parts.limit(parseInt(limit))

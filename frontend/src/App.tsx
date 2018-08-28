@@ -29,18 +29,18 @@ class App extends React.Component<any, any> {
         <NavBar />
         </header>
         <LoginDialog/>
+        <Route path='/' exact={true} component={ActionPanel} />
         <Route path='/parts/bacteria' render={this.renderBacteriaComponent} />
         <Route path='/parts/primers' render={this.renderPrimersComponent} />
         <Route path='/parts/yeasts' render={this.renderYeastsComponent} />
         <Route path='/users' component={Users} />
-        <ActionPanel/>
       </div>
       </Provider>
       </BrowserRouter>
     );
   }
 
-  private renderBacteriaComponent = props => <PartsList sampleType="bacterium"/>
+  private renderBacteriaComponent = props => <div><PartsList sampleType="bacterium"/></div>
   private renderPrimersComponent = props => <PartsList sampleType="primer"/>
   private renderYeastsComponent = props => <PartsList sampleType="yeast"/>
 }

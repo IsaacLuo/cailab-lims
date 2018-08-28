@@ -1,10 +1,11 @@
 import * as React from 'react'
 import axios from 'axios'
-// import { serverURL } from './config'
-import { Table, Pagination, Icon, Loading, Select } from 'element-react'
-import getAuthHeader from './authHeader'
-import {fileSizeHumanReadable, toPlural} from './tools'
-import {IUserInfo} from './types'
+import qs from 'qs'
+
+// components
+import { Table, Pagination, Icon, Loading, Select, Button } from 'element-react'
+import NewPartDialog from './NewPartDialog'
+import ErrorBoundary from './ErrorBoundary'
 
 // redux
 import { IStoreState } from './store'
@@ -12,10 +13,17 @@ import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { serverURL } from './config'
+import {
+  ActionSetNewPartDialogVisible,
+} from './actions'
 
 // react-router
-// import { Link } from 'react-router-dom'
-import qs from 'qs'
+import {Redirect} from 'react-router'
+
+// helpers
+import getAuthHeader from './authHeader'
+import {fileSizeHumanReadable, toPlural} from './tools'
+import {IUserInfo} from './types'
 
 interface IColumn {
   label: string,
@@ -41,7 +49,10 @@ interface IProps {
   sampleType: string,
   partsCount: IPartsCount,
   allUsers: IUserInfo[],
+  newPartDialogVisible: boolean,
+  loggedIn: boolean,
   getUserList: () => void,
+  setNewPartDialogVisible: (visible: boolean) => void,
 }
 
 interface IState {
@@ -73,25 +84,35 @@ class PartsList extends React.Component<IProps, IState> {
       userFilter: '',
       sortMethod: {order:undefined, prop:undefined},
     };
-    this.fetchPartsData();
-    this.props.getUserList();
+    if (props.loggedIn) {
+      this.fetchPartsData();
+      props.getUserList();
+    }
   }
   
   public render() {
-    const {allUsers} = this.props;
+    const {loggedIn, allUsers, newPartDialogVisible} = this.props;
     const {skip, limit, total, loading, userFilter} = this.state;
+    if (!loggedIn) {
+      return <Redirect to="/" />
+    }
     return (
+      <ErrorBoundary>
       <div style={{width:'100%'}}>
         <h1>{toPlural(this.props.sampleType)}</h1>
-        <Select
-          value = {userFilter}
-          clearable = {true}
-          onChange = {this.onFilterUserChange}
-        >
-          {
-            allUsers.map(user => <Select.Option key={user.id} label={user.name} value={user.id} />)
-          }
-        </Select>
+        <div>
+          <span>user filter </span>
+          <Select
+            value = {userFilter}
+            clearable = {true}
+            onChange = {this.onFilterUserChange}
+          >
+            {
+              allUsers.map(user => <Select.Option key={user.id} label={user.name} value={user.id} />)
+            }
+          </Select>
+          <Button onClick = {this.props.setNewPartDialogVisible.bind(this, true)}>new part</Button>
+        </div>
         <Pagination
           layout="total, sizes, prev, pager, next, jumper"
           total={total}
@@ -101,24 +122,25 @@ class PartsList extends React.Component<IProps, IState> {
           onCurrentChange={this.onPageChange}
         />
         <Loading loading={loading} text={'loading'}>
-        <Table
-          style={{width: '100%'}}
-          columns={this.state.columns}
-          data={this.state.data}
-          stripe={true}
-          onSortChange={this.onTableSortChange}
-        />
-              </Loading>
+          <Table
+            style={{width: '100%'}}
+            columns={this.state.columns}
+            data={this.state.data}
+            stripe={true}
+            onSortChange={this.onTableSortChange}
+          />
+        </Loading>
         <Pagination
-          layout="prev, pager, next"
+          layout="total, sizes, prev, pager, next, jumper"
           total={total}
           pageSize={limit}
           currentPage={Math.floor(skip/limit)+1}
           onSizeChange={this.onLimitChange}
           onCurrentChange={this.onPageChange}
         />
+        {newPartDialogVisible && <NewPartDialog />}
       </div>
-      
+      </ErrorBoundary>
     )
   }
 
@@ -484,7 +506,7 @@ class PartsList extends React.Component<IProps, IState> {
     const {skip, limit, userFilter, sortMethod} = this.state;
 
     const total = await this.getCount();
-    this.setState({total, loading: true})
+    this.setState({total, loading: true});
     
     const res = await axios.get(serverURL+'/api/parts?'+qs.stringify({
       type: sampleType,
@@ -503,7 +525,7 @@ class PartsList extends React.Component<IProps, IState> {
       data = res.data.map(item => ({
         labName: item.labName,
         personalName: item.personalName,
-        tags: item.content.tags ? item.content.tags.join('; ') : '',
+        tags: item.tags ? item.tags.join('; ') : '',
         hostStrain: item.content.hostStrain ? item.content.hostStrain : '',
         markers: item.content.markers ? item.content.markers.join('; ') : '',
         date: item.date ? (new Date(item.date)).toLocaleDateString() : '',
@@ -515,7 +537,7 @@ class PartsList extends React.Component<IProps, IState> {
       data = res.data.map(item => ({
         labName: item.labName,
         personalName: item.personalName,
-        tags: item.content.tags ? item.content.tags.join('; ') : '',
+        tags: item.tags ? item.tags.join('; ') : '',
         date: item.date ? (new Date(item.date)).toLocaleDateString() : '',
         comment: `${item.content.description} ${item.comment}`,
         attachment: item.attachment,
@@ -525,12 +547,12 @@ class PartsList extends React.Component<IProps, IState> {
         concentration: item.content.concentration,
         vendor: item.content.vendor,
       }))
+    break;
     case 'yeast':
-    case 'primer':
       data = res.data.map(item => ({
         labName: item.labName,
         personalName: item.personalName,
-        tags: item.content.tags ? item.content.tags.join('; ') : '',
+        tags: item.tags ? item.tags.join('; ') : '',
         date: item.date ? (new Date(item.date)).toLocaleDateString() : '',
         comment: item.comment,
         attachment: item.attachment,
@@ -570,10 +592,14 @@ class PartsList extends React.Component<IProps, IState> {
 const mapStateToProps = (state :IStoreState) => ({
   partsCount: state.partsCount,
   allUsers: state.allUsers,
+  newPartDialogVisible: state.newPartDialogVisible,
+  loggedIn: state.loggedIn,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   getUserList: ()=>dispatch({type:'GET_USER_LIST'}),
+  setNewPartDialogVisible: visible => dispatch(ActionSetNewPartDialogVisible(visible)),
+  getParts: data => dispatch({type:'GET_PARTS', data})
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PartsList))

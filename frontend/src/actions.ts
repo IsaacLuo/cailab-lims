@@ -70,3 +70,11 @@ export function ActionSetAllUserNames(data) {
     data,
   }
 }
+
+export const SET_NEW_PART_DIALOG_VISIBLE = 'SET_NEW_PART_DIALOG_VISIBLE'
+export function ActionSetNewPartDialogVisible(data) {
+  return {
+    type: SET_NEW_PART_DIALOG_VISIBLE,
+    data,
+  }
+}
