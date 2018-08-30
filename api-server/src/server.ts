@@ -165,7 +165,9 @@ app.get('/api/users/names/', userMustLoggedIn, async (req :Request, res: Respons
 
 
 
-app.get('/api/currentUser', userMustLoggedIn, async (req :Request, res: Response) => {
+app.get('/api/currentUser', async (req :Request, res: Response) => 
+{ 
+  if (req.currentUser) {
   const {username, fullName, email, groups, exp} = req.currentUser;
   const now = Math.floor(Date.now()/1000);
   console.log({exp, now})
@@ -183,6 +185,9 @@ app.get('/api/currentUser', userMustLoggedIn, async (req :Request, res: Response
     payload.tokenExpireIn = exp - now;
   }
   res.json(payload);
+} else {
+  res.json({username: 'guest', fullName: 'guest', groups:['guest']})
+}
 });
 
 // ===========================parts======================================
