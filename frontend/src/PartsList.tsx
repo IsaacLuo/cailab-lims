@@ -112,6 +112,8 @@ class PartsList extends React.Component<IProps, IState> {
             }
           </Select>
           <Button onClick = {this.props.setNewPartDialogVisible.bind(this, true)}>new part</Button>
+          <Button onClick = {this.exportToXlsxCurrentPage}>export page</Button>
+          <Button onClick = {this.exportToXlsxAllPages}>export all</Button>
         </div>
         <Pagination
           layout="total, sizes, prev, pager, next, jumper"
@@ -167,6 +169,50 @@ class PartsList extends React.Component<IProps, IState> {
   private onTableSortChange = (sortProp: {column:any, order:'ascending'|'descending', prop:string}) => {
     const {order, prop} = sortProp;
     this.setState({sortMethod: {order, prop}}, this.fetchPartsData);
+  }
+
+  private exportToXlsxCurrentPage = async () => {
+    const {skip, limit } = this.state;
+    this.exportToXlsx(skip, limit);
+  }
+  private exportToXlsxAllPages = async () => {
+    this.exportToXlsx(undefined, undefined);
+  }
+
+  private exportToXlsx = async (skip?:number, limit?:number) => {
+    const {sampleType} = this.props;
+    const {userFilter, sortMethod} = this.state;
+
+    const params = (skip!==undefined && limit!==undefined) ? qs.stringify({
+      type: sampleType,
+      skip,
+      limit,
+      user: userFilter,
+      sortBy: sortMethod.prop,
+      desc: sortMethod.order === 'descending' ? true : false,
+      format: 'xlsx',
+    }) : qs.stringify({
+      type: sampleType,
+      user: userFilter,
+      sortBy: sortMethod.prop,
+      desc: sortMethod.order === 'descending' ? true : false,
+      format: 'xlsx',
+    })
+
+    const res = await axios({
+      url: serverURL+'/api/parts?'+params,
+      method: 'GET',
+      responseType: 'blob', // important
+      ...getAuthHeader(),
+    });
+
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'export.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   }
 
   private generateCoulumnTitle () :Array<IColumn|IExpandedPanel> {

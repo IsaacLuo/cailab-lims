@@ -8,7 +8,9 @@
     "express-jwt": "^5.3.1",
     "google-auth-library": "^1.6.1",
     "jsonwebtoken": "^8.3.0",
-    "mongoose": "^5.2.7"
+    "mongoose": "^5.2.7",
+    "node-xlsx": "^0.12.1",
+    "xlsx": "^0.13.5"
   },
   "scripts": {
     "start": "ts-node src/server.ts",

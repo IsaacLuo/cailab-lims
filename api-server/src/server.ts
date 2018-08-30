@@ -7,6 +7,8 @@ import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import secret from '../secret.json'
 import {User, Part, FileData} from './models'
+import sendBackCsv from './sendBackCsv'
+import sendBackXlsx from './sendBackXlsx'
 
 interface IUserInfo {
     username: string,
@@ -186,7 +188,7 @@ app.get('/api/currentUser', userMustLoggedIn, async (req :Request, res: Response
 // ===========================parts======================================
 
 app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
-  let {type, skip, limit, user, sortBy, desc} = req.query;
+  let {type, skip, limit, user, sortBy, desc, format} = req.query;
   let condition :any = {};
   if (type) {
     condition.sampleType = type;
@@ -225,7 +227,16 @@ app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
       console.log(err)
       res.status(500).json({err})
     } else {
-      res.json(data);
+      switch(format) {
+        case 'csv':
+        sendBackCsv(res,data);
+        break;
+        case 'xlsx':
+        sendBackXlsx(res,data);
+        break;
+        default:
+        res.json(data);
+      }
     }
   })
 });

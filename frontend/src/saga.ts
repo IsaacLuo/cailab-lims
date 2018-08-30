@@ -62,7 +62,7 @@ export function* getParts(action: IAction) {
       markers: item.content.markers ? item.content.markers.join('; ') : '',
       date: item.date ? (new Date(item.date)).toLocaleDateString() : '',
       comment: item.comment ? item.comment : '',
-      attachment: item.attachment,
+      attachments: item.attachments,
     }))
   break;
   case 'primer':
@@ -72,7 +72,7 @@ export function* getParts(action: IAction) {
       tags: item.content.tags ? item.content.tags.join('; ') : '',
       date: item.date ? (new Date(item.date)).toLocaleDateString() : '',
       comment: `${item.content.description} ${item.comment}`,
-      attachment: item.attachment,
+      attachments: item.attachments,
       sequence: item.content.sequence,
       orientation: item.content.orientation,
       meltingTemperature: item.content.meltingTemperature,
@@ -87,7 +87,7 @@ export function* getParts(action: IAction) {
       tags: item.content.tags ? item.content.tags.join('; ') : '',
       date: item.date ? (new Date(item.date)).toLocaleDateString() : '',
       comment: item.comment,
-      attachment: item.attachment,
+      attachments: item.attachments,
       
       parents: item.content.parents ? item.content.parents.join('; ') : '' ,
       genotype: item.content.genotype ? item.content.genotype.join('; ') : '' ,
