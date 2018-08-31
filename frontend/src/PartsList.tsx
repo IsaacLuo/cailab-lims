@@ -94,6 +94,7 @@ class PartsList extends React.Component<IProps, IState> {
     const {loggedIn, allUsers, newPartDialogVisible} = this.props;
     const {skip, limit, total, loading, userFilter} = this.state;
     if (!loggedIn) {
+      console.log('not logged in, why?', this.props, this.state);
       return <Redirect to="/" />
     }
     return (
@@ -140,7 +141,7 @@ class PartsList extends React.Component<IProps, IState> {
           onSizeChange={this.onLimitChange}
           onCurrentChange={this.onPageChange}
         />
-        {newPartDialogVisible && <NewPartDialog />}
+        {newPartDialogVisible && <NewPartDialog sampleType={this.props.sampleType}/>}
       </div>
       </ErrorBoundary>
     )

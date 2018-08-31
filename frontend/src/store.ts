@@ -14,6 +14,8 @@ interface IPartsCount {
 
 export interface IStoreState {
 
+  initializing: boolean,
+
   // UI visible controls
   loginDialogVisible: boolean,
   newPartDialogVisible: boolean,

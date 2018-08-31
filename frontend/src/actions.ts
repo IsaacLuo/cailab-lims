@@ -3,8 +3,12 @@ export interface IAction {
   data: any,
 }
 
-export const LOGIN = 'LOGIN';
+export const INITIALIZE_DONE = 'INITIALIZE_DONE';
+export function ActionInitizeDone () {
+  return {type: INITIALIZE_DONE};
+}
 
+export const LOGIN = 'LOGIN';
 export function ActionLogin (
   username :string, 
   profilePicture: string,

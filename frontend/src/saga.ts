@@ -3,23 +3,55 @@ import axios from 'axios'
 import {serverURL} from './config'
 import getAuthHeader from './authHeader'
 import {
+  ActionInitizeDone,
   ActionSetLoginInformation, 
   ActionSetPartsCount,
   ActionSetAllUserNames,
   IAction,
+  ActionClearLoginInformation,
 } from './actions'
 
 import qs from 'qs'
+import { delay } from 'redux-saga';
 
 export function* getMyStatus() {
-  const res = yield call(axios.get,serverURL+'/api/currentUser', getAuthHeader());
-  console.log(res);
-  const {fullName, groups, token} = res.data;
-  if (token) {
-    localStorage.setItem('token', token);
-    localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
+  try {
+    const res = yield call(axios.get,serverURL+'/api/currentUser', getAuthHeader());
+
+    const {username, fullName, groups, token} = res.data;
+    if (username === 'guest') {
+      yield put(ActionClearLoginInformation());
+    } else {
+      if (token) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
+      }
+      yield put(ActionSetLoginInformation(fullName, groups));
+      yield call(delay, 600000);
+      yield put({type:'GET_MY_STATUS'});
+    }
+  } catch (err) {
+    yield put(ActionClearLoginInformation());
   }
-  yield put(ActionSetLoginInformation(fullName, groups));
+}
+
+export function* initialize() {
+  try {
+    const res = yield call(axios.get,serverURL+'/api/currentUser', getAuthHeader());
+    const {username, fullName, groups, token} = res.data;
+    if (username === 'guest') {
+      yield put(ActionClearLoginInformation());
+    } else {
+      if (token) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
+      }
+      yield put(ActionSetLoginInformation(fullName, groups));
+    }
+  } catch (err) {
+    yield put(ActionClearLoginInformation());
+  }
+  yield put(ActionInitizeDone());
 }
 
 export function* getUserList() {
@@ -28,6 +60,7 @@ export function* getUserList() {
 }
 
 export function* watchMyInformation() {
+  yield takeLatest('INITIALIZE', initialize);
   yield takeLatest('GET_MY_STATUS', getMyStatus);
   yield takeLatest('GET_USER_LIST', getUserList);
 }

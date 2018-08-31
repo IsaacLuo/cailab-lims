@@ -31,7 +31,7 @@ export interface IPart {
     plasmidType?: string,
 
     // bacteria and yeasts
-    markers?: string,
+    markers?: string[],
     // all
     customData?: any,
   },

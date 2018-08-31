@@ -21,7 +21,6 @@ export interface INavBarProps {
 
   setDialogVisible: (visible:boolean)=>void,
   clearLoginInformation: ()=>void,
-  refreshPartsCount: ()=>void,
 }
 
 class NavBar extends React.Component<INavBarProps, any> {
@@ -29,9 +28,8 @@ class NavBar extends React.Component<INavBarProps, any> {
     super(props);
   }
 
-  public componentDidMount () {
-    this.props.refreshPartsCount();
-  }
+  // public componentDidMount () {
+  // }
 
   public render() {
     const {loggedIn, username, groups} = this.props;
@@ -85,7 +83,6 @@ const mapStateToProps = (state :IStoreState) => ({
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   setDialogVisible: visible => dispatch(ActionLoginDialogVisible(visible)),
   clearLoginInformation: ()=> dispatch(ActionClearLoginInformation()),
-  refreshPartsCount: () => dispatch({type:'GET_PARTS_COUNT'}),
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(NavBar))

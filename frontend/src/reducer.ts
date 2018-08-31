@@ -1,6 +1,7 @@
 import {IStoreState} from './store'
 import {
   IAction,
+  INITIALIZE_DONE,
   LOGIN_DIALOG_VISIBLE,
   SET_LOGIN_INFORMATION,
   CLEAR_LOGIN_INFORMATION,
@@ -10,6 +11,7 @@ import {
 } from './actions'
 
 function myReducer(state :IStoreState = {
+  initializing: true,
   loggedIn: false,
   username: 'guest',
   fullName: 'guest',
@@ -27,6 +29,9 @@ function myReducer(state :IStoreState = {
 }, action: IAction) {
   console.log('action:', action)
   switch (action.type) {
+    case INITIALIZE_DONE:
+      return {...state, initializing: false};
+
     case LOGIN_DIALOG_VISIBLE:
       return {...state, loginDialogVisible: action.data.visible}
 
@@ -39,6 +44,8 @@ function myReducer(state :IStoreState = {
       }
 
     case CLEAR_LOGIN_INFORMATION:
+      localStorage.removeItem('token')
+      localStorage.removeItem('tokenTimeStamp');
       return {
         ...state,
         fullName: 'guest',
