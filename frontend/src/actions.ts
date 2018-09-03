@@ -82,3 +82,11 @@ export function ActionSetNewPartDialogVisible(data) {
     data,
   }
 }
+
+export const SET_UPLOAD_PARTS_DIALOG_VISIBLE = 'SET_UPLOAD_PARTS_DIALOG_VISIBLE'
+export function ActionSetUploadPartsDialogVisible(data) {
+  return {
+    type: SET_UPLOAD_PARTS_DIALOG_VISIBLE,
+    data,
+  }
+}

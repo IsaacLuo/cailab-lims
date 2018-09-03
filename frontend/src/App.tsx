@@ -22,6 +22,7 @@ import { IStoreState } from './store'
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
+import UploadParts from './UploadParts';
 
 interface IProps {
   initializing: boolean,
@@ -47,18 +48,22 @@ class App extends React.Component<IProps, any> {
           </header>
           <LoginDialog/>
           <Route path='/' exact={true} component={ActionPanel} />
-          <Route path='/parts/bacteria' render={this.renderBacteriaComponent} />
-          <Route path='/parts/primers' render={this.renderPrimersComponent} />
-          <Route path='/parts/yeasts' render={this.renderYeastsComponent} />
+          <Route path='/parts/bacteria' exact={true} render={this.renderBacteriaComponent} />
+          <Route path='/parts/primers' exact={true} render={this.renderPrimersComponent} />
+          <Route path='/parts/yeasts' exact={true} render={this.renderYeastsComponent} />
+          <Route path='/parts/bacteria/upload' exact={true} render={this.renderBacteriaUpload} />
           <Route path='/users' component={Users} />
         </div>
       );
     }
   }
 
-  private renderBacteriaComponent = props => <div><PartsList sampleType="bacterium"/></div>
+  private renderBacteriaComponent = props => <PartsList sampleType="bacterium"/>
   private renderPrimersComponent = props => <PartsList sampleType="primer"/>
   private renderYeastsComponent = props => <PartsList sampleType="yeast"/>
+  private renderBacteriaUpload = props => <UploadParts sampleType="bacterium"/>
+  private renderPrimerUpload = props => <UploadParts sampleType="primer"/>
+  private renderYeastUpload = props => <UploadParts sampleType="yeast"/>
 }
 
 

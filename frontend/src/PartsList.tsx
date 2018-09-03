@@ -12,7 +12,7 @@ import { IStoreState } from './store'
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { serverURL } from './config'
+
 import {
   ActionSetNewPartDialogVisible,
 } from './actions'
@@ -21,6 +21,7 @@ import {
 import {Redirect} from 'react-router'
 
 // helpers
+import { serverURL } from './config'
 import getAuthHeader from './authHeader'
 import {fileSizeHumanReadable, toPlural} from './tools'
 import {IUserInfo} from './types'

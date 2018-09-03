@@ -352,6 +352,9 @@ app.put('/api/legacyParts/:dbV1Id/owner/:ownerUserId', /*userMustBeAdmin,*/ asyn
   }
   
 })
+
+// ============================static files===================================
+app.use('/public', express.static('public'));
 // ----------------------------------------------------------------------------
 app.listen(8000, (err) => {
   console.log('api server on 8000');

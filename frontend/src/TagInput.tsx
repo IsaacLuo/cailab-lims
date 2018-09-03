@@ -103,7 +103,7 @@ class TagInput extends React.Component<IProps, IState> {
   private showInput = () => {
     this.setState({newTagInputVisible: true}, () => {
       if( this.tagInputRef &&  this.tagInputRef.current) {
-        this.tagInputRef.current.focus();
+        // this.tagInputRef.current.focus();
       }
     });
   }
