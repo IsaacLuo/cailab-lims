@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import {Schema} from 'mongoose'
 
-export const User = mongoose.model('User', {
+export const UserSchema = new Schema({
   dbV1Id: Number,
   username: String,
   email: String,
@@ -9,8 +9,12 @@ export const User = mongoose.model('User', {
   passwordHash: String,
   passwordSalt: String,
   name: String,
+  abbr: String,
   groups: [String],
 });
+
+export const User = mongoose.model('User', UserSchema);
+
 
 export const Part = mongoose.model('Part', {
   labName: String,

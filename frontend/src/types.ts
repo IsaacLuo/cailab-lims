@@ -52,3 +52,19 @@ export interface IPart {
     barcode: string,
   },
 }
+
+export interface IColumn {
+  label: string,
+  prop: string,
+  width?: number,
+  minWidth?: number,
+  sortable?: boolean|string,
+  fixed? : boolean | string,
+  render?: (data:any, column:any, index:number) => void,
+}
+
+export interface IAttachmentDataURL {
+  name: string,
+  size: number,
+  content: string,
+}

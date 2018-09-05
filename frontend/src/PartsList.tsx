@@ -24,16 +24,7 @@ import {Redirect} from 'react-router'
 import { serverURL } from './config'
 import getAuthHeader from './authHeader'
 import {fileSizeHumanReadable, toPlural} from './tools'
-import {IUserInfo} from './types'
-
-interface IColumn {
-  label: string,
-  prop: string,
-  width?: number,
-  minWidth?: number,
-  sortable?: boolean|string,
-  render?: (data:any, column:any, index:number) => void,
-}
+import {IUserInfo, IColumn} from './types'
 
 interface IExpandedPanel {
   type: string,

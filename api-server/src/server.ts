@@ -6,15 +6,16 @@ import * as bodyParser from 'body-parser'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import secret from '../secret.json'
-import {User, Part, FileData} from './models'
+import {User, Part, FileData, PartsIdCounter} from './models'
 import sendBackCsv from './sendBackCsv'
 import sendBackXlsx from './sendBackXlsx'
 
 interface IUserInfo {
-    username: string,
-    fullName: string,
-    email: string,
-    groups: [string],
+  id:string,
+  username: string,
+  fullName: string,
+  email: string,
+  groups: [string],
 }
 interface IUserJWT extends IUserInfo {
   iat: number,
@@ -76,6 +77,7 @@ function userMustBeAdmin (req :Request, res :Response, next: NextFunction) {
     next();
   } else if (req.headers['test-token'] === 'a30aa7f7de512963a03c') {
     req.currentUser = {
+      id:'5b718be08274212924fe4a94',
       username: 'test',
       fullName: 'test man',
       email: 'yishaluo@gmail.com',
@@ -92,6 +94,7 @@ function userMustBeAdmin (req :Request, res :Response, next: NextFunction) {
 function userMustLoggedIn (req :Request, res :Response, next: NextFunction) {
   if (req.headers['test-token'] === 'a30aa7f7de512963a03c') {
     req.currentUser = {
+      id:'5b718be08274212924fe4a94',
       username: 'test',
       fullName: 'test man',
       email: 'yishaluo@gmail.com',
@@ -115,29 +118,30 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
   try {
     console.log(req.body)
     const {name, email} = await verifyGoogleToken(req.body.token);
+    const abbr = name.trim().split(' ').map(v=>v[0]).join('').toUpperCase();
     console.log(`verified user ${name} ${email}`)
     let groups = []
-    try {
       const user = await User.findOne({email})
       console.log(`found user ${user}`)
+      let id = '';
       if (!user) {
         // no user, create one
         const newUser = new User({
           name,
           email,
+          abbr,
           authType: 'google',
           groups: ['guests'],
         });
         console.log(`new user: ${newUser}`)
         groups.push('guests')
-        await newUser.save()
+        await newUser.save();
+        id = newUser.id;
       } else {
         groups = user.groups
       }
-    } catch (err) {
-      console.log(err)
-    }
     const token = jwt.sign({
+        id,
         username: email,
         fullName: name,
         email,
@@ -168,12 +172,13 @@ app.get('/api/users/names/', userMustLoggedIn, async (req :Request, res: Respons
 app.get('/api/currentUser', async (req :Request, res: Response) => 
 { 
   if (req.currentUser) {
-  const {username, fullName, email, groups, exp} = req.currentUser;
+  const {id, username, fullName, email, groups, exp} = req.currentUser;
   const now = Math.floor(Date.now()/1000);
   console.log({exp, now})
   let payload :{username :string, fullName :string, groups: string[], token?:string, tokenExpireIn?:number} = {username, fullName, groups}
   if (now < exp && exp - now < 1200) {
     payload.token = jwt.sign({
+      id,
       username,
       fullName,
       email,
@@ -274,6 +279,118 @@ app.get('/api/parts/countAll', userMustLoggedIn, async (req :Request, res: Respo
     res.json({ bacteria, primers, yeasts });
   } catch (err) {
     res.status(500).json({err})
+  }
+});
+
+app.post('/api/part', userMustLoggedIn, async (req :Request, res: Response) => {
+  // read part form
+  let form = req.body;
+  // get increased labId
+  let {
+    sampleType,
+    comment,
+    date,
+    tags,
+    markers,
+    plasmidName,
+    hostStrain,
+    parents,
+    genotype,
+    plasmidType,
+    sequence,
+    orientation,
+    meltingTemperature,
+    concentration,
+    vendor,
+    attachments,
+  } = req.body;
+
+  try {
+    const currentUser = await User.findById(req.currentUser.id).exec();
+    const abbr = currentUser.abbr;
+    const typeLetter = (t=>{
+      switch(t){
+        case 'bacterium':
+          return 'e';
+        case 'primer':
+          return 'p';
+        case 'yeast':
+          return 'y';
+        default:
+          return 'x';
+      }
+    })(sampleType);
+    const labPrefix = 'YC' + typeLetter;
+    const personalPrefix = abbr + typeLetter;
+    
+    let doc;
+  
+    doc = await PartsIdCounter.findOneAndUpdate(
+      {name:labPrefix},
+      {$inc:{count:1}},
+      {new: true, upsert: true}
+    ).exec();
+    const labId = doc.count;
+    // get incresed personalId
+    doc = await PartsIdCounter.findOneAndUpdate(
+      {name:personalPrefix},
+      {$inc:{count:1}},
+      {new: true, upsert: true}
+    ).exec();
+    const personalId = doc.count;
+    const now = new Date();
+
+    // createAttachments
+    const attachmentIds = [];
+    for(const attachment of attachments) {
+      const att = new FileData({
+        name: attachment.name,
+        data: new Buffer(attachment.data, 'base64'),
+      });
+      await att.save();
+      attachmentIds.push(
+        {
+          fileName: attachment.name,
+          contentType: attachment.type,
+          fileSize: attachment.size,
+          fileId: att._id,
+        }
+      );
+    }
+
+    // createNewPart
+    let part = new Part({
+      labName: labPrefix+labId,
+      labPrefix,
+      labId,
+      personalName: personalPrefix+personalId,
+      personalPrefix,
+      personalId,
+      sampleType,
+      comment,
+      createdAt: now,
+      updatedAt: now,
+      date,
+      tags: tags ? tags.split(';') : [],
+      content: {
+        markers: markers ? markers.split(';') : undefined,
+        plasmidName,
+        hostStrain,
+        parents: parents ? parents.split(';') : undefined,
+        genotype: genotype ? genotype.split(';') : undefined,
+        plasmidType,
+        sequence,
+        orientation,
+        meltingTemperature,
+        concentration,
+        vendor,
+      },
+      attachments: attachmentIds,
+    });
+    await part.save();
+    res.json(part);
+  } catch (err) {
+    res.status(500).json({err: err.toString()});
   }
 });
 
