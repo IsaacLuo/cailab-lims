@@ -2,20 +2,24 @@ import * as React from 'react'
 import { Table, Input, DatePicker, Tag, Button } from 'element-react'
 import Dropzone from 'react-dropzone'
 import styled from 'styled-components'
+
+// router 
+import { Link } from 'react-router'
 // redux
 import { IStoreState } from './store'
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { ActionSetUploadPartsDialogVisible } from './actions'
+import { ActionSetUploadPartsDialogVisible, ActionClearLoginInformation } from './actions'
 
 // helpers
 import { serverURL } from './config'
 import getAuthHeader from './authHeader'
 import * as xlsx from 'xlsx'
-import {readFileAsBuffer,readFileAsDataURL, PartFormReader} from './tools'
-import {IColumn, IAttachmentDataURL} from './types'
+import {readFileAsBuffer,readFileAsDataURL, PartFormReader, readFileAsBase64} from './tools'
+import {IColumn, IAttachment} from './types'
 import axios from 'axios';
+import NewPartDialog from './NewPartDialog';
 
 const MyPanel = styled.div`
   display:flex;
@@ -51,12 +55,15 @@ const RedText = styled.span`
 
 interface IProps {
   sampleType: string,
-  hideDialog: () => void
+  returnTo?: string,
+  hideDialog: () => void,
+  logout: () => void,
 }
 
 interface IState {
   partsForm: any[],
   formTitles: IColumn[],
+  submitting: 'ready'|'submitting'|'done',
 }
 
 class UploadPartsDialog extends React.Component<IProps, IState> {
@@ -67,11 +74,12 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
     this.state = {
       partsForm: [],
       formTitles: [],
+      submitting: 'ready',
     }
   }  
   public render() {
     const {sampleType} = this.props;
-    const {partsForm, formTitles} = this.state;
+    const {partsForm, formTitles, submitting} = this.state;
     return (
       <MyPanel>
         {partsForm.length === 0 ? 
@@ -103,15 +111,25 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
             columns={formTitles}
             data={partsForm}
           />
-          <Button onClick={this.submitParts}> submit </Button>
+          {
+            submitting === 'done' ?
+            <div>
+              {this.props.returnTo && <Link to={this.props.returnTo}><Button>close</Button></Link>}
+            </div> 
+            :
+            <div>
+            <Button onClick={this.submitParts} disabled={submitting === 'submitting'}> {submitting ==='submitting' ? 'submitting' : 'submit'} </Button>
+            <Button onClick={this.clearParts} disabled={submitting === 'submitting'}> clear </Button>
+            </div>
+          }
         </div>
         }
       </MyPanel>
     )
   }
 
-  private onCancel = () => {
-    this.props.hideDialog();
+  private clearParts = () => {
+    this.setState({partsForm: []});
   }
   private onDropFiles = async (acceptedFiles:File[]) => {
     if (acceptedFiles && acceptedFiles[0]) {
@@ -124,12 +142,15 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
         formTitles: [
           {label:'status', prop:'tags', width:200, fixed: 'left', render: (row)=><span>
             {row.submitStatus === 'OK' ? 
-              <GreenText>{`${row.labName}:${row.personalName}`}</GreenText> : 
-              row.submitStatus === 'ready' ? 
-              <span>ready to submit</span>: 
-              <RedText>failed</RedText>
+              <GreenText>saved {`${row.labName}:${row.personalName}`}</GreenText> : 
+              <div>
+                {row.submitStatus === 'ready' ? 
+                <span>ready to submit</span>: 
+                <RedText>failed</RedText>}
+              </div>
             }
           </span>}, 
+
           ...partFormReader.getHeaders().map(val => {
           if (val === 'date'){
             return {label:val, prop: val, width:200, render: (row) => 
@@ -141,7 +162,15 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
             return {label:val, prop: val, width:200};
           }
         }),
+
         {label:'attachments', prop:'tags', width:200, fixed: 'left', render: (row)=><span>
+          {row.submitStatus === 'OK' ? 
+              (row.attachments.length > 0?
+              row.attachments.map(item=>
+                <div key={item.name}>{item.name}:{item.size}</div>
+                ):
+              <div>'no attachments'</div>)
+          :
           <MiniDropzone
             maxSize={10*1024*1024}
             onDrop={this.onDropAttachments.bind(this, row.attachments)}
@@ -155,32 +184,55 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
             }}
             >
             <DropzopnHint>
-              {row.attachments.length > 0?
+              {row.attachments.length > 0 &&
                 row.attachments.map(item=>
                   <div key={item.name}>{item.name}:{item.size}</div>
-                  ):
-                <div>'upload attachments'</div>
+                  )
               }
+              <Button type="text" size="mini" style={{marginLeft: 5}}>
+                  add <i className="el-icon-plus el-icon-right"/>
+              </Button>
             </DropzopnHint>
-          </MiniDropzone>
+          </MiniDropzone>}
         </span>}, 
+
         ],
         partsForm: partFormReader.readData(),
       });
     }
   }
 
-  private onDropAttachments = async (storage: IAttachmentDataURL[], acceptedFiles:File[]) => {
+  private onDropAttachments = async (storage: IAttachment[], acceptedFiles:File[]) => {
     for(const attachment of acceptedFiles) {
-      const attachmentContent:string = await readFileAsDataURL(attachment);
-      storage.push({name:attachment.name, size: attachment.size, content:attachmentContent});
+      const attachmentContent:string = await readFileAsBase64(attachment);
+      storage.push({
+        name: attachment.name,
+        type: attachment.type,
+        size: attachment.size,
+        content:attachmentContent});
     }
   }
 
-  private submitParts = () => {
+  private submitParts = async () => {
+    this.setState({submitting: 'submitting'});
     for(const newPartForm of this.state.partsForm) {
-      axios.post(serverURL+'/api/part/new')
+      if (newPartForm.submitStatus !== 'OK') {
+        newPartForm.sampleType = this.props.sampleType;
+        try {
+          const res = await axios.post(serverURL+'/api/part', newPartForm, getAuthHeader());
+          newPartForm.labName = res.data.labName;
+          newPartForm.personalName = res.data.personalName;
+          newPartForm.submitStatus = 'OK';
+        } catch (err) {
+          if (err.response && err.response.status === 401) {
+            this.props.logout();
+          }
+        }
+      }
     }
+    // set labName and personalName directly to the states, should update.
+    this.setState({submitting: 'done'});
+    // this.forceUpdate();
   }
 }
 
@@ -190,6 +242,7 @@ const mapStateToProps = (state :IStoreState) => ({
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   hideDialog: () => dispatch(ActionSetUploadPartsDialogVisible(false)),
+  logout: () => dispatch(ActionClearLoginInformation()),
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(UploadPartsDialog))

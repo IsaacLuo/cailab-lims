@@ -63,8 +63,9 @@ export interface IColumn {
   render?: (data:any, column:any, index:number) => void,
 }
 
-export interface IAttachmentDataURL {
+export interface IAttachment {
   name: string,
   size: number,
+  type: string,
   content: string,
 }

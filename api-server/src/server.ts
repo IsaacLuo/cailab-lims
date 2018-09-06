@@ -56,7 +56,7 @@ app.use((req :Request, res :Response, next: NextFunction) => {
       jwt.verify(token, secret.jwt.key, (err, decoded :IUserJWT) => {
         if (!err) {
           // console.log('verified user');
-          // console.log(decoded);
+          console.log(decoded);
           req.currentUser = decoded;
         } else {
           console.log('bad verification');
@@ -141,7 +141,7 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
         groups = user.groups
       }
     const token = jwt.sign({
-        id,
+        id: user.id.toString(),
         username: email,
         fullName: name,
         email,
@@ -345,7 +345,7 @@ app.post('/api/part', userMustLoggedIn, async (req :Request, res: Response) => {
     for(const attachment of attachments) {
       const att = new FileData({
         name: attachment.name,
-        data: new Buffer(attachment.data, 'base64'),
+        data: new Buffer(attachment.content, 'base64'),
       });
       await att.save();
       attachmentIds.push(
@@ -390,6 +390,7 @@ app.post('/api/part', userMustLoggedIn, async (req :Request, res: Response) => {
     await part.save();
     res.json(part);
   } catch (err) {
+    console.log(err);
     res.status(500).json({err: err.toString()});
   }
 });

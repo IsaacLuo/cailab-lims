@@ -53,6 +53,18 @@ export async function readFileAsDataURL(file: Blob) {
   })
 }
 
+export async function readFileAsBase64(file: Blob) {
+  return new Promise(async (resolve:(data:string)=>void, reject)=> {
+    const dataURL = await readFileAsDataURL(file);
+    const match = /data:(.*);base64,(.*)/.exec(dataURL);
+    if (match && match[2]) {
+      resolve(match[2]);
+    } else {
+      reject(dataURL);
+    }
+  })
+}
+
 
 function toColStr(col:number) {
   const nums:number[] = [];
@@ -97,6 +109,7 @@ export class PartFormReader {
   private rows:number = 0;
   private sheet: xlsx.Sheet;
   private headers: string[];
+  private customHeaders: Set<string> = new Set();
 
   constructor(sheet: xlsx.Sheet, rows:number, cols:number) {
     console.debug(sheet, rows, cols);
@@ -113,11 +126,23 @@ export class PartFormReader {
     for(let row=1; row<this.rows; row++) {
       for(let col=0; col<this.cols; col++) {
         const header = this.headers[col];
+        const originalData = this.loc(row,col);
+        if (this.customHeaders.has(header)) {
+          if (dataObj.customData === undefined) {
+            dataObj.customData = [];
+          }
+          if (/(^|\s)date($|\s)/.test(header) && typeof(originalData) === 'number') {
+            // 25569 is the days of 1970/1/1 - 1900/1/1, 86400000 is the ms of a day
+          dataObj.customData[header] = new Date((originalData - 25569)*86400000);
+          } else {
+          dataObj.customData[header] = originalData;
+          }
+        }
         if (header === 'date') {
           // 25569 is the days of 1970/1/1 - 1900/1/1, 86400000 is the ms of a day
-          dataObj[header] = new Date((this.loc(row,col) - 25569)*86400000);
+          dataObj[header] = new Date((originalData - 25569)*86400000);
         } else {
-          dataObj[header] = this.loc(row,col);
+          dataObj[header] = originalData;
         }
       }
       dataObj.attachments = [];
@@ -128,6 +153,7 @@ export class PartFormReader {
     }
     return data;
   }
+
   public getHeaders() {
     return this.headers;
   }
@@ -170,6 +196,7 @@ export class PartFormReader {
             throw new Error('table header error');
           }
           this.headers.push(columnHead);
+          this.customHeaders.add(columnHead);
       }
     }
   }
