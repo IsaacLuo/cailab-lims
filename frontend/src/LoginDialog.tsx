@@ -74,7 +74,11 @@ class LoginDialog extends React.Component<ILoginDialogProps, any> {
       this.props.setLoginInformation(res.data.name, res.data.groups);
       this.props.refreshPartsCount();
     } catch (err) {
+      if (err.response) {
+        Notification.error({title:'error', message:`${err.response.status}: ${err.response.statusText}`, duration:30000});
+      } else {
       Notification.error({title:'error', message:err.toLocaleString()});
+      }
     }
   }
 

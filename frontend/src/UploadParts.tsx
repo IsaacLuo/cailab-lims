@@ -1,10 +1,10 @@
 import * as React from 'react'
-import { Table, Input, DatePicker, Tag, Button } from 'element-react'
+import { Table, Input, Loading, DatePicker, Tag, Button, Notification } from 'element-react'
 import Dropzone from 'react-dropzone'
 import styled from 'styled-components'
 
 // router 
-import { Link } from 'react-router'
+import { Link } from 'react-router-dom'
 // redux
 import { IStoreState } from './store'
 import { Dispatch } from 'redux'
@@ -53,6 +53,11 @@ const RedText = styled.span`
   color: red;
 `
 
+interface IRowUIControl {
+  // submitting: 'ready'|'submitting'|'done'|'failed',
+  readingAttachment: boolean,
+}
+
 interface IProps {
   sampleType: string,
   returnTo?: string,
@@ -62,8 +67,10 @@ interface IProps {
 
 interface IState {
   partsForm: any[],
+  partsFormUI: IRowUIControl[],
   formTitles: IColumn[],
-  submitting: 'ready'|'submitting'|'done',
+  uploadingAttachments: boolean,
+  submitting: 'ready'|'submitting'|'done'|'failed',
 }
 
 class UploadPartsDialog extends React.Component<IProps, IState> {
@@ -74,7 +81,9 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
     this.state = {
       partsForm: [],
       formTitles: [],
+      partsFormUI: [],
       submitting: 'ready',
+      uploadingAttachments: false,
     }
   }  
   public render() {
@@ -138,6 +147,8 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
       const workbook = xlsx.read(data, {type:'buffer'});
       console.log(workbook);
       const partFormReader = PartFormReader.fromWorkBook(workbook);
+      const partsForm = partFormReader.readData();
+      const partsFormUI = partsForm.map(val=>({submitting:'ready', readingAttachment: false} as IRowUIControl));
       this.setState({
         formTitles: [
           {label:'status', prop:'tags', width:200, fixed: 'left', render: (row)=><span>
@@ -163,17 +174,18 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
           }
         }),
 
-        {label:'attachments', prop:'tags', width:200, fixed: 'left', render: (row)=><span>
+        {label:'attachments', prop:'tags', width:200, fixed: 'left', render: (row, column, index)=><span>
           {row.submitStatus === 'OK' ? 
               (row.attachments.length > 0?
-              row.attachments.map(item=>
-                <div key={item.name}>{item.name}:{item.size}</div>
+              row.attachments.map((item, key)=>
+                <div key={key}>{item.name}:{item.size}</div>
                 ):
               <div>'no attachments'</div>)
           :
+          <Loading loading={this.state.partsFormUI[index].readingAttachment}>
           <MiniDropzone
             maxSize={10*1024*1024}
-            onDrop={this.onDropAttachments.bind(this, row.attachments)}
+            onDrop={this.onDropAttachments.bind(this, index, row.attachments)}
             rejectStyle={{
               borderColor:'#f00',
               backgroundColor:'#f77',
@@ -185,36 +197,52 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
             >
             <DropzopnHint>
               {row.attachments.length > 0 &&
-                row.attachments.map(item=>
-                  <div key={item.name}>{item.name}:{item.size}</div>
+                row.attachments.map((item, key)=>
+                  <div key={key}>{item.name}:{item.size}</div>
                   )
               }
               <Button type="text" size="mini" style={{marginLeft: 5}}>
                   add <i className="el-icon-plus el-icon-right"/>
               </Button>
             </DropzopnHint>
-          </MiniDropzone>}
+          </MiniDropzone>
+          </Loading>}
         </span>}, 
 
         ],
-        partsForm: partFormReader.readData(),
+        partsForm,
+        partsFormUI,
       });
     }
   }
 
-  private onDropAttachments = async (storage: IAttachment[], acceptedFiles:File[]) => {
+  private onDropAttachments = async (index: number, storage: IAttachment[], acceptedFiles:File[], rejectedFiles: File[]) => {
+    if (rejectedFiles.length > 0) {
+      const rejectedFileNames = rejectedFiles.map(val=> val.name);
+      Notification.error({
+        title: `rejected`,
+        message: rejectedFileNames.join(' '),
+      });
+    }
+    
+    const {partsFormUI} = this.state;
+    partsFormUI[index].readingAttachment = true;
+    this.setState({uploadingAttachments: true});
     for(const attachment of acceptedFiles) {
-      const attachmentContent:string = await readFileAsBase64(attachment);
+      const attachmentContent:string = await readFileAsDataURL(attachment);
       storage.push({
         name: attachment.name,
         type: attachment.type,
         size: attachment.size,
         content:attachmentContent});
     }
+    partsFormUI[index].readingAttachment = false;
+    this.setState({uploadingAttachments: false});
   }
 
   private submitParts = async () => {
     this.setState({submitting: 'submitting'});
+    let failedCount:number = 0;
     for(const newPartForm of this.state.partsForm) {
       if (newPartForm.submitStatus !== 'OK') {
         newPartForm.sampleType = this.props.sampleType;
@@ -224,15 +252,33 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
           newPartForm.personalName = res.data.personalName;
           newPartForm.submitStatus = 'OK';
         } catch (err) {
-          if (err.response && err.response.status === 401) {
+          newPartForm.submitStatus = 'failed';
+          if (err.response) {
+            if (err.response.status === 401) {
             this.props.logout();
+            } else {
+              console.error(err.response.status, err.response.data);
+              Notification.error({
+                title: `error: ${err.response.status}`,
+                message:  err.response.statusText,
+              });
+              failedCount++;
+            }
+          } else {
+            // no response
+            Notification.error({
+              title: 'error',
+              message: err
+            });
           }
         }
       }
     }
-    // set labName and personalName directly to the states, should update.
-    this.setState({submitting: 'done'});
-    // this.forceUpdate();
+    if (failedCount === 0) {
+      this.setState({submitting: 'done'});
+    } else {
+      this.setState({submitting: 'failed'});
+    }
   }
 }
 

@@ -48,11 +48,11 @@ class App extends React.Component<IProps, any> {
           </header>
           <LoginDialog/>
           <Route path='/' exact={true} component={ActionPanel} />
-          <Route path='/parts/bacteria' exact={true} render={this.renderBacteriaComponent} />
-          <Route path='/parts/primers' exact={true} render={this.renderPrimersComponent} />
-          <Route path='/parts/yeasts' exact={true} render={this.renderYeastsComponent} />
+          <Route path='/parts/bacteria/' exact={true} render={this.renderBacteriaComponent} />
+          <Route path='/parts/primers/' exact={true} render={this.renderPrimersComponent} />
+          <Route path='/parts/yeasts/' exact={true} render={this.renderYeastsComponent} />
           <Route path='/parts/bacteria/upload' exact={true} render={this.renderBacteriaUpload} />
-          <Route path='/users' component={Users} />
+          <Route path='/users/' component={Users} />
         </div>
       );
     }

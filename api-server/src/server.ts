@@ -39,13 +39,13 @@ const app = express()
 
 app.use(cors())
 
-app.use(bodyParser.json({ type: 'application/json' }))
+app.use(bodyParser.json({ type: 'application/json' , limit:'100KB'}))
 
 app.use((req :Request, res :Response, next: NextFunction) => {
   console.log(`${req.method} ${req.path}`)
   res.set('Cache-Control', 'public, max-age=1');
   next();
-})
+});
 
 // get user group
 app.use((req :Request, res :Response, next: NextFunction) => {
@@ -343,9 +343,13 @@ app.post('/api/part', userMustLoggedIn, async (req :Request, res: Response) => {
     // createAttachments
     const attachmentIds = [];
     for(const attachment of attachments) {
+      let attContent = attachment.content;
+      if (/data:(.*);base64,/.test(attContent)) {
+        attContent = attContent.split(',')[1];
+      }
       const att = new FileData({
         name: attachment.name,
-        data: new Buffer(attachment.content, 'base64'),
+        data: new Buffer(attContent, 'base64'),
       });
       await att.save();
       attachmentIds.push(
@@ -372,6 +376,7 @@ app.post('/api/part', userMustLoggedIn, async (req :Request, res: Response) => {
       updatedAt: now,
       date,
       tags: tags ? tags.split(';') : [],
+      ownerUserId: currentUser._id,
       content: {
         markers: markers ? markers.split(';') : undefined,
         plasmidName,

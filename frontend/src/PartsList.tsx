@@ -19,12 +19,14 @@ import {
 
 // react-router
 import {Redirect} from 'react-router'
+import {Link} from 'react-router-dom'
 
 // helpers
 import { serverURL } from './config'
 import getAuthHeader from './authHeader'
 import {fileSizeHumanReadable, toPlural} from './tools'
 import {IUserInfo, IColumn} from './types'
+
 
 interface IExpandedPanel {
   type: string,
@@ -104,7 +106,8 @@ class PartsList extends React.Component<IProps, IState> {
               allUsers.map(user => <Select.Option key={user.id} label={user.name} value={user.id} />)
             }
           </Select>
-          <Button onClick = {this.props.setNewPartDialogVisible.bind(this, true)}>new part</Button>
+          {/* <Button onClick = {this.props.setNewPartDialogVisible.bind(this, true)}>new part</Button> */}
+          <Link to={`/parts/${toPlural(this.props.sampleType)}/upload`}>upload</Link>
           <Button onClick = {this.exportToXlsxCurrentPage}>export page</Button>
           <Button onClick = {this.exportToXlsxAllPages}>export all</Button>
         </div>

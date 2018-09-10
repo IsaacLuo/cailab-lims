@@ -121,12 +121,14 @@ export class PartFormReader {
   }
 
   public readData() {
-    const dataObj:any = {};
     const data:any[] = [];
     for(let row=1; row<this.rows; row++) {
+      const dataObj:any = {};
       for(let col=0; col<this.cols; col++) {
         const header = this.headers[col];
+        
         const originalData = this.loc(row,col);
+        console.debug(`row ${row}, col ${col},`, originalData);
         if (this.customHeaders.has(header)) {
           if (dataObj.customData === undefined) {
             dataObj.customData = [];
