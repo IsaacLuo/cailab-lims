@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import {Schema} from 'mongoose'
 
 import secret from '../../secret.json'
-import {Part, FileData, PartsIdCounter} from '../models'
+import {Part, FileData, PartsIdCounter, User} from '../models'
 import fs from 'fs'
 import readline from 'readline'
 
@@ -61,7 +61,12 @@ function loadYeasts() {
       personalName: yeast.personalName,
       personalPrefix,
       personalId,
-      dbV1Id: yeast.userId,
+      dbV1: {
+        userId: yeast.userId,
+        id: yeast.id,
+      },
+      ownerId: usersDict[yeast.userId]._id,
+      ownerName: usersDict[yeast.userId].name,
       sampleType: yeast.sampleType,
       comment: yeast.comment,
       createdAt: yeast.createdAt,
@@ -88,6 +93,40 @@ interface Attachment {
   contentType: string,
   fileSize: number,
   fileId: ObjectId,
+}
+
+const usersDict:any = {};
+
+function loadUsers() {
+  console.log('load users');
+  const file = fs.createReadStream('./users.txt');
+  const readLine = readline.createInterface({
+    input: file,
+  })
+  readLine.on('line', async line => {
+    mission++;
+    const user = JSON.parse(line);
+    let x = new User({
+      dbV1: {
+        id: user.id,
+        admin: user.admin,
+        canEdit: user.can_edit,
+        aproved: user.approved,
+        signInCount: user.signInCount,
+      },
+      email: user.email,
+      name: user.name,
+      signInCount: user.signInCount,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at,
+      abbr: user.name.trim().split(' ').map(v=>v[0]).join('').toUpperCase(),
+      groups: [user.can_edit?'users':undefined, user.admin?'administrators':undefined].filter(val=>val!==undefined),
+    });
+    await x.save();
+    usersDict[user.id] = x;
+    finished++;
+    process.stdout.write(`${finished}/${mission}\r`);
+  })
 }
 
 function loadBateria() {
@@ -130,7 +169,12 @@ function loadBateria() {
         personalName: bacterium.personalName,
         personalPrefix,
         personalId,
-        dbV1Id: bacterium.userId,
+        dbV1: {
+          userId: bacterium.userId,
+          id: bacterium.id,
+        },
+        ownerId: usersDict[bacterium.userId]._id,
+        ownerName: usersDict[bacterium.userId].name,
         sampleType: bacterium.sampleType,
         comment: bacterium.comment,
         createdAt: bacterium.createdAt,
@@ -177,7 +221,12 @@ function loadPrimers() {
       personalName: primer.personalName,
       personalPrefix,
       personalId,
-      dbV1Id: primer.userId,
+      dbV1: {
+        userId: primer.userId,
+        id: primer.id,
+      },
+      ownerId: usersDict[primer.userId]._id,
+      ownerName: usersDict[primer.userId].name,
       sampleType: primer.sampleType,
       comment: primer.comment,
       createdAt: primer.createdAt,
@@ -208,8 +257,13 @@ async function main() {
 
 console.log('start');
 console.log('cleaning');
+await User.deleteMany({}).exec();
 await Part.deleteMany({}).exec();
 await FileData.deleteMany({}).exec();
+loadUsers();
+do {
+  await sleep(1000);
+} while (finished < mission);
 console.log('bacteria');
 loadBateria();
 do {

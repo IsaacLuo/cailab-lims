@@ -39,7 +39,7 @@ const app = express()
 
 app.use(cors())
 
-app.use(bodyParser.json({ type: 'application/json' , limit:'100KB'}))
+app.use(bodyParser.json({ type: 'application/json' , limit:'10MB'}))
 
 app.use((req :Request, res :Response, next: NextFunction) => {
   console.log(`${req.method} ${req.path}`)
@@ -56,7 +56,7 @@ app.use((req :Request, res :Response, next: NextFunction) => {
       jwt.verify(token, secret.jwt.key, (err, decoded :IUserJWT) => {
         if (!err) {
           // console.log('verified user');
-          console.log(decoded);
+          // console.log(decoded);
           req.currentUser = decoded;
         } else {
           console.log('bad verification');
@@ -422,14 +422,14 @@ app.get('/api/attachments/:id', userMustLoggedIn, async (req :Request, res: Resp
 
 // ===========================admin==========================================
 app.get('/api/users', userMustBeAdmin, async (req :Request, res: Response) => {
-  let users = await User.find({});
+  let users = await User.find({}).sort({groups: -1, createdAt:1 });
   users = users.map(user => ({
     id: user._id,
-    dbV1Id: user.dbV1Id,
-    username: user.username,
+    abbr: user.abbr,
     email: user.email,
     authType: user.authType,
     name: user.name,
+    createdAt: user.createdAt,
     groups: user.groups,
   }));
   res.json(users);

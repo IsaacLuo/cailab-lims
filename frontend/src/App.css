@@ -51,3 +51,12 @@ a {
 .partDetailPanel .el-table::after {
   width: 0px !important;
 }
+
+a {
+  color: #20a0ff;
+}
+
+.link {
+  color:#20a0ff;
+  cursor: pointer;
+}

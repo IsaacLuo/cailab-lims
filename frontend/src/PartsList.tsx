@@ -107,7 +107,9 @@ class PartsList extends React.Component<IProps, IState> {
             }
           </Select>
           {/* <Button onClick = {this.props.setNewPartDialogVisible.bind(this, true)}>new part</Button> */}
-          <Link to={`/parts/${toPlural(this.props.sampleType)}/upload`}>upload</Link>
+          <Link to={`/parts/${toPlural(this.props.sampleType)}/upload`} style={{marginLeft:10,marginRight:10}}>
+            <Button type="primary">import</Button>
+          </Link>
           <Button onClick = {this.exportToXlsxCurrentPage}>export page</Button>
           <Button onClick = {this.exportToXlsxAllPages}>export all</Button>
         </div>
@@ -240,6 +242,7 @@ class PartsList extends React.Component<IProps, IState> {
           </div>);
           return <div>
             <div>{data.comment}</div>
+            <div>creator: {data.ownerName}</div>
             {data.attachment && 
               (<div style={{marginTop:10, marginBottom: 5}}> 
                 <div><b>attachments</b></div> 
@@ -572,6 +575,7 @@ class PartsList extends React.Component<IProps, IState> {
         markers: item.content.markers ? item.content.markers.join('; ') : '',
         date: item.date ? (new Date(item.date)).toLocaleDateString() : '',
         comment: item.comment ? item.comment : '',
+        ownerName: item.ownerName,
         attachment: item.attachment,
       }))
     break;

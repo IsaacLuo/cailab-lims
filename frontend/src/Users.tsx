@@ -6,8 +6,10 @@ import { Table, Checkbox, Button, Notification } from 'element-react'
 // import {TableColumn} from 'element-react/typings/index'
 interface IUser {
   email: string,
+  abbr: string,
   groups: string[],
   name: string,
+  createdAt: string,
 }
 
 export interface IUserProps {
@@ -31,7 +33,9 @@ export default class Users extends React.Component<IUserProps, IUserState> {
     const users = this.state.users.map(user => (
       {
         name: user.name,
+        abbr: user.abbr,
         email: user.email,
+        createdAt: user.createdAt,
         isAdmin: user.groups.indexOf('administrators')>=0,
         isUsers: user.groups.indexOf('users')>=0,
       }
@@ -42,9 +46,16 @@ export default class Users extends React.Component<IUserProps, IUserState> {
         label: 'name',
         prop: 'name',
       },
+      { label: 'abbr',
+        prop: 'abbr',
+      },
       {
         label: 'email',
         prop: 'email',
+      },
+      {
+        label: 'created at',
+        prop: 'createdAt',
       },
       {
         label: 'admin',

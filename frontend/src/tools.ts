@@ -1,5 +1,6 @@
 import * as xlsx from 'xlsx'
 import {IPart} from './types'
+import { promises } from 'fs';
 
 export function fileSizeHumanReadable(fileSize: number) {
   if (fileSize < 1024) {
@@ -63,6 +64,14 @@ export async function readFileAsBase64(file: Blob) {
       reject(dataURL);
     }
   })
+}
+
+export async function sleep(time: number) {
+  setTimeout(()=>{
+    return new Promise((resolve, reject) => {
+      resolve();
+    })
+  },time);
 }
 
 

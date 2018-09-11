@@ -71,6 +71,8 @@ interface IState {
   formTitles: IColumn[],
   uploadingAttachments: boolean,
   submitting: 'ready'|'submitting'|'done'|'failed',
+  sucessefulCount: number,
+  failedCount: number,
 }
 
 class UploadPartsDialog extends React.Component<IProps, IState> {
@@ -84,6 +86,8 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
       partsFormUI: [],
       submitting: 'ready',
       uploadingAttachments: false,
+      sucessefulCount: 0,
+      failedCount: 0,
     }
   }  
   public render() {
@@ -129,6 +133,12 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
             <div>
             <Button onClick={this.submitParts} disabled={submitting === 'submitting'}> {submitting ==='submitting' ? 'submitting' : 'submit'} </Button>
             <Button onClick={this.clearParts} disabled={submitting === 'submitting'}> clear </Button>
+            {
+              submitting === 'submitting' &&
+              <div>
+                {this.state.sucessefulCount} submitted, {this.state.failedCount} failed <i className="el-icon-loading" />
+              </div>
+            }
             </div>
           }
         </div>
@@ -142,78 +152,106 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
   }
   private onDropFiles = async (acceptedFiles:File[]) => {
     if (acceptedFiles && acceptedFiles[0]) {
-      const excelFile = acceptedFiles[0];
-      const data = await readFileAsBuffer(excelFile);
-      const workbook = xlsx.read(data, {type:'buffer'});
-      console.log(workbook);
-      const partFormReader = PartFormReader.fromWorkBook(workbook);
-      const partsForm = partFormReader.readData();
-      const partsFormUI = partsForm.map(val=>({submitting:'ready', readingAttachment: false} as IRowUIControl));
-      this.setState({
-        formTitles: [
-          {label:'status', prop:'tags', width:200, fixed: 'left', render: (row)=><span>
-            {row.submitStatus === 'OK' ? 
-              <GreenText>saved {`${row.labName}:${row.personalName}`}</GreenText> : 
-              <div>
-                {row.submitStatus === 'ready' ? 
-                <span>ready to submit</span>: 
-                <RedText>failed</RedText>}
-              </div>
-            }
-          </span>}, 
+      try {
+        const excelFile = acceptedFiles[0];
+        const data = await readFileAsBuffer(excelFile);
+        const workbook = xlsx.read(data, {type:'buffer'});
+        console.log(workbook);
+        const partFormReader = PartFormReader.fromWorkBook(workbook);
+        const partsForm = partFormReader.readData();
+        if (partsForm.length === 0) {
+          throw new Error('empty form');
+        }
+        const partsFormUI = partsForm.map(val=>({submitting:'ready', readingAttachment: false} as IRowUIControl));
+        const headers = partFormReader.getHeaders();
+        if (this.verifyHeaders(headers)) {
+          this.setState({
+            formTitles: [
+              {label:'status', prop:'tags', width:200, fixed: 'left', render: (row)=><span>
+                {row.submitStatus === 'OK' ? 
+                  <GreenText>saved {`${row.labName}:${row.personalName}`}</GreenText> : 
+                  <div>
+                    {row.submitStatus === 'failed' ? 
+                    <RedText>failed</RedText>:
+                    <span>{row.submitStatus}</span>}
+                  </div>
+                }
+              </span>}, 
 
-          ...partFormReader.getHeaders().map(val => {
-          if (val === 'date'){
-            return {label:val, prop: val, width:200, render: (row) => 
-              <span>
-                {row.date.toLocaleDateString()}
-              </span>
-            }
-          } else {
-            return {label:val, prop: val, width:200};
-          }
-        }),
-
-        {label:'attachments', prop:'tags', width:200, fixed: 'left', render: (row, column, index)=><span>
-          {row.submitStatus === 'OK' ? 
-              (row.attachments.length > 0?
-              row.attachments.map((item, key)=>
-                <div key={key}>{item.name}:{item.size}</div>
-                ):
-              <div>'no attachments'</div>)
-          :
-          <Loading loading={this.state.partsFormUI[index].readingAttachment}>
-          <MiniDropzone
-            maxSize={10*1024*1024}
-            onDrop={this.onDropAttachments.bind(this, index, row.attachments)}
-            rejectStyle={{
-              borderColor:'#f00',
-              backgroundColor:'#f77',
-            }}
-            acceptStyle={{
-              borderColor:'#0f0',
-              backgroundColor:'#7f7',
-            }}
-            >
-            <DropzopnHint>
-              {row.attachments.length > 0 &&
-                row.attachments.map((item, key)=>
-                  <div key={key}>{item.name}:{item.size}</div>
-                  )
+              ...headers.map(val => {
+              if (val === 'date'){
+                return {label:val, prop: val, width:200, render: (row) => 
+                  <span>
+                    {row.date.toLocaleDateString()}
+                  </span>
+                }
+              } else {
+                return {label:val, prop: val, width:200};
               }
-              <Button type="text" size="mini" style={{marginLeft: 5}}>
-                  add <i className="el-icon-plus el-icon-right"/>
-              </Button>
-            </DropzopnHint>
-          </MiniDropzone>
-          </Loading>}
-        </span>}, 
+            }),
 
-        ],
-        partsForm,
-        partsFormUI,
-      });
+            {label:'attachments', prop:'tags', width:200, fixed: 'left', render: (row, column, index)=><span>
+              {row.submitStatus === 'OK' ? 
+                  (row.attachments.length > 0?
+                  row.attachments.map((item, key)=>
+                    <div key={key}>
+                      <span>{item.name}:{item.size}</span>
+                    </div>
+                    ):
+                  <div>'no attachments'</div>)
+              :
+              <Loading loading={this.state.partsFormUI[index].readingAttachment}>
+                {row.attachments.length > 0 &&
+                    row.attachments.map((item, key)=>
+                      <div key={key}>
+                      <span>{item.name}:{item.size}</span>
+                      <Button type="text" size="mini" onClick={this.onDeleteAttachment.bind(this, row.attachments, index)} style={{marginLeft: 5}}>
+                        <i className="el-icon-delete" />
+                      </Button>
+                      </div>
+                      )
+                  }
+              <MiniDropzone
+                maxSize={10*1024*1024}
+                onDrop={this.onDropAttachments.bind(this, index, row.attachments)}
+                rejectStyle={{
+                  borderColor:'#f00',
+                  backgroundColor:'#f77',
+                }}
+                acceptStyle={{
+                  borderColor:'#0f0',
+                  backgroundColor:'#7f7',
+                }}
+                >
+                <DropzopnHint>
+                  <Button type="text" size="mini" style={{marginLeft: 5}}>
+                      add <i className="el-icon-plus el-icon-right"/>
+                  </Button>
+                </DropzopnHint>
+              </MiniDropzone>
+              </Loading>}
+            </span>}, 
+
+            ],
+            partsForm,
+            partsFormUI,
+          });
+        } else {
+          throw new Error('headers doesn\'t match sampleType');
+        }
+      } catch (err) {
+        console.error(err);
+        Notification.error({
+          title: `bad format`,
+          message: `Unable to read this file as a ${this.props.sampleType} form`,
+        });
+      }
     }
+  }
+
+  private onDeleteAttachment = (attachments: string[], index: number) => {
+    attachments.splice(index, 1);
+    this.forceUpdate();
   }
 
   private onDropAttachments = async (index: number, storage: IAttachment[], acceptedFiles:File[], rejectedFiles: File[]) => {
@@ -224,10 +262,10 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
         message: rejectedFileNames.join(' '),
       });
     }
-    
     const {partsFormUI} = this.state;
     partsFormUI[index].readingAttachment = true;
     this.setState({uploadingAttachments: true});
+    // await this.asyncSetState({uploadingAttachments: true});
     for(const attachment of acceptedFiles) {
       const attachmentContent:string = await readFileAsDataURL(attachment);
       storage.push({
@@ -241,16 +279,22 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
   }
 
   private submitParts = async () => {
-    this.setState({submitting: 'submitting'});
+    let sucessefulCount:number = 0;
     let failedCount:number = 0;
+
+    this.setState({submitting: 'submitting', sucessefulCount, failedCount});
+
     for(const newPartForm of this.state.partsForm) {
       if (newPartForm.submitStatus !== 'OK') {
         newPartForm.sampleType = this.props.sampleType;
         try {
+          newPartForm.submitStatus = 'submitting';
           const res = await axios.post(serverURL+'/api/part', newPartForm, getAuthHeader());
           newPartForm.labName = res.data.labName;
           newPartForm.personalName = res.data.personalName;
           newPartForm.submitStatus = 'OK';
+          sucessefulCount++;
+          this.setState({sucessefulCount});
         } catch (err) {
           newPartForm.submitStatus = 'failed';
           if (err.response) {
@@ -263,6 +307,7 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
                 message:  err.response.statusText,
               });
               failedCount++;
+              this.setState({sucessefulCount});
             }
           } else {
             // no response
@@ -270,6 +315,8 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
               title: 'error',
               message: err
             });
+            failedCount++;
+            this.setState({sucessefulCount});
           }
         }
       }
@@ -279,6 +326,29 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
     } else {
       this.setState({submitting: 'failed'});
     }
+  }
+
+  private asyncSetState(state: any) {
+    this.setState(state, ()=>new Promise((resolve, reject)=>{resolve();}));
+  }
+
+  private verifyHeaders(headers: string[]) {
+    console.log('verify headers', headers);
+    const {sampleType} = this.props;
+    let necessaryHeaders:string[] = [];
+    switch(sampleType) {
+      case 'bacterium':
+        necessaryHeaders = ['Plasmid Name',	'Other Names\r\n(semicolon-seperated)', 'Description or Comment',	'Date\r\n(DD/MM/YYYY)', 'Host Strain', 'Bacterial Markers\r\n(semicolon-seperated)', 'Plate Barcode',	'Well ID', 'Tube Barcode'];
+        break;
+      case 'primer':
+      case 'yeast':
+    }
+    for(const header of necessaryHeaders) {
+      if (!headers.indexOf(header)) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 
