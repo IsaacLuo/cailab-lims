@@ -11,7 +11,7 @@ export interface IPart {
   personalPrefix: string,
   personalId: number,
   personalName: string,
-  ownerUserId?: string,
+  ownerId?: string,
   sampleType?: string,
   comment?: string,
   createdAt: Date,

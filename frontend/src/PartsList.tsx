@@ -540,7 +540,7 @@ class PartsList extends React.Component<IProps, IState> {
     const {userFilter} = this.state;
     const res = await axios.get(serverURL+'/api/parts/count?'+qs.stringify({
       type: sampleType,
-      ownerUserId: userFilter,
+      ownerId: userFilter,
     }),
     getAuthHeader());
     return res.data.count;

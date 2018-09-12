@@ -26,14 +26,9 @@ interface Request extends express.Request {
   currentUser :IUserJWT,
 }
 
-mongoose.connect(
-  secret.mongoDB.url,
-  {
-    useNewUrlParser: true,
-    user: secret.mongoDB.username,
-    pass: secret.mongoDB.password, 
-  }
-);
+
+
+const ObjectId = mongoose.Types.ObjectId;
 
 const app = express()
 
@@ -44,6 +39,25 @@ app.use(bodyParser.json({ type: 'application/json' , limit:'10MB'}))
 app.use((req :Request, res :Response, next: NextFunction) => {
   console.log(`${req.method} ${req.path}`)
   res.set('Cache-Control', 'public, max-age=1');
+  next();
+});
+
+app.use(async (req :Request, res :Response, next: NextFunction) => {
+  const mongooseState = mongoose.connection.readyState;
+  switch (mongooseState) {
+    case 3:
+    case 0:
+    console.log('mongooseState=', mongooseState);
+    await mongoose.connect(
+      secret.mongoDB.url,
+      {
+        useNewUrlParser: true,
+        user: secret.mongoDB.username,
+        pass: secret.mongoDB.password, 
+      }
+    );
+    break;
+  }
   next();
 });
 
@@ -204,7 +218,7 @@ app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
     condition.sampleType = type;
   }
   if (user) {
-    condition.ownerUserId = user
+    condition.ownerId = ObjectId(user);
   }
   let parts = Part.find(condition)
   if (sortBy) {
@@ -252,13 +266,13 @@ app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
 });
 
 app.get('/api/parts/count', userMustLoggedIn, async (req :Request, res: Response) => {
-  let {type, ownerUserId} = req.query;
+  let {type, ownerId} = req.query;
   let condition :any = {};
   if (type) {
     condition.sampleType = type;
   }
-  if (ownerUserId) {
-    condition.ownerUserId = ownerUserId;
+  if (ownerId) {
+    condition.ownerId = ownerId;
   }
   Part.count(condition)
   .exec((err, data)=>{
@@ -376,7 +390,7 @@ app.post('/api/part', userMustLoggedIn, async (req :Request, res: Response) => {
       updatedAt: now,
       date,
       tags: tags ? tags.split(';') : [],
-      ownerUserId: currentUser._id,
+      ownerId: currentUser._id,
       content: {
         markers: markers ? markers.split(';') : undefined,
         plasmidName,
@@ -461,13 +475,13 @@ app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res:
 })
 
 // set a ownerID by giving the dbv1Id
-app.put('/api/legacyParts/:dbV1Id/owner/:ownerUserId', /*userMustBeAdmin,*/ async (req :Request, res: Response) => {
-  const {dbV1Id, ownerUserId} = req.params;
+app.put('/api/legacyParts/:dbV1Id/owner/:ownerId', /*userMustBeAdmin,*/ async (req :Request, res: Response) => {
+  const {dbV1Id, ownerId} = req.params;
   try {
-    const user = await User.findOne({_id:ownerUserId});
-    if (user._id.toString() === ownerUserId) {
+    const user = await User.findOne({_id:ownerId});
+    if (user._id.toString() === ownerId) {
       console.log(`assign parts of ${dbV1Id} to ${user.name}`)
-      const docs = await Part.updateMany({dbV1Id}, {ownerUserId});
+      const docs = await Part.updateMany({dbV1Id}, {ownerId});
       res.json({message: `updated ${docs.nModified} of ${docs.n}`, total: docs.n, updated: docs.nModified});
     }
   } catch (err) {

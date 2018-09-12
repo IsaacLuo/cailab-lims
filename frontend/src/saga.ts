@@ -55,8 +55,14 @@ export function* initialize() {
 }
 
 export function* getUserList() {
-  const res = yield call(axios.get,serverURL+'/api/users/names/', getAuthHeader());
-  yield put(ActionSetAllUserNames(res.data));
+  try {
+    const res = yield call(axios.get,serverURL+'/api/users/names/', getAuthHeader());
+    yield put(ActionSetAllUserNames(res.data));
+  } catch (err) {
+    if (err.response && err.response.status === 401) {
+      yield put(ActionClearLoginInformation());
+    }
+  }
 }
 
 export function* watchMyInformation() {
@@ -66,8 +72,14 @@ export function* watchMyInformation() {
 }
 
 export function* getPartsCount() {
-  const res = yield call(axios.get,serverURL+'/api/parts/count', getAuthHeader());
-  yield put(ActionSetPartsCount(res.data));
+  try {
+    const res = yield call(axios.get,serverURL+'/api/parts/count', getAuthHeader());
+    yield put(ActionSetPartsCount(res.data));
+  } catch (err) {
+    if (err.response && err.response.status === 401) {
+      yield put(ActionClearLoginInformation());
+    }
+  }
 }
 
 export function* getParts(action: IAction) {
