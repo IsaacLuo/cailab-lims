@@ -3,7 +3,7 @@ import axios from 'axios'
 import qs from 'qs'
 
 // components
-import { Table, Pagination, Icon, Loading, Select, Button } from 'element-react'
+import { Table, Pagination, Icon, Loading, Select, Button, Notification, MessageBox, Message } from 'element-react'
 import NewPartDialog from './NewPartDialog'
 import ErrorBoundary from './ErrorBoundary'
 
@@ -339,9 +339,9 @@ class PartsList extends React.Component<IProps, IState> {
         width: 180,
       },
       {
-        label: "att",
-        prop: "attachment",
-        width: 50,
+        label: "...",
+        prop: "attachments",
+        width: 100,
         render: (row, column, index) =>
         <div>
           {row.attachments&& row.attachments[0] &&
@@ -351,6 +351,7 @@ class PartsList extends React.Component<IProps, IState> {
               <Icon name="document" />
             </a>)
           }
+          <Button type="text" icon="delete2" onClick={this.onClickDeletePart.bind(this, row)} />
         </div>
       }
       ];
@@ -606,6 +607,7 @@ class PartsList extends React.Component<IProps, IState> {
     switch (sampleType) {
     case 'bacterium':
       data = res.data.map(item => ({
+        _id: item._id,
         labName: item.labName,
         personalName: item.personalName,
         tags: item.tags ? item.tags.join('; ') : '',
@@ -620,6 +622,7 @@ class PartsList extends React.Component<IProps, IState> {
     break;
     case 'primer':
       data = res.data.map(item => ({
+        _id: item._id,
         labName: item.labName,
         personalName: item.personalName,
         tags: item.tags ? item.tags.join('; ') : '',
@@ -637,6 +640,7 @@ class PartsList extends React.Component<IProps, IState> {
     break;
     case 'yeast':
       data = res.data.map(item => ({
+        _id: item._id,
         labName: item.labName,
         personalName: item.personalName,
         tags: item.tags ? item.tags.join('; ') : '',
@@ -657,6 +661,24 @@ class PartsList extends React.Component<IProps, IState> {
     this.setState({data, loading:false});
   }
 
+  private async deletePart(id:string) {
+    try {
+      const res = await axios({
+        url: serverURL+`/api/part/${id}`,
+        method: 'DELETE',
+        ...getAuthHeader(),
+      });
+      this.fetchPartsData();
+      Message.success('deleted');
+    } catch (err) {
+      if (err.response) {
+        Message.error(err.response.data.message);
+      } else {
+        Message.error('unable to delete')
+      }
+    }
+  }
+
   // when clicking on the attachment link, download the attachment
   private onClickAttachment = async (fileId: string, fileName: string, e:React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -672,6 +694,21 @@ class PartsList extends React.Component<IProps, IState> {
     link.setAttribute('download', fileName);
     document.body.appendChild(link);
     link.click();
+  }
+
+  private onClickDeletePart = async (data:any) => {
+    const id = data._id;
+    MessageBox.confirm('delete this part? this operation CANNOT be undone', 'warning', {
+      type: 'warning'
+    }).then(() => {
+      // confirm deleting part
+      this.deletePart(id);
+    }).catch(() => {
+      Message({
+        type: 'info',
+        message: 'canceled'
+      });
+    });
   }
 
   private rowStyle = ()=>({border:0})

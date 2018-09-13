@@ -13,7 +13,7 @@ import {
 
 import axios from 'axios'
 
-import { Dialog, Notification } from 'element-react'
+import { Dialog, Message } from 'element-react'
 import GoogleLogin from 'react-google-login';
 
 import {serverURL, googleAuthURL} from './config';
@@ -67,7 +67,7 @@ class LoginDialog extends React.Component<ILoginDialogProps, any> {
           token: response.tokenId,
         }
       )
-      Notification({title:'success', message: res.data.message})
+      Message.success(res.data.message);
       localStorage.setItem('token',res.data.token);
       localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
       this.props.setDialogVisible(false);
@@ -75,9 +75,9 @@ class LoginDialog extends React.Component<ILoginDialogProps, any> {
       this.props.refreshPartsCount();
     } catch (err) {
       if (err.response) {
-        Notification.error({title:'error', message:`${err.response.status}: ${err.response.statusText}`, duration:30000});
+        Message.error({message:`${err.response.status}: ${err.response.statusText}`, duration:30000});
       } else {
-      Notification.error({title:'error', message:err.toLocaleString()});
+        Message.error({message:err.toLocaleString()});
       }
     }
   }

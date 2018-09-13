@@ -417,6 +417,22 @@ app.post('/api/part', userMustLoggedIn, async (req :Request, res: Response) => {
   }
 });
 
+app.delete('/api/part/:id', userMustLoggedIn, async (req :Request, res: Response) => {
+  try {
+    const {id} = req.params;
+    console.log('delete ', id);
+    const part = await Part.findById(id).exec();
+    if (part.ownerId.toString() !== req.currentUser.id && req.currentUser.groups.indexOf('administrators')===-1) {
+      res.status(401).json({message: 'unable to delete a part of others'});
+    } else {
+      await Part.findOneAndDelete({_id:id}).exec(); 
+      res.json(part);
+    }
+    res.json(part);
+  } catch (err) {
+    res.status(500).json({err})
+  }
+});
 
 // ============================attachments=====================================
 app.get('/api/attachments/:id', userMustLoggedIn, async (req :Request, res: Response) => {
