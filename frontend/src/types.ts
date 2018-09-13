@@ -1,3 +1,5 @@
+import {History, Location} from 'history' 
+
 export interface IUserInfo {
   id: string,
   name: string,
@@ -68,4 +70,9 @@ export interface IAttachment {
   size: number,
   type: string,
   content: string,
+}
+
+export interface IReactRouterProps {
+  history: History,
+  location: Location,
 }

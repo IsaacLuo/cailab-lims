@@ -139,14 +139,14 @@ function loadBateria() {
     {
       mission++;
       const bacterium = JSON.parse(line);
-      let attachment :null|Attachment[] = null;
+      let attachments :null|Attachment[] = null;
       if(bacterium.attachment && bacterium.attachment.data) {
         const fileData = Buffer.from(bacterium.attachment.data, 'base64')
         const file = await FileData.create({
           name: bacterium.attachment.fileName,
           data: fileData,
         });
-        attachment = [{
+        attachments = [{
           fileName: bacterium.attachment.fileName,
           contentType: bacterium.attachment.contentType,
           fileSize: bacterium.attachment.size,
@@ -186,7 +186,7 @@ function loadBateria() {
           hostStrain: bacterium.hostStrain,
           markers: removeNullElement(bacterium.markers),
         },
-        attachment,
+        attachments,
       });
       await x.save()
       recordCount(labPrefix, labId);

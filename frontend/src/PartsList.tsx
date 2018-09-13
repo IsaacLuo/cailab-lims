@@ -20,6 +20,7 @@ import {
 // react-router
 import {Redirect} from 'react-router'
 import {Link} from 'react-router-dom'
+import {IReactRouterProps} from './types'
 
 // helpers
 import { serverURL } from './config'
@@ -39,7 +40,7 @@ interface IPartsCount {
   yeasts: number,
 }
 
-interface IProps {
+interface IProps extends IReactRouterProps {
   sampleType: string,
   partsCount: IPartsCount,
   allUsers: IUserInfo[],
@@ -68,14 +69,16 @@ class PartsList extends React.Component<IProps, IState> {
   constructor(props) {
     super(props);
 
+    const {userFilter, skip, limit} = qs.parse(this.props.location.search, { ignoreQueryPrefix: true });
+
     this.state = {
       columns: this.generateCoulumnTitle(),
       data: [],
-      skip: 0,
-      limit: 10,
+      skip: skip ? skip : 0,
+      limit: limit ? limit: 10,
       total: 0,
       loading: true,
-      userFilter: '',
+      userFilter: userFilter ? userFilter : '',
       sortMethod: {order:undefined, prop:undefined},
     };
     if (props.loggedIn) {
@@ -148,6 +151,7 @@ class PartsList extends React.Component<IProps, IState> {
     this.setState({
       skip: (currentPage-1) * this.state.limit,
     }, () => {
+      this.replaceHistory();
       this.fetchPartsData();
     })
   }
@@ -156,12 +160,26 @@ class PartsList extends React.Component<IProps, IState> {
     this.setState({
       limit,
     }, () => {
+      this.replaceHistory();
       this.fetchPartsData();
     })   
   }
 
+  private replaceHistory() {
+    const {userFilter, skip, limit} = this.state;
+    this.props.history.replace({search: qs.stringify({
+      userFilter,
+      skip,
+      limit,
+    })});
+  }
+
   private onFilterUserChange = (value: string) => {
-    this.setState({userFilter: value}, this.fetchPartsData);
+    const {skip, limit} = this.state;
+    this.setState({userFilter: value}, ()=>{
+      this.replaceHistory();
+      this.fetchPartsData();
+    });
   }
 
   private onTableSortChange = (sortProp: {column:any, order:'ascending'|'descending', prop:string}) => {
@@ -231,24 +249,44 @@ class PartsList extends React.Component<IProps, IState> {
       {
         type: 'expand',
         expandPannel: data => {
-          const attachmentRows = data && data.attachment && data.attachment.map(att => 
-          <div key={att.fileId}>
-            <a href={`/parts/attachment/${att.fileId}`}
-              onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
-            >
-              {att.fileName},
-              {fileSizeHumanReadable(att.fileSize)}
-            </a>
-          </div>);
-          return <div>
-            <div>{data.comment}</div>
-            <div>creator: {data.ownerName}</div>
-            {data.attachment && 
-              (<div style={{marginTop:10, marginBottom: 5}}> 
-                <div><b>attachments</b></div> 
-                {attachmentRows}
-              </div>
-            )}
+          const attachmentRows = data && data.attachments && data.attachments.map(att => 
+            <div key={att.fileId}>
+              <a href={`/parts/attachment/${att.fileId}`}
+                onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
+              >
+                {att.fileName},
+                {fileSizeHumanReadable(att.fileSize)}
+              </a>
+            </div>);
+          return <div className="partDetailPanel"style={{width:'100%'}}>
+            <Table
+              style={this.detailTableStyle}
+              rowStyle={this.rowStyle}
+              showHeader={false}
+              columns={[
+                {
+                  label: "key",
+                  prop: "key",
+                  align: "right",
+                  width: 200,
+                },
+                {
+                  label: "value",
+                  prop: "value",
+                },
+              ]}
+              data={[
+                {key: 'comment', value: data.comment},
+                {key: 'creator', value: data.ownerName},
+                {key: 'created at', value: data.createdAt},
+              ]}
+            />
+          {data.attachments && data.attachments.length > 0 &&
+            (<div style={{marginTop:10, marginBottom: 5}}> 
+              <div><b>attachments</b></div> 
+              {attachmentRows}
+            </div>
+          )}
           </div>
         },
       },
@@ -306,9 +344,9 @@ class PartsList extends React.Component<IProps, IState> {
         width: 50,
         render: (row, column, index) =>
         <div>
-          {row.attachment && row.attachment[0] &&
-            (<a href={`/parts/attachment/${row.attachment[0].id}`}
-              onClick={this.onClickAttachment.bind(this,row.attachment[0].fileId, row.attachment[0].fileName)}
+          {row.attachments&& row.attachments[0] &&
+            (<a href={`/parts/attachment/${row.attachments[0].id}`}
+              onClick={this.onClickAttachment.bind(this,row.attachments[0].fileId, row.attachments[0].fileName)}
             >
               <Icon name="document" />
             </a>)
@@ -323,7 +361,7 @@ class PartsList extends React.Component<IProps, IState> {
       {
         type: 'expand',
         expandPannel: data => {
-          const attachmentRows = data && data.attachment && data.attachment.map(att => 
+          const attachmentRows = data && data.attachments&& data.attachment.map(att => 
           <div key={att.fileId}>
             <a href={`/parts/attachment/${att.fileId}`}
               onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
@@ -358,7 +396,7 @@ class PartsList extends React.Component<IProps, IState> {
                 {key: 'vendor', value: data.vendor},
               ]}
             />
-          {data.attachment && data.attachment.length > 0 &&
+          {data.attachments&& data.attachment.length > 0 &&
             (<div style={{marginTop:10, marginBottom: 5}}> 
               <div><b>attachments</b></div> 
               {attachmentRows}
@@ -409,9 +447,9 @@ class PartsList extends React.Component<IProps, IState> {
         width: 50,
         render: (row, column, index) =>
         <div>
-          {row.attachment && row.attachment[0] &&
-            (<a href={`/parts/attachment/${row.attachment[0].id}`}
-              onClick={this.onClickAttachment.bind(this,row.attachment[0].fileId, row.attachment[0].fileName)}
+          {row.attachments&& row.attachments[0] &&
+            (<a href={`/parts/attachment/${row.attachments[0].id}`}
+              onClick={this.onClickAttachment.bind(this,row.attachments[0].fileId, row.attachments[0].fileName)}
             >
               <Icon name="document" />
             </a>)
@@ -426,7 +464,7 @@ class PartsList extends React.Component<IProps, IState> {
         {
           type: 'expand',
           expandPannel: data => {
-            const attachmentRows = data && data.attachment && data.attachment.map(att => 
+            const attachmentRows = data && data.attachments&& data.attachment.map(att => 
             <div key={att.fileId}>
               <a href={`/parts/attachment/${att.fileId}`}
                 onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
@@ -460,7 +498,7 @@ class PartsList extends React.Component<IProps, IState> {
                   {key: 'markers', value: data.markers},
                 ]}
               />
-            {data.attachment && data.attachment.length > 0 &&
+            {data.attachments&& data.attachment.length > 0 &&
               (<div style={{marginTop:10, marginBottom: 5}}> 
                 <div><b>attachments</b></div> 
                 {attachmentRows}
@@ -523,9 +561,9 @@ class PartsList extends React.Component<IProps, IState> {
           width: 50,
           render: (row, column, index) =>
           <div>
-            {row.attachment && row.attachment[0] &&
-              (<a href={`/parts/attachment/${row.attachment[0].id}`}
-                onClick={this.onClickAttachment.bind(this,row.attachment[0].fileId, row.attachment[0].fileName)}
+            {row.attachments&& row.attachments[0] &&
+              (<a href={`/parts/attachment/${row.attachments[0].id}`}
+                onClick={this.onClickAttachment.bind(this,row.attachments[0].fileId, row.attachments[0].fileName)}
               >
                 <Icon name="document" />
               </a>)
@@ -576,7 +614,8 @@ class PartsList extends React.Component<IProps, IState> {
         date: item.date ? (new Date(item.date)).toLocaleDateString() : '',
         comment: item.comment ? item.comment : '',
         ownerName: item.ownerName,
-        attachment: item.attachment,
+        createdAt: item.createdAt,
+        attachments: item.attachments,
       }))
     break;
     case 'primer':
@@ -586,12 +625,14 @@ class PartsList extends React.Component<IProps, IState> {
         tags: item.tags ? item.tags.join('; ') : '',
         date: item.date ? (new Date(item.date)).toLocaleDateString() : '',
         comment: `${item.content.description} ${item.comment}`,
-        attachment: item.attachment,
+        attachments: item.attachments,
         sequence: item.content.sequence,
         orientation: item.content.orientation,
         meltingTemperature: item.content.meltingTemperature,
         concentration: item.content.concentration,
         vendor: item.content.vendor,
+        ownerName: item.ownerName,
+        createdAt: new Date(item.createdAt).toLocaleDateString(),
       }))
     break;
     case 'yeast':
@@ -601,7 +642,9 @@ class PartsList extends React.Component<IProps, IState> {
         tags: item.tags ? item.tags.join('; ') : '',
         date: item.date ? (new Date(item.date)).toLocaleDateString() : '',
         comment: item.comment,
-        attachment: item.attachment,
+        ownerName: item.ownerName,
+        createdAt: item.createdAt,
+        attachments: item.attachments,
         
         parents: item.content.parents ? item.content.parents.join('; ') : '' ,
         genotype: item.content.genotype ? item.content.genotype.join('; ') : '' ,

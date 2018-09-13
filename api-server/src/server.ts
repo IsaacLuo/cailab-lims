@@ -376,6 +376,8 @@ app.post('/api/part', userMustLoggedIn, async (req :Request, res: Response) => {
       );
     }
 
+    console.log('saved attachmes', attachmentIds.length);
+
     // createNewPart
     let part = new Part({
       labName: labPrefix+labId,
@@ -391,6 +393,7 @@ app.post('/api/part', userMustLoggedIn, async (req :Request, res: Response) => {
       date,
       tags: tags ? tags.split(';') : [],
       ownerId: currentUser._id,
+      ownerName: currentUser.name,
       content: {
         markers: markers ? markers.split(';') : undefined,
         plasmidName,
