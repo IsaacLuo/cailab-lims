@@ -9,41 +9,41 @@ import { Provider } from 'react-redux'
 import store from './store'
 
 
-function registerHMR() {
-  type ModuleHMR = typeof module & {
-    hot?: {
-      accept(dependencies: string | string[], callback: (updatedDependencies: any[]) => void): void
-    }
-  };
-  if ((module as ModuleHMR).hot) {
-    (module as ModuleHMR).hot!.accept('./App', () => {
-      ReactDOM.render(
-        <App />,
-        document.getElementById('root') as HTMLElement
-      );
-    });
-  }
-}
+registerServiceWorker();
 
-ReactDOM.render(
-  <BrowserRouter>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </BrowserRouter>
-  ,
-  document.getElementById('root') as HTMLElement
-);
-
-// if (module.hot) {
-//   module.hot.accept('./App', () => {
-//       const NextApp = require('./App').default;
+// function registerHMR() {
+//   type ModuleHMR = typeof module & {
+//     hot?: {
+//       accept(dependencies: string | string[], callback: (updatedDependencies: any[]) => void): void
+//     }
+//   };
+//   if ((module as ModuleHMR).hot) {
+//     (module as ModuleHMR).hot!.accept('./App', () => {
 //       ReactDOM.render(
-//           <NextApp />,
-//           document.getElementById('root') as HTMLElement
+//         <App />,
+//         document.getElementById('root') as HTMLElement
 //       );
-//   });
+//     });
+//   }
 // }
 
-registerServiceWorker();
-registerHMR();
+const render = (Component: any) => {
+  return ReactDOM.render(
+    <Provider store={store}>
+      <BrowserRouter>
+        <Component />
+      </BrowserRouter>
+    </Provider>
+    ,
+    document.getElementById('root') as HTMLElement
+  );
+};
+
+render(App);
+if (module.hot) {
+  module.hot.accept('./App', () => {
+    const NextApp = require('./App').default;
+    render(NextApp);
+  });
+}
+// registerHMR();
