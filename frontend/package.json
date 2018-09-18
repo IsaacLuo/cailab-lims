@@ -4,10 +4,11 @@
   "private": true,
   "dependencies": {
     "@types/history": "^4.7.0",
+    "@types/react-redux": "^6.0.9",
     "@types/webpack": "^4.4.11",
     "@types/webpack-env": "^1.13.6",
     "axios": "^0.18.0",
-    "element-react": "./../element-react",
+    "element-react": "^1.4.21",
     "element-theme-default": "^1.4.13",
     "qs": "^6.5.2",
     "react": "^16.4.2",

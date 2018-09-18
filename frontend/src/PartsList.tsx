@@ -3,9 +3,12 @@ import axios from 'axios'
 import qs from 'qs'
 
 // components
-import { Table, Pagination, Icon, Loading, Select, Button, Notification, MessageBox, Message } from 'element-react'
+import { Pagination, Icon, Loading, Select, Button, Notification, MessageBox, Message } from 'element-react'
 import NewPartDialog from './NewPartDialog'
 import ErrorBoundary from './ErrorBoundary'
+
+import {Table} from 'element-react'
+
 
 // redux
 import { IStoreState } from './store'

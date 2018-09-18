@@ -2,8 +2,11 @@ import * as React from 'react'
 import axios from 'axios'
 import { serverURL } from './config'
 import getAuthHeader from './authHeader'
-import { Table, Checkbox, Button, Notification } from 'element-react'
+import { Checkbox, Button, Notification } from 'element-react'
 // import {TableColumn} from 'element-react/typings/index'
+import {Table} from 'element-react'
+
+
 interface IUser {
   email: string,
   abbr: string,

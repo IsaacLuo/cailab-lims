@@ -1,6 +1,8 @@
 import * as React from 'react'
-import { Input, Tag, Button } from 'element-react'
+import { Tag, Button } from 'element-react'
 import styled from 'styled-components'
+
+import {Input} from 'element-react'
 
 
 const MyTag = styled(Tag)`

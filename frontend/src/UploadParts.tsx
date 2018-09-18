@@ -1,7 +1,8 @@
 import * as React from 'react'
-import { Table, Input, Loading, DatePicker, Tag, Button, Notification } from 'element-react'
+import { Input, Loading, DatePicker, Tag, Button, Notification } from 'element-react'
 import Dropzone from 'react-dropzone'
 import styled from 'styled-components'
+import {Table} from 'element-react'
 
 // router 
 import { Link } from 'react-router-dom'

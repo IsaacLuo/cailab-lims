@@ -18,6 +18,12 @@
     "suppressImplicitAnyIndexErrors": true,
     // "types": ["gapi", "gapi.auth2"],
     "noUnusedLocals": false,
+    "paths": {
+      "*": [
+        "src/*", 
+        "declarations/*",
+      ]
+    },
   },
   "exclude": [
     "node_modules",
