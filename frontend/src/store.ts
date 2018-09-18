@@ -25,7 +25,7 @@ export interface IStoreState {
 
   // user state controls
   loggedIn: boolean,
-  username: string,
+  userId: string,
   fullName: string,
   profilePicture: string,
   groups: string[],

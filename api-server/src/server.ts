@@ -12,7 +12,6 @@ import sendBackXlsx from './sendBackXlsx'
 
 interface IUserInfo {
   id:string,
-  username: string,
   fullName: string,
   email: string,
   groups: [string],
@@ -92,7 +91,6 @@ function userMustBeAdmin (req :Request, res :Response, next: NextFunction) {
   } else if (req.headers['test-token'] === 'a30aa7f7de512963a03c') {
     req.currentUser = {
       id:'5b718be08274212924fe4a94',
-      username: 'test',
       fullName: 'test man',
       email: 'yishaluo@gmail.com',
       groups: ['users'],
@@ -109,7 +107,6 @@ function userMustLoggedIn (req :Request, res :Response, next: NextFunction) {
   if (req.headers['test-token'] === 'a30aa7f7de512963a03c') {
     req.currentUser = {
       id:'5b718be08274212924fe4a94',
-      username: 'test',
       fullName: 'test man',
       email: 'yishaluo@gmail.com',
       groups: ['users'],
@@ -156,7 +153,6 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
       }
     const token = jwt.sign({
         id: user.id.toString(),
-        username: email,
         fullName: name,
         email,
         groups,
@@ -186,14 +182,13 @@ app.get('/api/users/names/', userMustLoggedIn, async (req :Request, res: Respons
 app.get('/api/currentUser', async (req :Request, res: Response) => 
 { 
   if (req.currentUser) {
-  const {id, username, fullName, email, groups, exp} = req.currentUser;
+  const {id, fullName, email, groups, exp} = req.currentUser;
   const now = Math.floor(Date.now()/1000);
   console.log({exp, now})
-  let payload :{username :string, fullName :string, groups: string[], token?:string, tokenExpireIn?:number} = {username, fullName, groups}
+  let payload :{id:string, fullName :string, groups: string[], token?:string, tokenExpireIn?:number} = {id, fullName, groups}
   if (now < exp && exp - now < 1200) {
     payload.token = jwt.sign({
       id,
-      username,
       fullName,
       email,
       groups,
@@ -205,7 +200,7 @@ app.get('/api/currentUser', async (req :Request, res: Response) =>
   }
   res.json(payload);
 } else {
-  res.json({username: 'guest', fullName: 'guest', groups:['guest']})
+  res.json({id:'guest', fullName: 'guest', groups:['guest']})
 }
 });
 

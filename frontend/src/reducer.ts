@@ -13,7 +13,7 @@ import {
 function myReducer(state :IStoreState = {
   initializing: true,
   loggedIn: false,
-  username: 'guest',
+  userId: 'guest',
   fullName: 'guest',
   profilePicture: '',
   groups: [],
@@ -38,6 +38,7 @@ function myReducer(state :IStoreState = {
     case SET_LOGIN_INFORMATION:
       return {
         ...state,
+        userId: action.data.id,
         fullName: action.data.name,
         groups: action.data.groups,
         loggedIn: true,
@@ -48,6 +49,7 @@ function myReducer(state :IStoreState = {
       localStorage.removeItem('tokenTimeStamp');
       return {
         ...state,
+        userId: 'guest',
         fullName: 'guest',
         groups: [],
         profilePicture: '',

@@ -49,6 +49,7 @@ interface IProps extends IReactRouterProps {
   allUsers: IUserInfo[],
   newPartDialogVisible: boolean,
   loggedIn: boolean,
+  userId: string,
   getUserList: () => void,
   setNewPartDialogVisible: (visible: boolean) => void,
 }
@@ -77,8 +78,8 @@ class PartsList extends React.Component<IProps, IState> {
     this.state = {
       columns: this.generateCoulumnTitle(),
       data: [],
-      skip: skip ? skip : 0,
-      limit: limit ? limit: 10,
+      skip: skip ? parseInt(skip,10) : 0,
+      limit: limit ? parseInt(limit,10): 10,
       total: 0,
       loading: true,
       userFilter: userFilter ? userFilter : '',
@@ -144,7 +145,6 @@ class PartsList extends React.Component<IProps, IState> {
           onSizeChange={this.onLimitChange}
           onCurrentChange={this.onPageChange}
         />
-        {newPartDialogVisible && <NewPartDialog sampleType={this.props.sampleType}/>}
       </div>
       </ErrorBoundary>
     )
@@ -248,6 +248,7 @@ class PartsList extends React.Component<IProps, IState> {
   }
 
   private generateBacteriumColumnTitle() :Array<IColumn|IExpandedPanel> {
+    const {userId} = this.props;
     return [
       {
         type: 'expand',
@@ -354,7 +355,7 @@ class PartsList extends React.Component<IProps, IState> {
               <Icon name="document" />
             </a>)
           }
-          <Button type="text" icon="delete2" onClick={this.onClickDeletePart.bind(this, row)} />
+          {row.ownerId === userId && <Button type="text" icon="delete2" onClick={this.onClickDeletePart.bind(this, row)} />}
         </div>
       }
       ];
@@ -618,6 +619,7 @@ class PartsList extends React.Component<IProps, IState> {
         markers: item.content.markers ? item.content.markers.join('; ') : '',
         date: item.date ? (new Date(item.date)).toLocaleDateString() : '',
         comment: item.comment ? item.comment : '',
+        ownerId: item.ownerId,
         ownerName: item.ownerName,
         createdAt: item.createdAt,
         attachments: item.attachments,
@@ -637,6 +639,7 @@ class PartsList extends React.Component<IProps, IState> {
         meltingTemperature: item.content.meltingTemperature,
         concentration: item.content.concentration,
         vendor: item.content.vendor,
+        ownerId: item.ownerId,
         ownerName: item.ownerName,
         createdAt: new Date(item.createdAt).toLocaleDateString(),
       }))
@@ -649,6 +652,7 @@ class PartsList extends React.Component<IProps, IState> {
         tags: item.tags ? item.tags.join('; ') : '',
         date: item.date ? (new Date(item.date)).toLocaleDateString() : '',
         comment: item.comment,
+        ownerId: item.ownerId,
         ownerName: item.ownerName,
         createdAt: item.createdAt,
         attachments: item.attachments,
@@ -723,6 +727,7 @@ const mapStateToProps = (state :IStoreState) => ({
   allUsers: state.allUsers,
   newPartDialogVisible: state.newPartDialogVisible,
   loggedIn: state.loggedIn,
+  userId: state.userId,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({

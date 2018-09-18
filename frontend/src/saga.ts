@@ -18,15 +18,15 @@ export function* getMyStatus() {
   try {
     const res = yield call(axios.get,serverURL+'/api/currentUser', getAuthHeader());
 
-    const {username, fullName, groups, token} = res.data;
-    if (username === 'guest') {
+    const {id, fullName, groups, token} = res.data;
+    if (id === 'guest') {
       yield put(ActionClearLoginInformation());
     } else {
       if (token) {
         localStorage.setItem('token', token);
         localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
       }
-      yield put(ActionSetLoginInformation(fullName, groups));
+      yield put(ActionSetLoginInformation(id, fullName, groups));
       yield call(delay, 600000);
       yield put({type:'GET_MY_STATUS'});
     }
@@ -38,15 +38,15 @@ export function* getMyStatus() {
 export function* initialize() {
   try {
     const res = yield call(axios.get,serverURL+'/api/currentUser', getAuthHeader());
-    const {username, fullName, groups, token} = res.data;
-    if (username === 'guest') {
+    const {id, fullName, groups, token} = res.data;
+    if (id === 'guest') {
       yield put(ActionClearLoginInformation());
     } else {
       if (token) {
         localStorage.setItem('token', token);
         localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
       }
-      yield put(ActionSetLoginInformation(fullName, groups));
+      yield put(ActionSetLoginInformation(id, fullName, groups));
     }
   } catch (err) {
     yield put(ActionClearLoginInformation());

@@ -33,12 +33,14 @@ export function ActionLoginDialogVisible (
 
 export const SET_LOGIN_INFORMATION = 'SET_LOGIN_INFORMATION';
 export function ActionSetLoginInformation (
+  id: string,
   name: string,
   groups: string[],
 ) {
   return {
     type: SET_LOGIN_INFORMATION,
     data: {
+      id,
       name,
       groups,
     }
