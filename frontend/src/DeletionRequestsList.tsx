@@ -99,6 +99,7 @@ class DeletionRequestsList extends React.Component<IProps, IState> {
     try {
       const res = await axios.delete(`${serverURL}/api/part/${id}`, getAuthHeader());
       console.log(res);
+      Message.success('deleted');
     } catch (err) {
       if (err.response) {
         Message.error(`ERROR ${err.response.status} ${err.response.data.message}`);
