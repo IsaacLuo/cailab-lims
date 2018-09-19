@@ -29,7 +29,7 @@ import {IReactRouterProps} from './types'
 import { serverURL } from './config'
 import getAuthHeader from './authHeader'
 import {fileSizeHumanReadable, toPlural} from './tools'
-import {IUserInfo, IColumn} from './types'
+import {IUserInfo, IColumn, IPartListRowData} from './types'
 
 
 interface IExpandedPanel {
@@ -607,7 +607,7 @@ class PartsList extends React.Component<IProps, IState> {
     getAuthHeader());
     console.log(res)
 
-    let data = [];
+    let data:IPartListRowData[] = [];
     switch (sampleType) {
     case 'bacterium':
       data = res.data.map(item => ({
@@ -668,6 +668,8 @@ class PartsList extends React.Component<IProps, IState> {
     this.setState({data, loading:false});
   }
 
+  // delete a part directly
+  // @id: the part id
   private async deletePart(id:string) {
     try {
       const res = await axios({
@@ -679,9 +681,29 @@ class PartsList extends React.Component<IProps, IState> {
       Message.success('deleted');
     } catch (err) {
       if (err.response) {
-        Message.error(err.response.data.message);
+        Message.error(`ERROR ${err.response.status} ${err.response.data.message}`);
       } else {
-        Message.error('unable to delete')
+        Message.error('unable to delete');
+      }
+    }
+  }
+
+  // send a request to delete a part
+  // @id: the part id
+  private async requestToDeletePart(id:string) {
+    try {
+      const res = await axios({
+        url: serverURL+`/api/sudoRequests/partDeletion/${id}`,
+        method: 'PUT',
+        ...getAuthHeader(),
+      });
+      this.fetchPartsData();
+      Message.success('request posted');
+    } catch (err) {
+      if (err.response) {
+        Message.error(`ERROR ${err.response.status} ${err.response.data.message}`);
+      } else {
+        Message.error('unable to post request');
       }
     }
   }
@@ -705,17 +727,23 @@ class PartsList extends React.Component<IProps, IState> {
 
   private onClickDeletePart = async (data:any) => {
     const id = data._id;
-    MessageBox.confirm('delete this part? this operation CANNOT be undone', 'warning', {
-      type: 'warning'
-    }).then(() => {
-      // confirm deleting part
-      this.deletePart(id);
-    }).catch(() => {
-      Message({
-        type: 'info',
-        message: 'canceled'
-      });
-    });
+    const createdAt = new Date(data.createdAt);
+    const cancelMessage = () => Message({type: 'info', message: 'canceled'})
+    if ( Date.now() - createdAt.getTime() < 3600000) {
+      MessageBox.confirm('delete this part? this operation CANNOT be undone', 'warning', {
+        type: 'warning'
+      }).then(() => {
+        // confirm deleting part
+        this.deletePart(id);
+      }).catch(cancelMessage);
+    } else {
+      MessageBox.confirm('Cannot directly delete a part older than 1 week, send a request to administrator?', 'warning', {
+        type: 'warning'
+      }).then(() => {
+        // confirm deleting part
+        this.requestToDeletePart(id);
+      }).catch(cancelMessage);
+    }
   }
 
   private rowStyle = ()=>({border:0})

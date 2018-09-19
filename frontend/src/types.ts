@@ -55,6 +55,29 @@ export interface IPart {
   },
 }
 
+export interface IPartListRowData {
+  _id: string,
+  labName: string,
+  personalName: string,
+  tags: string,
+  hostStrain?: string,
+  markers?: string,
+  date?: string,
+  comment?: string,
+  ownerId?: string,
+  ownerName?: string,
+  createdAt?: string,
+  attachments?: IAttachment[],
+  sequence?: string,
+  orientation?: string,
+  meltingTemperature?: string,
+  concentration?: string,
+  vendor?: string,
+  parents?: string,
+  genotype?: string,
+  plasmidType?: string,
+}
+
 export interface IColumn {
   label: string,
   prop: string,

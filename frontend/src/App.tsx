@@ -23,6 +23,7 @@ import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import UploadParts from './UploadParts';
+import DeletionRequestsList from 'DeletionRequestsList';
 
 interface IProps {
   initializing: boolean,
@@ -52,6 +53,7 @@ class App extends React.Component<IProps, any> {
           <Route path='/parts/primers/' exact={true} render={this.renderPrimersComponent} />
           <Route path='/parts/yeasts/' exact={true} render={this.renderYeastsComponent} />
           <Route path='/parts/bacteria/upload' exact={true} render={this.renderBacteriaUpload} />
+          <Route path='/requests/partsDeletion/' exact={true} component={DeletionRequestsList} />
           <Route path='/users/' component={Users} />
         </div>
       );

@@ -6,7 +6,7 @@ import * as bodyParser from 'body-parser'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import secret from '../secret.json'
-import {User, Part, FileData, PartsIdCounter} from './models'
+import {User, Part, FileData, PartsIdCounter, PartDeletionRequest} from './models'
 import sendBackCsv from './sendBackCsv'
 import sendBackXlsx from './sendBackXlsx'
 
@@ -282,9 +282,9 @@ app.get('/api/parts/count', userMustLoggedIn, async (req :Request, res: Response
 
 app.get('/api/parts/countAll', userMustLoggedIn, async (req :Request, res: Response) => {
   try {
-    const bacteria = await Part.count({sampleType:'bacterium'}).exec();
-    const primers = await Part.count({sampleType:'primer'}).exec();
-    const yeasts = await Part.count({sampleType:'yeast'}).exec();
+    const bacteria = await Part.countDocuments({sampleType:'bacterium'}).exec();
+    const primers = await Part.countDocuments({sampleType:'primer'}).exec();
+    const yeasts = await Part.countDocuments({sampleType:'yeast'}).exec();
     res.json({ bacteria, primers, yeasts });
   } catch (err) {
     res.status(500).json({err})
@@ -417,14 +417,89 @@ app.delete('/api/part/:id', userMustLoggedIn, async (req :Request, res: Response
     const {id} = req.params;
     console.log('delete ', id);
     const part = await Part.findById(id).exec();
+    if(!part) {
+      await PartDeletionRequest.findOneAndDelete({partId:id}).exec();
+      res.status(404).json({message: 'no this part'});
+    }
+    if (
+      part.ownerId.toString() !== req.currentUser.id && 
+      req.currentUser.groups.indexOf('administrators')===-1
+      ) {
+      res.status(401).json({message: 'unable to delete a part of others'});
+    } else if (
+      Date.now() - part.createdAt.getTime() > 3600000 * 24 * 7 ||
+      req.currentUser.groups.indexOf('administrators')===-1
+      ) {
+      res.status(401).json({message: 'unable to delete a part older than 1 week'});
+    } else {
+      await Part.findOneAndDelete({_id:id}).exec(); 
+      await PartDeletionRequest.findOneAndDelete({partId:id}).exec();
+      res.json(part);
+    }
+  } catch (err) {
+    console.error('err', err);
+    res.status(500).json({err});
+  }
+});
+
+app.get('/api/sudoRequests/partDeletions', userMustBeAdmin, async (req :Request, res: Response) => {
+  try {
+    const requests = await PartDeletionRequest.find({}).exec();
+    const requestDict: any = {};
+    const ids = requests.map(item=>{
+      requestDict[item.partId] = item;
+      return item.partId;
+    });
+    
+    const parts = await Part.find({_id:{$in:ids}}).exec();
+    const ret = parts.map((item)=>({
+      part: item,
+      request: requestDict[item._id],
+    }));
+    console.log(parts);
+    res.json(ret);
+  } catch (err) {
+    res.status(500).json({err})
+  }
+});
+
+app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Request, res: Response) => {
+  try {
+    const {id} = req.params;
+    console.log('request to delete ', id);
+    const part = await Part.findById(id).exec();
     if (part.ownerId.toString() !== req.currentUser.id && req.currentUser.groups.indexOf('administrators')===-1) {
       res.status(401).json({message: 'unable to delete a part of others'});
     } else {
-      await Part.findOneAndDelete({_id:id}).exec(); 
-      res.json(part);
+      try {
+        const deletionRequest = await PartDeletionRequest.findOneAndUpdate(
+          {partId: id},
+          {
+            senderId: req.currentUser.id,
+            senderName: req.currentUser.fullName,
+            partId: id,
+            $inc:{requestedCount:1},
+            $push:{requestedAt: Date.now()},
+          },
+          {new: true, upsert: true}
+        ).exec();
+        res.json(deletionRequest);
+      } catch (_) {
+        console.log('create new one');
+        const createResult = await PartDeletionRequest.create({
+          senderId: req.currentUser.id,
+          senderName: req.currentUser.fullName,
+          partId: id,
+          requestedCount: 1,
+          requestedAt: [Date.now()],
+        });
+        res.json(createResult);
+      }
+      
+      
     }
-    res.json(part);
   } catch (err) {
+    console.log(err)
     res.status(500).json({err})
   }
 });

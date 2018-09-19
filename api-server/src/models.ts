@@ -22,8 +22,7 @@ export const UserSchema = new Schema({
 
 export const User = mongoose.model('User', UserSchema);
 
-
-export const Part = mongoose.model('Part', {
+export const PartSchema = new Schema({
   labName: String,
   labPrefix: String,
   labId: Number,
@@ -78,6 +77,8 @@ export const Part = mongoose.model('Part', {
   history: Schema.Types.Mixed,
 });
 
+export const Part = mongoose.model('Part', PartSchema);
+
 export const FileData = mongoose.model('FileData', {
   name: String,
   data: Buffer,
@@ -104,4 +105,12 @@ export const LogOperation = mongoose.model('LogOperation', {
   sourceIP: String,
   timeStamp: Date,
   data: Schema.Types.Mixed,
+});
+
+export const PartDeletionRequest = mongoose.model('PartDeletionRequest', {
+  senderId: Schema.Types.ObjectId,
+  senderName: String,
+  partId: Schema.Types.ObjectId,
+  requestedCount: Number,
+  requestedAt: [Date],
 });
