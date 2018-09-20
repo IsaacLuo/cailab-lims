@@ -14,8 +14,9 @@ import Users from './Users'
 import NavBar from './NavBar'
 
 import LoginDialog from './LoginDialog'
-import ActionPanel from './ActionPanel';
+import StatisticPanel from './StatisticPanel';
 import PartsList from './PartsList';
+import MyRedirect from './MyRedirect';
 
 // redux
 import { IStoreState } from './store'
@@ -24,9 +25,11 @@ import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import UploadParts from './UploadParts';
 import DeletionRequestsList from 'DeletionRequestsList';
+// import SystemNotification from 'SystemNotification';
 
 interface IProps {
   initializing: boolean,
+  redirect: string,
   dispatchInitialize: () => {},
 }
 
@@ -48,12 +51,13 @@ class App extends React.Component<IProps, any> {
           <NavBar />
           </header>
           <LoginDialog/>
-          <Route path='/' exact={true} component={ActionPanel} />
+          {/* {this.props.redirect && <MyRedirect/>} */}
+          <Route path='/' exact={true} component={StatisticPanel} />
           <Route path='/parts/bacteria/' exact={true} render={this.renderBacteriaComponent} />
           <Route path='/parts/primers/' exact={true} render={this.renderPrimersComponent} />
           <Route path='/parts/yeasts/' exact={true} render={this.renderYeastsComponent} />
           <Route path='/parts/bacteria/upload' exact={true} render={this.renderBacteriaUpload} />
-          <Route path='/requests/partsDeletion/' exact={true} component={DeletionRequestsList} />
+          <Route path='/requests/partsDeletion' exact={true} component={DeletionRequestsList} />
           <Route path='/users/' component={Users} />
         </div>
       );
@@ -72,6 +76,7 @@ class App extends React.Component<IProps, any> {
 const mapStateToProps = (state :IStoreState) => ({
   loggedIn: state.loggedIn,
   initializing: state.initializing,
+  redirect: state.redirect,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({

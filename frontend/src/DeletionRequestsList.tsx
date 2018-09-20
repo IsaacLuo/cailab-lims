@@ -88,6 +88,7 @@ class DeletionRequestsList extends React.Component<IProps, IState> {
             </div>
             <DeleteButton>
               <Button type='danger' icon='delete' onClick={this.deletePart.bind(this, request.request.partId)}>delete</Button>
+              <Button type='primary' onClick={this.cancelPart.bind(this, request.request.partId)}>cancel</Button>
             </DeleteButton>
           </RequestPanel>):<div>no data</div>}
         </RequestContainer>
@@ -100,6 +101,21 @@ class DeletionRequestsList extends React.Component<IProps, IState> {
       const res = await axios.delete(`${serverURL}/api/part/${id}`, getAuthHeader());
       console.log(res);
       Message.success('deleted');
+    } catch (err) {
+      if (err.response) {
+        Message.error(`ERROR ${err.response.status} ${err.response.data.message}`);
+      } else {
+        Message.error('unable to delete');
+      }
+    }
+    this.getRequests();
+  }
+
+  private async cancelPart (id: string) {
+    try {
+      const res = await axios.delete(`${serverURL}/api/sudoRequests/partDeletion/${id}`, getAuthHeader());
+      console.log(res);
+      Message.success('canceled');
     } catch (err) {
       if (err.response) {
         Message.error(`ERROR ${err.response.status} ${err.response.data.message}`);

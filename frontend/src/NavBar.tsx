@@ -52,6 +52,9 @@ class NavBar extends React.Component<INavBarProps, any> {
           <Link to="/users/"><Menu.Item index="user management">
             user management
           </Menu.Item></Link>}
+          <Link to="/requests/partsDeletion"><Menu.Item index="deletion requests">
+            deletion requests
+          </Menu.Item></Link>
         </Menu.SubMenu> :
         <Menu.Item index="login">log in</Menu.Item>
         }

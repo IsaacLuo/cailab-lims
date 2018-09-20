@@ -291,6 +291,42 @@ app.get('/api/parts/countAll', userMustLoggedIn, async (req :Request, res: Respo
   }
 });
 
+app.get('/api/statistic', userMustLoggedIn, async (req :Request, res: Response) => {
+  try {
+    const ret:any = {};
+    ret.count = {};
+    ret.count.bacteria = await Part.countDocuments({sampleType:'bacterium'}).exec();
+    ret.count.primers = await Part.countDocuments({sampleType:'primer'}).exec();
+    ret.count.yeasts = await Part.countDocuments({sampleType:'yeast'}).exec();
+    ret.monthlyStatistic = await Part.aggregate([
+      {
+        $project: {
+          ym: {
+            $dateToString: {
+              format: '%Y-%m', 
+              date: '$createdAt'
+            }
+          }
+        }
+      }, {
+        $group: {
+          _id: '$ym', 
+          count: {
+            $sum: 1
+          }
+        }
+      }, {
+        $sort: {
+          _id: 1
+        }
+      }
+    ]);
+    res.json(ret);
+  } catch (err) {
+    res.status(500).json({err})
+  }
+});
+
 app.post('/api/part', userMustLoggedIn, async (req :Request, res: Response) => {
   // read part form
   let form = req.body;
@@ -463,6 +499,25 @@ app.get('/api/sudoRequests/partDeletions', userMustBeAdmin, async (req :Request,
   }
 });
 
+app.get('/api/notifications', userMustLoggedIn, async (req :Request, res: Response) => {
+  try {
+    const notifications:{title:string, message:string, link:string}[] = [];
+    if (req.currentUser.groups.indexOf('administrators')>=0) {
+      const sudoRequestCount = await PartDeletionRequest.countDocuments({}).exec();
+      if (sudoRequestCount>0) {
+        notifications.push({
+          title: 'requests from users', 
+          message: `You have ${sudoRequestCount} request${sudoRequestCount === 1? '': 's'} of deleting parts`,
+          link: '/requests/partsDeletion',
+        });
+      }
+    }
+    res.json(notifications);
+  } catch (err) {
+    res.status(500).json({err});
+  }
+});
+
 app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Request, res: Response) => {
   try {
     const {id} = req.params;
@@ -498,6 +553,17 @@ app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Requ
       
       
     }
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({err})
+  }
+});
+
+app.delete('/api/sudoRequests/partDeletion/:id', userMustBeAdmin, async (req :Request, res: Response) => {
+  try {
+    const {id} = req.params;
+    const parts = PartDeletionRequest.deleteMany({partId:id});
+    res.json(parts);
   } catch (err) {
     console.log(err)
     res.status(500).json({err})

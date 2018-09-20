@@ -235,11 +235,11 @@ declare module "element-react" {
       type?: typeColor | 'error'
       iconClass?: string
       duration?: number
-      onClick?(): void
+      onClick?(p?:any): void
       onClose?(): void
       offset?: number
     }
-    type NotificationFunction = (options: string | NotificationOptions, type?: typeColor | 'error') => void
+    type NotificationFunction = (options: string | NotificationOptions, type?: typeColor | 'error') => NotificationObject
     type NotificationObject = {
       success(options: string | NotificationOptions): void
       info(options: string | NotificationOptions): void

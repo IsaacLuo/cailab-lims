@@ -1,4 +1,4 @@
-import {call, all, fork, put,takeLatest} from 'redux-saga/effects'
+import {call, all, fork, put, take, takeLatest} from 'redux-saga/effects'
 import axios from 'axios'
 import {serverURL} from './config'
 import getAuthHeader from './authHeader'
@@ -9,10 +9,14 @@ import {
   ActionSetAllUserNames,
   IAction,
   ActionClearLoginInformation,
+  ActionSetRedirect,
 } from './actions'
 
 import qs from 'qs'
-import { delay } from 'redux-saga';
+import { delay, eventChannel, END } from 'redux-saga';
+
+import {Notification} from 'element-react'
+
 
 export function* getMyStatus() {
   try {
@@ -27,7 +31,7 @@ export function* getMyStatus() {
         localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
       }
       yield put(ActionSetLoginInformation(id, fullName, groups));
-      yield call(delay, 600000);
+      yield call(delay, 60000);
       yield put({type:'GET_MY_STATUS'});
     }
   } catch (err) {
@@ -47,6 +51,7 @@ export function* initialize() {
         localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
       }
       yield put(ActionSetLoginInformation(id, fullName, groups));
+      yield put({type:'GET_NOTIFICATIONS'});
     }
   } catch (err) {
     yield put(ActionClearLoginInformation());
@@ -65,10 +70,51 @@ export function* getUserList() {
   }
 }
 
+function showNotification(notification: any) {
+  // return eventChannel(emitter => {
+    const inst = Notification.info({
+      title: notification.title,
+      message: notification.message,
+      duration: 10000,
+      onClick: () => {
+        window.location.href = notification.link;
+        // console.log('link', notification.link);
+        // emitter(notification.link);
+        // console.log(p);
+      }
+    })
+    
+    // console.log({inst});
+    // return () => {console.log('emit end')};
+  // });
+}
+
+
+export function* getNotifications() {
+  try {
+    const lastNotificationTime = localStorage.getItem('lastNotificationTime');
+    if (lastNotificationTime===null || Date.now() - (new Date(lastNotificationTime).getTime()) > 3600000) {
+      localStorage.setItem('lastNotificationTime', new Date().toISOString());
+      const res = yield call(axios.get,serverURL+'/api/notifications', getAuthHeader());
+      for (const notification of res.data) {
+        const chan = yield call(showNotification,notification);
+        const link = yield take(chan);
+        yield put(ActionSetRedirect(link));
+        yield call(delay, 10000);
+      }
+      yield call(delay, 600000); // 10 minutes
+      yield put({type:'GET_NOTIFICATIONS'}); // fetch notifications again
+    }
+  } catch (err) {
+    // do nothing because the user isn't an admin.
+  }
+}
+
 export function* watchMyInformation() {
   yield takeLatest('INITIALIZE', initialize);
   yield takeLatest('GET_MY_STATUS', getMyStatus);
   yield takeLatest('GET_USER_LIST', getUserList);
+  yield takeLatest('GET_NOTIFICATIONS', getNotifications);
 }
 
 export function* getPartsCount() {

@@ -101,6 +101,7 @@ class PartsList extends React.Component<IProps, IState> {
     return (
       <ErrorBoundary>
       <div style={{width:'100%'}}>
+        {/* {JSON.stringify(this.props)} */}
         <h1>{toPlural(this.props.sampleType)}</h1>
         <div>
           <span>user filter </span>
@@ -291,6 +292,7 @@ class PartsList extends React.Component<IProps, IState> {
               {attachmentRows}
             </div>
           )}
+          {/* {JSON.stringify(data)} */}
           </div>
         },
       },
@@ -621,7 +623,7 @@ class PartsList extends React.Component<IProps, IState> {
         comment: item.comment ? item.comment : '',
         ownerId: item.ownerId,
         ownerName: item.ownerName,
-        createdAt: item.createdAt,
+        createdAt: new Date(item.createdAt).toLocaleDateString(),
         attachments: item.attachments,
       }))
     break;
@@ -654,7 +656,7 @@ class PartsList extends React.Component<IProps, IState> {
         comment: item.comment,
         ownerId: item.ownerId,
         ownerName: item.ownerName,
-        createdAt: item.createdAt,
+        createdAt: new Date(item.createdAt).toLocaleDateString(),
         attachments: item.attachments,
         
         parents: item.content.parents ? item.content.parents.join('; ') : '' ,

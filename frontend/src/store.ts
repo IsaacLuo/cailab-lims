@@ -33,6 +33,8 @@ export interface IStoreState {
   // parts information
   partsCount: IPartsCount,
   allUsers: IUserInfo[],
+
+  redirect?: string,
   
 }
 
