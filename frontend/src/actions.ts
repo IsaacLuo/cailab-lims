@@ -85,6 +85,14 @@ export function ActionSetNewPartDialogVisible(data) {
   }
 }
 
+export const SET_EDIT_PART_DIALOG_VISIBLE = 'SET_EDIT_PART_DIALOG_VISIBLE'
+export function ActionSetEditPartDialogVisible(visible: boolean, partId: boolean) {
+  return {
+    type: SET_EDIT_PART_DIALOG_VISIBLE,
+    data:{visible, partId},
+  }
+}
+
 export const SET_UPLOAD_PARTS_DIALOG_VISIBLE = 'SET_UPLOAD_PARTS_DIALOG_VISIBLE'
 export function ActionSetUploadPartsDialogVisible(data) {
   return {

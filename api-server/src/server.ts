@@ -149,7 +149,8 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
         await newUser.save();
         id = newUser.id;
       } else {
-        groups = user.groups
+        groups = user.groups;
+        id = user.id;
       }
     const token = jwt.sign({
         id: user.id.toString(),
@@ -159,7 +160,7 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
       }, 
       secret.jwt.key,
       {expiresIn:'1h'})
-    res.json({message: `welcome ${name}`, token, name, email, groups})
+    res.json({message: `welcome ${name}`, id, token, name, email, groups})
     
   } catch (err) {
     res.status(401).json({message: err})
@@ -291,7 +292,7 @@ app.get('/api/parts/countAll', userMustLoggedIn, async (req :Request, res: Respo
   }
 });
 
-app.get('/api/statistic', userMustLoggedIn, async (req :Request, res: Response) => {
+app.get('/api/statistic', async (req :Request, res: Response) => {
   try {
     const ret:any = {};
     ret.count = {};
@@ -492,7 +493,6 @@ app.get('/api/sudoRequests/partDeletions', userMustBeAdmin, async (req :Request,
       part: item,
       request: requestDict[item._id],
     }));
-    console.log(parts);
     res.json(ret);
   } catch (err) {
     res.status(500).json({err})
@@ -559,10 +559,13 @@ app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Requ
   }
 });
 
+
+// just delete the requests, it won't delete a part
 app.delete('/api/sudoRequests/partDeletion/:id', userMustBeAdmin, async (req :Request, res: Response) => {
   try {
     const {id} = req.params;
-    const parts = PartDeletionRequest.deleteMany({partId:id});
+    const parts = PartDeletionRequest.deleteMany({partId:id}).exec();
+    console.log(parts);
     res.json(parts);
   } catch (err) {
     console.log(err)

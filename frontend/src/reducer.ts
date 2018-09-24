@@ -10,6 +10,7 @@ import {
   SET_NEW_PART_DIALOG_VISIBLE,
   SET_REDIRECT,
   CLEAR_REDIRECT,
+  SET_EDIT_PART_DIALOG_VISIBLE,
 } from './actions'
 
 function myReducer(state :IStoreState = {
@@ -28,6 +29,8 @@ function myReducer(state :IStoreState = {
   allUsers: [],
   newPartDialogVisible: false,
   renderingParts: [],
+  editPartDialogVisible: false,
+  editPartDialogPartId: '',
 }, action: IAction) {
   console.log('action:', action)
   switch (action.type) {
@@ -86,6 +89,13 @@ function myReducer(state :IStoreState = {
       return {
         ...state,
         redirect: undefined,
+      }
+
+    case SET_EDIT_PART_DIALOG_VISIBLE:
+      return {
+        ...state,
+        editPartDialogVisible: action.data.visible,
+        editPartDialogPartId: action.data.partId,
       }
   }
   return state;

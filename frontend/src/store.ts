@@ -35,6 +35,9 @@ export interface IStoreState {
   allUsers: IUserInfo[],
 
   redirect?: string,
+
+  editPartDialogVisible: boolean,
+  editPartDialogPartId: string,
   
 }
 

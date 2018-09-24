@@ -25,6 +25,7 @@ import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import UploadParts from './UploadParts';
 import DeletionRequestsList from 'DeletionRequestsList';
+import EditPartDialog from 'EditPartDialog';
 // import SystemNotification from 'SystemNotification';
 
 interface IProps {
@@ -51,6 +52,7 @@ class App extends React.Component<IProps, any> {
           <NavBar />
           </header>
           <LoginDialog/>
+          <EditPartDialog/>
           {/* {this.props.redirect && <MyRedirect/>} */}
           <Route path='/' exact={true} component={StatisticPanel} />
           <Route path='/parts/bacteria/' exact={true} render={this.renderBacteriaComponent} />

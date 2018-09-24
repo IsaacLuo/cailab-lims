@@ -18,6 +18,7 @@ import { connect } from 'react-redux'
 
 import {
   ActionSetNewPartDialogVisible,
+  ActionSetEditPartDialogVisible,
 } from './actions'
 
 // react-router
@@ -30,6 +31,13 @@ import { serverURL } from './config'
 import getAuthHeader from './authHeader'
 import {fileSizeHumanReadable, toPlural} from './tools'
 import {IUserInfo, IColumn, IPartListRowData} from './types'
+import styled from 'styled-components'
+
+const MyClickableIcon = styled(Button)`
+  &+&{
+    margin-left: 0px;
+  }
+`;
 
 
 interface IExpandedPanel {
@@ -52,6 +60,7 @@ interface IProps extends IReactRouterProps {
   userId: string,
   getUserList: () => void,
   setNewPartDialogVisible: (visible: boolean) => void,
+  setEditPartDialogVisible: (visible: boolean, partId: string) => void,
 }
 
 interface IState {
@@ -354,10 +363,11 @@ class PartsList extends React.Component<IProps, IState> {
             (<a href={`/parts/attachment/${row.attachments[0].id}`}
               onClick={this.onClickAttachment.bind(this,row.attachments[0].fileId, row.attachments[0].fileName)}
             >
-              <Icon name="document" />
+              <MyClickableIcon type="text" icon="document"/>
             </a>)
           }
-          {row.ownerId === userId && <Button type="text" icon="delete2" onClick={this.onClickDeletePart.bind(this, row)} />}
+          {row.ownerId === userId && <MyClickableIcon type="text" icon="edit" onClick={this.onClickEditPart.bind(this, row)} />}
+          {row.ownerId === userId && <MyClickableIcon type="text" icon="delete2" onClick={this.onClickDeletePart.bind(this, row)} />}
         </div>
       }
       ];
@@ -727,6 +737,10 @@ class PartsList extends React.Component<IProps, IState> {
     link.click();
   }
 
+  private onClickEditPart = async (data:any) => {
+    this.props.setEditPartDialogVisible(true, data._id);
+  }
+
   private onClickDeletePart = async (data:any) => {
     const id = data._id;
     const createdAt = new Date(data.createdAt);
@@ -763,6 +777,7 @@ const mapStateToProps = (state :IStoreState) => ({
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   getUserList: ()=>dispatch({type:'GET_USER_LIST'}),
   setNewPartDialogVisible: visible => dispatch(ActionSetNewPartDialogVisible(visible)),
+  setEditPartDialogVisible: (visible, partId) => dispatch(ActionSetEditPartDialogVisible(visible, partId)),
   getParts: data => dispatch({type:'GET_PARTS', data})
 })
 
