@@ -42,6 +42,8 @@ margin-right: 10px;
 
 interface IProps {
   sampleType: string,
+  dialogVisible: boolean,
+  partId: string,
   hideDialog: () => void
 }
 
@@ -100,7 +102,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
       <Dialog
               title="Edit Part"
               // size="large"
-              visible={true}
+              visible={this.props.dialogVisible}
               lockScroll={ false }
               onCancel = {this.onCancel}
       >
@@ -305,7 +307,8 @@ class EditPartDialog extends React.Component<IProps, IState> {
 }
 
 const mapStateToProps = (state :IStoreState) => ({
-
+  dialogVisible: state.editPartDialogVisible,
+  partId: state.editPartDialogPartId,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
