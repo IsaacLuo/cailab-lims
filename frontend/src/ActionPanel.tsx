@@ -1,3 +1,5 @@
+// component for testing, should be removed for production
+
 import * as React from 'react'
 
 // react-router-redux

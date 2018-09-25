@@ -6,7 +6,7 @@ import { IStoreState } from './store'
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { ActionSetNewPartDialogVisible } from './actions'
+import { ActionSetEditPartDialogVisible } from './actions'
 import TagInput from './TagInput';
 
 
@@ -312,7 +312,7 @@ const mapStateToProps = (state :IStoreState) => ({
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
-  hideDialog: () => dispatch(ActionSetNewPartDialogVisible(false)),
+  hideDialog: () => dispatch(ActionSetEditPartDialogVisible(false)),
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(EditPartDialog))

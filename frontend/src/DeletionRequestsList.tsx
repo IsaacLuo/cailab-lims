@@ -1,3 +1,7 @@
+// react component, showing a list to administrators that some user want to
+// delete some parts but they are not allowed to delete by themselves, administrators
+// can review, confirm or cancel the requests
+
 import * as React from 'react'
 import axios from 'axios'
 
@@ -16,8 +20,6 @@ import { connect } from 'react-redux'
 // helpers
 import { serverURL } from './config'
 import getAuthHeader from './authHeader'
-import {fileSizeHumanReadable, toPlural} from './tools'
-import {IUserInfo, IColumn, IPartListRowData} from './types'
 
 interface IProps {
   loggedIn: boolean,

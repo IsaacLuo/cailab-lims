@@ -1,3 +1,5 @@
+// redux action
+
 export interface IAction {
   type: string,
   data: any,
@@ -86,7 +88,7 @@ export function ActionSetNewPartDialogVisible(data) {
 }
 
 export const SET_EDIT_PART_DIALOG_VISIBLE = 'SET_EDIT_PART_DIALOG_VISIBLE'
-export function ActionSetEditPartDialogVisible(visible: boolean, partId: boolean) {
+export function ActionSetEditPartDialogVisible(visible: boolean, partId?: string) {
   return {
     type: SET_EDIT_PART_DIALOG_VISIBLE,
     data:{visible, partId},

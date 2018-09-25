@@ -1,3 +1,4 @@
+/* Global CSS style here, styles of components are embedded in the components by 'styled-component' */
 body    {
   overflow-y:scroll;
 }
