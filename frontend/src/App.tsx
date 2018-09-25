@@ -16,7 +16,6 @@ import NavBar from './NavBar'
 import LoginDialog from './LoginDialog'
 import StatisticPanel from './StatisticPanel';
 import PartsList from './PartsList';
-import MyRedirect from './MyRedirect';
 
 // redux
 import { IStoreState } from './store'
