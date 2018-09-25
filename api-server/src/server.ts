@@ -114,7 +114,7 @@ function userMustLoggedIn (req :Request, res :Response, next: NextFunction) {
       exp: Math.floor(Date.now()) + 3600,
     }
   }
-  if (req.currentUser) {
+  if (req.currentUser && req.currentUser.groups.indexOf('users')>=0) {
     next();
   } else {
     res.status(401).json({message: 'require log in'})
@@ -153,7 +153,7 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
         id = user.id;
       }
     const token = jwt.sign({
-        id: user.id.toString(),
+        id,
         fullName: name,
         email,
         groups,
@@ -163,6 +163,7 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
     res.json({message: `welcome ${name}`, id, token, name, email, groups})
     
   } catch (err) {
+    console.log(err);
     res.status(401).json({message: err})
   }
 })

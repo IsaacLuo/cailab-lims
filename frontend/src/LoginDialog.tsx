@@ -72,7 +72,6 @@ class LoginDialog extends React.Component<ILoginDialogProps, any> {
       localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
       this.props.setDialogVisible(false);
       this.props.setLoginInformation(res.data.id, res.data.name, res.data.groups);
-      this.props.refreshPartsCount();
     } catch (err) {
       if (err.response) {
         Message.error({message:`${err.response.status}: ${err.response.statusText}`, duration:30000});

@@ -40,11 +40,13 @@ class NavBar extends React.Component<INavBarProps, any> {
         <Link to="/">
           <Menu.Item index="1">Home</Menu.Item>
         </Link>
+        { groups.indexOf('users') >=0 &&
         <Menu.SubMenu index="2" title="Tables">
           <Link to="/parts/bacteria/"><Menu.Item index="bacteria">Bacteria</Menu.Item></Link>
           <Link to="/parts/primers/"><Menu.Item index="primers">Primers</Menu.Item></Link>
           <Link to="/parts/yeasts/"><Menu.Item index="yeasts">Yeasts</Menu.Item></Link>
         </Menu.SubMenu>
+        }
         {loggedIn ?
         <Menu.SubMenu index="user" title={username}>
           <Menu.Item index="logout">log out</Menu.Item>
@@ -52,9 +54,11 @@ class NavBar extends React.Component<INavBarProps, any> {
           <Link to="/users/"><Menu.Item index="user management">
             user management
           </Menu.Item></Link>}
+          {groups.indexOf('administrators')>=0 && 
           <Link to="/requests/partsDeletion"><Menu.Item index="deletion requests">
             deletion requests
           </Menu.Item></Link>
+          }
         </Menu.SubMenu> :
         <Menu.Item index="login">log in</Menu.Item>
         }
