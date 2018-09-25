@@ -143,6 +143,7 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
           abbr,
           authType: 'google',
           groups: ['guests'],
+          createdAt: new Date(),
         });
         console.log(`new user: ${newUser}`)
         groups.push('guests')
@@ -302,6 +303,12 @@ app.get('/api/statistic', async (req :Request, res: Response) => {
     ret.count.yeasts = await Part.countDocuments({sampleType:'yeast'}).exec();
     ret.monthlyStatistic = await Part.aggregate([
       {
+        $match: {
+          createdAt: {
+            $gte: new Date(Date.now()-365*24*3600000),
+          }
+        }
+      }, {
         $project: {
           ym: {
             $dateToString: {
