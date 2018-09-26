@@ -29,7 +29,6 @@ import EditPartDialog from 'EditPartDialog';
 
 interface IProps {
   initializing: boolean,
-  redirect: string,
   dispatchInitialize: () => {},
 }
 
@@ -52,7 +51,6 @@ class App extends React.Component<IProps, any> {
           </header>
           <LoginDialog/>
           <EditPartDialog/>
-          {/* {this.props.redirect && <MyRedirect/>} */}
           <Route path='/' exact={true} component={StatisticPanel} />
           <Route path='/parts/bacteria/' exact={true} render={this.renderBacteriaComponent} />
           <Route path='/parts/primers/' exact={true} render={this.renderPrimersComponent} />
@@ -77,7 +75,6 @@ class App extends React.Component<IProps, any> {
 const mapStateToProps = (state :IStoreState) => ({
   loggedIn: state.loggedIn,
   initializing: state.initializing,
-  redirect: state.redirect,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({

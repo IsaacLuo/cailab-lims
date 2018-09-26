@@ -98,7 +98,6 @@ class StatisticPanel extends React.Component<IProps, IState> {
 }
 
 const mapStateToProps = (state :IStoreState) => ({
-  redirect: state.redirect,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({

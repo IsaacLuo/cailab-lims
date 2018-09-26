@@ -1,7 +1,7 @@
+// redux saga
+import { delay} from 'redux-saga';
 import {call, all, fork, put, take, takeLatest} from 'redux-saga/effects'
-import axios from 'axios'
-import {serverURL} from './config'
-import getAuthHeader from './authHeader'
+// redux actions
 import {
   ActionInitizeDone,
   ActionSetLoginInformation, 
@@ -9,36 +9,42 @@ import {
   ActionSetAllUserNames,
   IAction,
   ActionClearLoginInformation,
-  ActionSetRedirect,
 } from './actions'
 
+// other libs
+import axios from 'axios'
 import qs from 'qs'
-import { delay, eventChannel, END } from 'redux-saga';
-
 import {Notification} from 'element-react'
 
+// helpers
+import {serverURL} from './config'
+import getAuthHeader from './authHeader'
 
+// get current user's status from the server, and ask again in 60 seconds
 export function* getMyStatus() {
   try {
     const res = yield call(axios.get,serverURL+'/api/currentUser', getAuthHeader());
-
     const {id, fullName, groups, token} = res.data;
     if (id === 'guest') {
+      // force logout if current user becomes a guest
       yield put(ActionClearLoginInformation());
     } else {
       if (token) {
         localStorage.setItem('token', token);
         localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
       }
+      // save id, full name and groups to redux store.
       yield put(ActionSetLoginInformation(id, fullName, groups));
       yield call(delay, 60000);
       yield put({type:'GET_MY_STATUS'});
     }
   } catch (err) {
+    // force log out if any error happened
     yield put(ActionClearLoginInformation());
   }
 }
 
+// initialize, get token and other information from server to fill sotre states.
 export function* initialize() {
   try {
     const res = yield call(axios.get,serverURL+'/api/currentUser', getAuthHeader());
@@ -51,6 +57,7 @@ export function* initialize() {
         localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
       }
       yield put(ActionSetLoginInformation(id, fullName, groups));
+      // get notifications when initilizing
       yield put({type:'GET_NOTIFICATIONS'});
     }
   } catch (err) {
@@ -59,6 +66,7 @@ export function* initialize() {
   yield put(ActionInitizeDone());
 }
 
+// get all user names from server
 export function* getUserList() {
   try {
     const res = yield call(axios.get,serverURL+'/api/users/names/', getAuthHeader());
@@ -71,25 +79,17 @@ export function* getUserList() {
 }
 
 function showNotification(notification: any) {
-  // return eventChannel(emitter => {
-    const inst = Notification.info({
-      title: notification.title,
-      message: notification.message,
-      duration: 10000,
-      onClick: () => {
-        window.location.href = notification.link;
-        // console.log('link', notification.link);
-        // emitter(notification.link);
-        // console.log(p);
-      }
-    })
-    
-    // console.log({inst});
-    // return () => {console.log('emit end')};
-  // });
+  Notification.info({
+    title: notification.title,
+    message: notification.message,
+    duration: 10000,
+    onClick: () => {
+      window.location.href = notification.link;
+    }
+  })
 }
 
-
+// get all notifications from the server if current user is admin
 export function* getNotifications() {
   try {
     const lastNotificationTime = localStorage.getItem('lastNotificationTime');

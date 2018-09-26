@@ -4,6 +4,7 @@ import saga from './saga'
 import createSagaMiddleware from 'redux-saga'
 import {IUserInfo} from './types'
 import {IPart} from './types'
+import { getDefaultSettings } from 'http2';
 
 
 interface IPartsCount {
@@ -14,16 +15,15 @@ interface IPartsCount {
 
 export interface IStoreState {
 
+  // the app is initializing(fetching data from server first time)
   initializing: boolean,
 
-  // UI visible controls
+  // ===dialogs visible controls===
   loginDialogVisible: boolean,
   newPartDialogVisible: boolean,
+  editPartDialogVisible: boolean,
 
-  // UI content
-  renderingParts: IPart[],
-
-  // user state controls
+  // ===user state controls===
   loggedIn: boolean,
   userId: string,
   fullName: string,
@@ -32,13 +32,31 @@ export interface IStoreState {
   
   // parts information
   partsCount: IPartsCount,
+
+  // all user names, used in user filter combo box
   allUsers: IUserInfo[],
 
-  redirect?: string,
-
-  editPartDialogVisible: boolean,
+  // edit dialog information  
   editPartDialogPartId: string,
-  
+}
+
+export const defaultStoreState:IStoreState = {
+  initializing: true,
+  loggedIn: false,
+  userId: 'guest',
+  fullName: 'guest',
+  profilePicture: '',
+  groups: [],
+  loginDialogVisible: false,
+  partsCount: {
+    bacteria: 0,
+    primers: 0,
+    yeasts: 0,
+  },
+  allUsers: [],
+  newPartDialogVisible: false,
+  editPartDialogVisible: false,
+  editPartDialogPartId: '',
 }
 
 /* tslint-disable no-underscore-dangle */

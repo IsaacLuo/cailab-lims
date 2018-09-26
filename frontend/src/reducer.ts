@@ -1,4 +1,4 @@
-import {IStoreState} from './store'
+import {IStoreState, defaultStoreState} from './store'
 import {
   IAction,
   INITIALIZE_DONE,
@@ -8,31 +8,11 @@ import {
   SET_PARTS_COUNT,
   SET_ALL_USER_NAMES,
   SET_NEW_PART_DIALOG_VISIBLE,
-  SET_REDIRECT,
-  CLEAR_REDIRECT,
   SET_EDIT_PART_DIALOG_VISIBLE,
 } from './actions'
 
-function myReducer(state :IStoreState = {
-  initializing: true,
-  loggedIn: false,
-  userId: 'guest',
-  fullName: 'guest',
-  profilePicture: '',
-  groups: [],
-  loginDialogVisible: false,
-  partsCount: {
-    bacteria: 0,
-    primers: 0,
-    yeasts: 0,
-  },
-  allUsers: [],
-  newPartDialogVisible: false,
-  renderingParts: [],
-  editPartDialogVisible: false,
-  editPartDialogPartId: '',
-}, action: IAction) {
-  console.log('action:', action)
+function myReducer(state :IStoreState = defaultStoreState, action: IAction) {
+  // console.log('action:', action)
   switch (action.type) {
     case INITIALIZE_DONE:
       return {...state, initializing: false};
@@ -77,18 +57,6 @@ function myReducer(state :IStoreState = {
       return {
         ...state,
         newPartDialogVisible: action.data,
-      }
-
-    case SET_REDIRECT:
-      return {
-        ...state,
-        redirect: action.data,
-      }
-    
-    case CLEAR_REDIRECT:
-      return {
-        ...state,
-        redirect: undefined,
       }
 
     case SET_EDIT_PART_DIALOG_VISIBLE:
