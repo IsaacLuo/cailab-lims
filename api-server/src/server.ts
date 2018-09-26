@@ -1,142 +1,61 @@
 import express from 'express'
 import {Response, NextFunction} from 'express'
 import verifyGoogleToken from './googleOauth'
-import cors from 'cors'
-import * as bodyParser from 'body-parser'
+
 import jwt from 'jsonwebtoken'
-import mongoose from 'mongoose'
+
 import secret from '../secret.json'
 import {User, Part, FileData, PartsIdCounter, PartDeletionRequest} from './models'
 import sendBackCsv from './sendBackCsv'
-import sendBackXlsx from './sendBackXlsx'
-
-interface IUserInfo {
-  id:string,
-  fullName: string,
-  email: string,
-  groups: [string],
-}
-interface IUserJWT extends IUserInfo {
-  iat: number,
-  exp: number,
-}
-
-interface Request extends express.Request {
-  currentUser :IUserJWT,
-}
 
 
+import {Request} from './MyRequest'
+import {userMustLoggedIn, userMustBeAdmin} from './MyMiddleWare'
 
-const ObjectId = mongoose.Types.ObjectId;
+// other processors
 
-const app = express()
+import preprocess from './preprocess'
+import handlePart from './rest/part'
+import handlePartDeletion from './rest/sudoRequests/partDeletion'
+// ============================================================================
 
-app.use(cors())
+const app = express();
+// enable CORS, parse body, set req.currentUser etc.
+preprocess(app);
 
-app.use(bodyParser.json({ type: 'application/json' , limit:'10MB'}))
+// CURD and count parts
+handlePart(app);
 
-app.use((req :Request, res :Response, next: NextFunction) => {
-  console.log(`${req.method} ${req.path}`)
-  res.set('Cache-Control', 'public, max-age=1');
-  next();
-});
+// CRD part deletion requests from normal user to admins.
+handlePartDeletion(app);
 
-app.use(async (req :Request, res :Response, next: NextFunction) => {
-  const mongooseState = mongoose.connection.readyState;
-  switch (mongooseState) {
-    case 3:
-    case 0:
-    console.log('mongooseState=', mongooseState);
-    await mongoose.connect(
-      secret.mongoDB.url,
-      {
-        useNewUrlParser: true,
-        user: secret.mongoDB.username,
-        pass: secret.mongoDB.password, 
-      }
-    );
-    break;
-  }
-  next();
-});
 
-// get user group
-app.use((req :Request, res :Response, next: NextFunction) => {
-  const auth = req.headers.authorization;
-  if (auth) {
-    const [tokenType, token] = auth.split(' ');
-    if (tokenType === 'bearer') {  
-      jwt.verify(token, secret.jwt.key, (err, decoded :IUserJWT) => {
-        if (!err) {
-          // console.log('verified user');
-          // console.log(decoded);
-          req.currentUser = decoded;
-        } else {
-          console.log('bad verification');
-        }
-        next();
-      })
-    } else {
-      res.status(401).json('unacceptable token');
-    }
-  } else {
-    next();
-  }
-})
-
-function userMustBeAdmin (req :Request, res :Response, next: NextFunction) {
-  if (req.currentUser && req.currentUser.groups.indexOf('administrators')>=0) {
-    console.log('currentGoup', req.currentUser.groups)
-    next();
-  } else if (req.headers['test-token'] === 'a30aa7f7de512963a03c') {
-    req.currentUser = {
-      id:'5b718be08274212924fe4a94',
-      fullName: 'test man',
-      email: 'yishaluo@gmail.com',
-      groups: ['users'],
-      iat: Math.floor(Date.now()),
-      exp: Math.floor(Date.now()) + 3600,
-    }
-    next();
-  } else {
-    res.status(401).json({message: 'require admin'})
-  }
-}
-
-function userMustLoggedIn (req :Request, res :Response, next: NextFunction) {
-  if (req.headers['test-token'] === 'a30aa7f7de512963a03c') {
-    req.currentUser = {
-      id:'5b718be08274212924fe4a94',
-      fullName: 'test man',
-      email: 'yishaluo@gmail.com',
-      groups: ['users'],
-      iat: Math.floor(Date.now()),
-      exp: Math.floor(Date.now()) + 3600,
-    }
-  }
-  if (req.currentUser && req.currentUser.groups.indexOf('users')>=0) {
-    next();
-  } else {
-    res.status(401).json({message: 'require log in'})
-  }
-}
-
+// for testing if the server is running
 app.get('/test/',(req :Request, res: Response) => {
   res.json({foo:'get'})
 })
 
+// use google auth
+// request:
+//     body: {token: the token string from google}
+// response: 
+//     {id: unique user id in db,
+//      token: a jwt token
+//      name: user's fulll name
+//      email: user's email
+//      groups: can be one or more of "guests, users, administrators, visitors"}
 app.post('/api/googleAuth/', async (req :Request, res: Response) => {
   try {
-    console.log(req.body)
+    // console.log(req.body)
     const {name, email} = await verifyGoogleToken(req.body.token);
     const abbr = name.trim().split(' ').map(v=>v[0]).join('').toUpperCase();
-    console.log(`verified user ${name} ${email}`)
+    // console.log(`verified user ${name} ${email}`)
     let groups = []
       const user = await User.findOne({email})
-      console.log(`found user ${user}`)
+      // console.log(`found user ${user}`)
       let id = '';
       if (!user) {
-        // no user, create one
+        // no user, create one in db
         const newUser = new User({
           name,
           email,
@@ -145,7 +64,7 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
           groups: ['guests'],
           createdAt: new Date(),
         });
-        console.log(`new user: ${newUser}`)
+        // console.log(`new user: ${newUser}`)
         groups.push('guests')
         await newUser.save();
         id = newUser.id;
@@ -169,8 +88,8 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
   }
 })
 
-
-
+// get user names
+// response: [{name: user's full name, id: unique user id in db}]
 app.get('/api/users/names/', userMustLoggedIn, async (req :Request, res: Response) => {
   let users = await User.find({groups:'users'});
   users = users.map(user => ({
@@ -180,8 +99,13 @@ app.get('/api/users/names/', userMustLoggedIn, async (req :Request, res: Respons
   res.json(users);
 });
 
-
-
+// get current user information, it can also be used for refreshing jwt tokens
+// response:
+//   {id: unique user id in db,
+//   fullName: user's full name or 'guest'
+//   email: user's email or undefined
+//   groups: can be one or more of "guests, users, administrators, visitors"
+//   token: a new jwt token, appears only if current token is going to be expired soon}
 app.get('/api/currentUser', async (req :Request, res: Response) => 
 { 
   if (req.currentUser) {
@@ -208,92 +132,6 @@ app.get('/api/currentUser', async (req :Request, res: Response) =>
 });
 
 // ===========================parts======================================
-
-app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
-  let {type, skip, limit, user, sortBy, desc, format} = req.query;
-  let condition :any = {};
-  if (type) {
-    condition.sampleType = type;
-  }
-  if (user) {
-    condition.ownerId = ObjectId(user);
-  }
-  let parts = Part.find(condition)
-  if (sortBy) {
-    let realSortBy = sortBy;
-    if (sortBy === 'personalName') {
-      if (desc === 'true') {
-        parts = parts.sort({'personalName': -1, 'personalId': -1});
-      } else {
-        parts = parts.sort({'personalName': 1, 'personalId': 1});
-      }
-    } else {
-      if (sortBy === 'labName') {
-          realSortBy = 'labId';
-      }
-      if (desc === 'true') {
-        parts = parts.sort({[realSortBy]: -1});
-      } else {
-        parts = parts.sort({[realSortBy]: 1});
-      }
-    }
-  } else {
-    parts = parts.sort({labId:-1});
-  }
-  if (skip) parts = parts.skip(parseInt(skip))
-  if (limit) parts = parts.limit(parseInt(limit))
-
-  // .select('labName')
-  parts.exec((err, data)=>{
-    if (err) {
-      console.log(err)
-      res.status(500).json({err})
-    } else {
-      switch(format) {
-        case 'csv':
-        sendBackCsv(res,data);
-        break;
-        case 'xlsx':
-        sendBackXlsx(res,data);
-        break;
-        default:
-        res.json(data);
-      }
-    }
-  })
-});
-
-app.get('/api/parts/count', userMustLoggedIn, async (req :Request, res: Response) => {
-  let {type, ownerId} = req.query;
-  let condition :any = {};
-  if (type) {
-    condition.sampleType = type;
-  }
-  if (ownerId) {
-    condition.ownerId = ownerId;
-  }
-  Part.count(condition)
-  .exec((err, data)=>{
-    if (err) {
-      console.log(err)
-      res.status(500).json({err})
-    } else {
-      res.json({count: data});
-    }
-  })
-});
-
-app.get('/api/parts/countAll', userMustLoggedIn, async (req :Request, res: Response) => {
-  try {
-    const bacteria = await Part.countDocuments({sampleType:'bacterium'}).exec();
-    const primers = await Part.countDocuments({sampleType:'primer'}).exec();
-    const yeasts = await Part.countDocuments({sampleType:'yeast'}).exec();
-    res.json({ bacteria, primers, yeasts });
-  } catch (err) {
-    res.status(500).json({err})
-  }
-});
-
 app.get('/api/statistic', async (req :Request, res: Response) => {
   try {
     const ret:any = {};
@@ -336,177 +174,6 @@ app.get('/api/statistic', async (req :Request, res: Response) => {
   }
 });
 
-app.post('/api/part', userMustLoggedIn, async (req :Request, res: Response) => {
-  // read part form
-  let form = req.body;
-  // get increased labId
-  let {
-    sampleType,
-    comment,
-    date,
-    tags,
-    markers,
-    plasmidName,
-    hostStrain,
-    parents,
-    genotype,
-    plasmidType,
-    sequence,
-    orientation,
-    meltingTemperature,
-    concentration,
-    vendor,
-    attachments,
-  } = req.body;
-
-  try {
-    const currentUser = await User.findById(req.currentUser.id).exec();
-    const abbr = currentUser.abbr;
-    const typeLetter = (t=>{
-      switch(t){
-        case 'bacterium':
-          return 'e';
-        case 'primer':
-          return 'p';
-        case 'yeast':
-          return 'y';
-        default:
-          return 'x';
-      }
-    })(sampleType);
-    const labPrefix = 'YC' + typeLetter;
-    const personalPrefix = abbr + typeLetter;
-    
-    let doc;
-  
-    doc = await PartsIdCounter.findOneAndUpdate(
-      {name:labPrefix},
-      {$inc:{count:1}},
-      {new: true, upsert: true}
-    ).exec();
-    const labId = doc.count;
-    // get incresed personalId
-    doc = await PartsIdCounter.findOneAndUpdate(
-      {name:personalPrefix},
-      {$inc:{count:1}},
-      {new: true, upsert: true}
-    ).exec();
-    const personalId = doc.count;
-    const now = new Date();
-
-    // createAttachments
-    const attachmentIds = [];
-    for(const attachment of attachments) {
-      let attContent = attachment.content;
-      if (/data:(.*);base64,/.test(attContent)) {
-        attContent = attContent.split(',')[1];
-      }
-      const att = new FileData({
-        name: attachment.name,
-        data: new Buffer(attContent, 'base64'),
-      });
-      await att.save();
-      attachmentIds.push(
-        {
-          fileName: attachment.name,
-          contentType: attachment.type,
-          fileSize: attachment.size,
-          fileId: att._id,
-        }
-      );
-    }
-
-    console.log('saved attachmes', attachmentIds.length);
-
-    // createNewPart
-    let part = new Part({
-      labName: labPrefix+labId,
-      labPrefix,
-      labId,
-      personalName: personalPrefix+personalId,
-      personalPrefix,
-      personalId,
-      sampleType,
-      comment,
-      createdAt: now,
-      updatedAt: now,
-      date,
-      tags: tags ? tags.split(';') : [],
-      ownerId: currentUser._id,
-      ownerName: currentUser.name,
-      content: {
-        markers: markers ? markers.split(';') : undefined,
-        plasmidName,
-        hostStrain,
-        parents: parents ? parents.split(';') : undefined,
-        genotype: genotype ? genotype.split(';') : undefined,
-        plasmidType,
-        sequence,
-        orientation,
-        meltingTemperature,
-        concentration,
-        vendor,
-      },
-      attachments: attachmentIds,
-    });
-    await part.save();
-    res.json(part);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({err: err.toString()});
-  }
-});
-
-app.delete('/api/part/:id', userMustLoggedIn, async (req :Request, res: Response) => {
-  try {
-    const {id} = req.params;
-    console.log('delete ', id);
-    const part = await Part.findById(id).exec();
-    if(!part) {
-      await PartDeletionRequest.findOneAndDelete({partId:id}).exec();
-      res.status(404).json({message: 'no this part'});
-    }
-    if (
-      part.ownerId.toString() !== req.currentUser.id && 
-      req.currentUser.groups.indexOf('administrators')===-1
-      ) {
-      res.status(401).json({message: 'unable to delete a part of others'});
-    } else if (
-      Date.now() - part.createdAt.getTime() > 3600000 * 24 * 7 ||
-      req.currentUser.groups.indexOf('administrators')===-1
-      ) {
-      res.status(401).json({message: 'unable to delete a part older than 1 week'});
-    } else {
-      await Part.findOneAndDelete({_id:id}).exec(); 
-      await PartDeletionRequest.findOneAndDelete({partId:id}).exec();
-      res.json(part);
-    }
-  } catch (err) {
-    console.error('err', err);
-    res.status(500).json({err});
-  }
-});
-
-app.get('/api/sudoRequests/partDeletions', userMustBeAdmin, async (req :Request, res: Response) => {
-  try {
-    const requests = await PartDeletionRequest.find({}).exec();
-    const requestDict: any = {};
-    const ids = requests.map(item=>{
-      requestDict[item.partId] = item;
-      return item.partId;
-    });
-    
-    const parts = await Part.find({_id:{$in:ids}}).exec();
-    const ret = parts.map((item)=>({
-      part: item,
-      request: requestDict[item._id],
-    }));
-    res.json(ret);
-  } catch (err) {
-    res.status(500).json({err})
-  }
-});
-
 app.get('/api/notifications', userMustLoggedIn, async (req :Request, res: Response) => {
   try {
     const notifications:{title:string, message:string, link:string}[] = [];
@@ -523,61 +190,6 @@ app.get('/api/notifications', userMustLoggedIn, async (req :Request, res: Respon
     res.json(notifications);
   } catch (err) {
     res.status(500).json({err});
-  }
-});
-
-app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Request, res: Response) => {
-  try {
-    const {id} = req.params;
-    console.log('request to delete ', id);
-    const part = await Part.findById(id).exec();
-    if (part.ownerId.toString() !== req.currentUser.id && req.currentUser.groups.indexOf('administrators')===-1) {
-      res.status(401).json({message: 'unable to delete a part of others'});
-    } else {
-      try {
-        const deletionRequest = await PartDeletionRequest.findOneAndUpdate(
-          {partId: id},
-          {
-            senderId: req.currentUser.id,
-            senderName: req.currentUser.fullName,
-            partId: id,
-            $inc:{requestedCount:1},
-            $push:{requestedAt: Date.now()},
-          },
-          {new: true, upsert: true}
-        ).exec();
-        res.json(deletionRequest);
-      } catch (_) {
-        console.log('create new one');
-        const createResult = await PartDeletionRequest.create({
-          senderId: req.currentUser.id,
-          senderName: req.currentUser.fullName,
-          partId: id,
-          requestedCount: 1,
-          requestedAt: [Date.now()],
-        });
-        res.json(createResult);
-      }
-      
-      
-    }
-  } catch (err) {
-    console.log(err)
-    res.status(500).json({err})
-  }
-});
-
-
-// just delete the requests, it won't delete a part
-app.delete('/api/sudoRequests/partDeletion/:id', userMustBeAdmin, async (req :Request, res: Response) => {
-  try {
-    const {id} = req.params;
-    const parts = PartDeletionRequest.deleteMany({partId:id}).exec();
-    console.log(parts);
-    res.json(parts);
-  } catch (err) {
-    console.log(err)
-    res.status(500).json({err})
   }
 });
 
@@ -641,20 +253,19 @@ app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res:
 })
 
 // set a ownerID by giving the dbv1Id
-app.put('/api/legacyParts/:dbV1Id/owner/:ownerId', /*userMustBeAdmin,*/ async (req :Request, res: Response) => {
-  const {dbV1Id, ownerId} = req.params;
-  try {
-    const user = await User.findOne({_id:ownerId});
-    if (user._id.toString() === ownerId) {
-      console.log(`assign parts of ${dbV1Id} to ${user.name}`)
-      const docs = await Part.updateMany({dbV1Id}, {ownerId});
-      res.json({message: `updated ${docs.nModified} of ${docs.n}`, total: docs.n, updated: docs.nModified});
-    }
-  } catch (err) {
-    res.status(404).json(err);
-  }
-  
-})
+// app.put('/api/legacyParts/:dbV1Id/owner/:ownerId', /*userMustBeAdmin,*/ async (req :Request, res: Response) => {
+//   const {dbV1Id, ownerId} = req.params;
+//   try {
+//     const user = await User.findOne({_id:ownerId});
+//     if (user._id.toString() === ownerId) {
+//       console.log(`assign parts of ${dbV1Id} to ${user.name}`)
+//       const docs = await Part.updateMany({dbV1Id}, {ownerId});
+//       res.json({message: `updated ${docs.nModified} of ${docs.n}`, total: docs.n, updated: docs.nModified});
+//     }
+//   } catch (err) {
+//     res.status(404).json(err);
+//   }
+// })
 
 // ============================static files===================================
 app.use('/public', express.static('public'));

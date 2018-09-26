@@ -58,7 +58,7 @@ class StatisticPanel extends React.Component<IProps, IState> {
 				<rect
 					x={x}
 					y={barBottom-height}
-					width={xStep-1}
+					width={xStep-5}
 					height={height}
 					fill="#6495ED"
 					/>
