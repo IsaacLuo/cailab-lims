@@ -1,15 +1,18 @@
 // redux action
 
+// interface of all actions
 export interface IAction {
   type: string,
   data: any,
 }
 
+// dispatched when currentUser and notification downloaded at the first time.
 export const INITIALIZE_DONE = 'INITIALIZE_DONE';
 export function ActionInitizeDone () {
   return {type: INITIALIZE_DONE};
 }
 
+// dispatched when user clicks login button in the login dialog
 export const LOGIN = 'LOGIN';
 export function ActionLogin (
   username :string, 
@@ -22,8 +25,8 @@ export function ActionLogin (
   }
 }
 
+// dispatched when user clicks the login menu item
 export const LOGIN_DIALOG_VISIBLE = 'SHOW_LOGIN';
-
 export function ActionLoginDialogVisible (
   visible: boolean,
 ) {
@@ -33,6 +36,7 @@ export function ActionLoginDialogVisible (
   }
 }
 
+// dispatched when get new current user information from the server
 export const SET_LOGIN_INFORMATION = 'SET_LOGIN_INFORMATION';
 export function ActionSetLoginInformation (
   id: string,
@@ -49,6 +53,7 @@ export function ActionSetLoginInformation (
   }
 }
 
+// dispatched when user logs out
 export const CLEAR_LOGIN_INFORMATION = 'CLEAR_LOGIN_INFORMATION';
 export function ActionClearLoginInformation() {
   return {
@@ -56,13 +61,7 @@ export function ActionClearLoginInformation() {
   }
 }
 
-export const VERIFY_MYSELF = 'VERIFY_MYSELF';
-export function ActionVerifyMyself() {
-  return {
-    type: VERIFY_MYSELF,
-  }
-}
-
+// dispatched when saga has got the parts count from the server
 export const SET_PARTS_COUNT = 'SET_PARTS_COUNT';
 export function ActionSetPartsCount(data) {
   return {
@@ -71,6 +70,7 @@ export function ActionSetPartsCount(data) {
   }
 }
 
+// dispatched when saga has fetched all user names from the server
 export const SET_ALL_USER_NAMES = 'SET_ALL_USER_NAMES';
 export function ActionSetAllUserNames(data) {
   return {
@@ -79,6 +79,7 @@ export function ActionSetAllUserNames(data) {
   }
 }
 
+// dispatched when new part dialog needs to pop out
 export const SET_NEW_PART_DIALOG_VISIBLE = 'SET_NEW_PART_DIALOG_VISIBLE'
 export function ActionSetNewPartDialogVisible(data) {
   return {
@@ -87,6 +88,7 @@ export function ActionSetNewPartDialogVisible(data) {
   }
 }
 
+// dispatched when edit part dialog needs to pop out
 export const SET_EDIT_PART_DIALOG_VISIBLE = 'SET_EDIT_PART_DIALOG_VISIBLE'
 export function ActionSetEditPartDialogVisible(visible: boolean, partId?: string) {
   return {
@@ -95,6 +97,7 @@ export function ActionSetEditPartDialogVisible(visible: boolean, partId?: string
   }
 }
 
+// dispatched when "upload parts dialog" needs to pop out
 export const SET_UPLOAD_PARTS_DIALOG_VISIBLE = 'SET_UPLOAD_PARTS_DIALOG_VISIBLE'
 export function ActionSetUploadPartsDialogVisible(data) {
   return {
@@ -102,20 +105,3 @@ export function ActionSetUploadPartsDialogVisible(data) {
     data,
   }
 }
-
-export const SET_REDIRECT = 'SET_REDIRECT'
-export function ActionSetRedirect(data) {
-  return {
-    type: SET_REDIRECT,
-    data,
-  } 
-}
-
-export const CLEAR_REDIRECT = 'CLEAR_REDIRECT'
-export function ActionClearRedirect(data) {
-  return {
-    type: CLEAR_REDIRECT,
-    data,
-  } 
-}
-

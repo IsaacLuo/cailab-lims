@@ -97,9 +97,7 @@ export function* getNotifications() {
       localStorage.setItem('lastNotificationTime', new Date().toISOString());
       const res = yield call(axios.get,serverURL+'/api/notifications', getAuthHeader());
       for (const notification of res.data) {
-        const chan = yield call(showNotification,notification);
-        const link = yield take(chan);
-        yield put(ActionSetRedirect(link));
+        yield call(showNotification,notification);
         yield call(delay, 10000);
       }
       yield call(delay, 600000); // 10 minutes
