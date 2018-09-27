@@ -100,6 +100,13 @@ class PartsList extends React.Component<IProps, IState> {
       props.getUserList();
     }
   }
+
+  public componentWillReceiveProps(nextProps:IProps) {
+    if (!nextProps.editPartDialogVisible && this.props.editPartDialogVisible) {
+      // editPartDialog has closed, fetch data again from server;
+      this.fetchPartsData();
+    }
+  }
   
   public render() {
     const {loggedIn, allUsers, editPartDialogVisible} = this.props;

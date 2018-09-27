@@ -4,6 +4,7 @@ import {Request} from '../MyRequest'
 import {userMustLoggedIn} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
+import { IPartForm } from '../types';
 const ObjectId = mongoose.Types.ObjectId;
 
 export default function handlePart(app:Express) {
@@ -140,10 +141,32 @@ export default function handlePart(app:Express) {
   
   app.put('/api/part/:id', userMustLoggedIn, async (req :Request, res: Response) => {
     const {id} = req.params;
+    const form:IPartForm = req.body;
     try {
-      let part = await Part.findOne({_id:id}).exec();
-      if (part._id.toString() === id && part.ownerId.toString() === req.currentUser.id.toString()) {
-        part.
+      const part = await Part.findOne({_id:id}).exec();
+      if (part._id.toString() === id && part.ownerId.toString() === req.currentUser.id) {
+        part.comment = form.comment;
+        part.date = form.date? new Date(form.date) : undefined;
+        part.tags = form.tags;
+        if (part.sampleType === 'bacterium') {
+          part.content.plasmidName = form.plasmidName;
+          part.content.hostStrain = form.hostStrain;
+          part.content.markers = form.markers;
+        } else if(part.sampleType === 'primer') {
+          part.content.sequence = form.sequence;
+          part.content.orientation = form.orientation;
+          part.content.meltingTemperature = form.meltingTemperature;
+          part.content.concentration = form.concentration;
+          part.content.vendor = form.vendor;
+        } else if(part.sampleType === 'yeast') {
+          part.content.parents = form.parents;
+          part.content.genotype = form.genotype;
+          part.content.plasmidType = form.plasmidType;
+          part.content.markers = form.markers;
+        }
+        part.content.customData = form.customData;
+        await part.save();
+        res.json({message:'OK'});
       } else {
         res.status(401).json({message: 'unable to modify this part'})
       }

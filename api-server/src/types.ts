@@ -46,3 +46,23 @@ export interface IPart {
     barcode: string,
   },
 }
+
+export interface IPartForm {
+  sampleType?: string,
+  comment?: string,
+  date?: Date,
+  tags?: string[],
+  markers?: string[],
+  plasmidName?: string,
+  hostStrain?: string,
+  parents?: string[],
+  genotype?: string[],
+  plasmidType?: string,
+  sequence?: string,
+  orientation?: string,
+  meltingTemperature?: string,
+  concentration?: string,
+  vendor?: string,
+  attachments?: string[],
+  customData?: any,
+}
