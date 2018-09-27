@@ -4,7 +4,7 @@ import * as React from 'react'
 
 // react-router-redux
 import { IStoreState } from './store';
-import { withRouter, Link } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import {
@@ -14,7 +14,7 @@ import Axios from 'axios';
 import { serverURL } from 'config';
 import getAuthHeader from 'authHeader';
 
-import {Notification, Loading} from 'element-react'
+import {Notification} from 'element-react'
 
 export interface IProps {
 }
@@ -72,7 +72,7 @@ class StatisticPanel extends React.Component<IProps, IState> {
 		});
 
     return <ErrorBoundary>
-			<Loading loading={this.state.loading}>
+			{this.state.loading ? <div>loading</div> : <div>
 			<div>bacteria: {this.state.count.bacteria}</div>
 			<div>primers: {this.state.count.primers}</div>
 			<div>yeast: {this.state.count.yeasts}</div>
@@ -83,7 +83,9 @@ class StatisticPanel extends React.Component<IProps, IState> {
 				</svg>
 				<div>parts created in last 12 months</div>
 			</div>
-			</Loading>
+			</div>
+			}
+			
     </ErrorBoundary>
   }
 

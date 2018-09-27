@@ -330,7 +330,7 @@ class PartsList extends React.Component<IProps, IState> {
         label: "other names",
         prop: "tags",
         sortable: "custom",
-        width:100,
+        width:200,
       },
       {
         label: "host strain",

@@ -41,10 +41,6 @@ const FormValue = styled.div`
 flex: auto;
 `;
 
-const MyTag = styled(Tag)`
-margin-right: 10px;
-`;
-
 interface IFormField {
   name: string,
   type: string,
