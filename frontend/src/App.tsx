@@ -50,7 +50,6 @@ class App extends React.Component<IProps, any> {
           <NavBar />
           </header>
           <LoginDialog/>
-          <EditPartDialog/>
           <Route path='/' exact={true} component={StatisticPanel} />
           <Route path='/parts/bacteria/' exact={true} render={this.renderBacteriaComponent} />
           <Route path='/parts/primers/' exact={true} render={this.renderPrimersComponent} />

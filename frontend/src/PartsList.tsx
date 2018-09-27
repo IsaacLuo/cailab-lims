@@ -6,7 +6,7 @@ import qs from 'qs'
 import { Pagination, Icon, Loading, Select, Button, Notification, MessageBox, Message } from 'element-react'
 import NewPartDialog from './NewPartDialog'
 import ErrorBoundary from './ErrorBoundary'
-
+import EditPartDialog from 'EditPartDialog';
 import {Table} from 'element-react'
 
 
@@ -58,6 +58,7 @@ interface IProps extends IReactRouterProps {
   newPartDialogVisible: boolean,
   loggedIn: boolean,
   userId: string,
+  editPartDialogVisible: boolean,
   getUserList: () => void,
   setNewPartDialogVisible: (visible: boolean) => void,
   setEditPartDialogVisible: (visible: boolean, partId: string) => void,
@@ -101,7 +102,7 @@ class PartsList extends React.Component<IProps, IState> {
   }
   
   public render() {
-    const {loggedIn, allUsers, newPartDialogVisible} = this.props;
+    const {loggedIn, allUsers, editPartDialogVisible} = this.props;
     const {skip, limit, total, loading, userFilter} = this.state;
     if (!loggedIn) {
       console.log('not logged in, why?', this.props, this.state);
@@ -109,6 +110,7 @@ class PartsList extends React.Component<IProps, IState> {
     }
     return (
       <ErrorBoundary>
+      {editPartDialogVisible && <EditPartDialog/>}
       <div style={{width:'100%'}}>
         {/* {JSON.stringify(this.props)} */}
         <h1>{toPlural(this.props.sampleType)}</h1>
@@ -772,6 +774,7 @@ const mapStateToProps = (state :IStoreState) => ({
   newPartDialogVisible: state.newPartDialogVisible,
   loggedIn: state.loggedIn,
   userId: state.userId,
+  editPartDialogVisible: state.editPartDialogVisible,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
