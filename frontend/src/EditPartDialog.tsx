@@ -13,6 +13,8 @@ import { serverURL } from 'config';
 import getAuthHeader from 'authHeader';
 
 import {IPart, IPartForm} from 'types'
+import Dropzone from 'react-dropzone';
+import {fileSizeHumanReadable} from './tools'
 
 
 
@@ -40,6 +42,18 @@ text-align: left;
 const FormValue = styled.div`
 flex: auto;
 `;
+
+const MyDropzone = styled(Dropzone)`
+width: 100%;
+height: 5em;
+border: solid 1px;
+line-height:5em;
+`;
+
+const DeletedFileSpan = styled.span`
+text-decoration:line-through;
+`;
+
 
 interface IFormField {
   name: string,
@@ -70,7 +84,8 @@ interface IState {
 }
 
 class EditPartDialog extends React.Component<IProps, IState> {
-  
+  private attachmentToBeRemoved: Set<string> = new Set();
+  private attachmentToBeAdded: Set<string> = new Set();
 
   constructor(props:IProps) {
     super(props);
@@ -92,9 +107,23 @@ class EditPartDialog extends React.Component<IProps, IState> {
                 {field.type==='input' && <Input value={field.value} onChange={this.onChangeText.bind(this, index)}/>}
                 {field.type==='multiline' && <Input type="textarea" autosize={true} value={field.value} onChange={this.onChangeText.bind(this, index)}/>}
                 {field.type==='date' && <DatePicker value={field.value}/>}
+                {field.type==='file' && 
+                  <span>
+                    {field.value.fileName} {fileSizeHumanReadable(field.value.fileSize)}
+                    <Button type="text" icon="delete" onClick={this.onClickDeleteAttachment.bind(this, index, field.value.fileId)}/>
+                  </span>
+                }
+                {field.type==='deletedFile' && 
+                  <DeletedFileSpan>
+                    {field.value.fileName} {fileSizeHumanReadable(field.value.fileSize)}
+                    <Button type="text" icon="plus" onClick={this.onClickCancelDeleteAttachment.bind(this, index, field.value.fileId)}/>
+                  </DeletedFileSpan>
+                }
             </FormValue>
       </Row>
-    )
+    );
+
+    
 
     return (
       <Dialog
@@ -107,7 +136,8 @@ class EditPartDialog extends React.Component<IProps, IState> {
         <Dialog.Body>
           <Panel>
               {fields}
-          </Panel>
+              <MyDropzone>add more attachments</MyDropzone>
+          </Panel>          
         </Dialog.Body>
         <Dialog.Footer>
           <Button type="primary" onClick={this.onSubmit}>Submit</Button>
@@ -120,6 +150,18 @@ class EditPartDialog extends React.Component<IProps, IState> {
 
   private onChangeText = (index:number, content: string) => {
     this.state.formFields[index].value = content;
+    this.setState({count:this.state.count+1}); // just change state to refresh
+  }
+
+  private onClickDeleteAttachment = (index: number, fileId:string) => {
+    this.state.formFields[index].type = 'deletedFile';
+    this.attachmentToBeRemoved.add(fileId);
+    this.setState({count:this.state.count+1}); // just change state to refresh
+  }
+
+  private onClickCancelDeleteAttachment = (index: number, fileId:string) => {
+    this.state.formFields[index].type = 'file';
+    this.attachmentToBeRemoved.delete(fileId);
     this.setState({count:this.state.count+1}); // just change state to refresh
   }
 
@@ -189,6 +231,11 @@ class EditPartDialog extends React.Component<IProps, IState> {
       if (part.content && part.content.customData) {
         for(const key of Object.keys(part.content.customData)){
           fields.push(FormField(key, 'input', key, part.content[key]));
+        }
+      }
+      if (part.attachments) {
+        for(const attachment of part.attachments){
+          fields.push(FormField('attachment', 'file', attachment.fileId, attachment));
         }
       }
     }
