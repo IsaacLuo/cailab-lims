@@ -197,8 +197,7 @@ class PartsList extends React.Component<IProps, IState> {
   }
 
   private onFilterUserChange = (value: string) => {
-    const {skip, limit} = this.state;
-    this.setState({userFilter: value}, ()=>{
+    this.setState({userFilter: value, skip:0}, ()=>{
       this.replaceHistory();
       this.fetchPartsData();
     });
