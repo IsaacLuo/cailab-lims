@@ -274,7 +274,7 @@ class PartsList extends React.Component<IProps, IState> {
         expandPannel: data => {
           const attachmentRows = data && data.attachments && data.attachments.map(att => 
             <div key={att.fileId}>
-              <a href={`/parts/attachment/${att.fileId}`}
+              <a
                 onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
               >
                 {att.fileName},
@@ -369,7 +369,7 @@ class PartsList extends React.Component<IProps, IState> {
         render: (row, column, index) =>
         <div>
           {row.attachments&& row.attachments[0] &&
-            (<a href={`/parts/attachment/${row.attachments[0].id}`}
+            (<a
               onClick={this.onClickAttachment.bind(this,row.attachments[0].fileId, row.attachments[0].fileName)}
             >
               <MyClickableIcon type="text" icon="document"/>
@@ -389,7 +389,7 @@ class PartsList extends React.Component<IProps, IState> {
         expandPannel: data => {
           const attachmentRows = data && data.attachments&& data.attachment.map(att => 
           <div key={att.fileId}>
-            <a href={`/parts/attachment/${att.fileId}`}
+            <a
               onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
             >
               {att.fileName},
@@ -474,7 +474,7 @@ class PartsList extends React.Component<IProps, IState> {
         render: (row, column, index) =>
         <div>
           {row.attachments&& row.attachments[0] &&
-            (<a href={`/parts/attachment/${row.attachments[0].id}`}
+            (<a
               onClick={this.onClickAttachment.bind(this,row.attachments[0].fileId, row.attachments[0].fileName)}
             >
               <Icon name="document" />
@@ -492,7 +492,7 @@ class PartsList extends React.Component<IProps, IState> {
           expandPannel: data => {
             const attachmentRows = data && data.attachments&& data.attachment.map(att => 
             <div key={att.fileId}>
-              <a href={`/parts/attachment/${att.fileId}`}
+              <a
                 onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
               >
                 {att.fileName},
@@ -588,7 +588,7 @@ class PartsList extends React.Component<IProps, IState> {
           render: (row, column, index) =>
           <div>
             {row.attachments&& row.attachments[0] &&
-              (<a href={`/parts/attachment/${row.attachments[0].id}`}
+              (<a
                 onClick={this.onClickAttachment.bind(this,row.attachments[0].fileId, row.attachments[0].fileName)}
               >
                 <Icon name="document" />
