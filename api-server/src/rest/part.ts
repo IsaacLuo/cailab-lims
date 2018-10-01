@@ -265,7 +265,7 @@ export default function handlePart(app:Express) {
     if (ownerId) {
       condition.ownerId = ownerId;
     }
-    Part.count(condition)
+    Part.countDocuments(condition)
     .exec((err, data)=>{
       if (err) {
         console.log(err)
