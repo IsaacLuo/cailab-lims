@@ -82,6 +82,8 @@ export const Part = mongoose.model('Part', PartSchema);
 export const FileData = mongoose.model('FileData', {
   name: String,
   data: Buffer,
+  size: Number,
+  contentType: String,
 });
 
 export const PartsIdCounter = mongoose.model('PartsIdCounter', {

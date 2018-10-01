@@ -6,8 +6,7 @@ import jwt from 'jsonwebtoken'
 
 import secret from '../secret.json'
 import {User, Part, FileData, PartsIdCounter, PartDeletionRequest} from './models'
-import sendBackCsv from './sendBackCsv'
-
+import multer from 'multer'
 
 import {Request} from './MyRequest'
 import {userMustLoggedIn, userMustBeAdmin} from './MyMiddleWare'
@@ -17,9 +16,11 @@ import {userMustLoggedIn, userMustBeAdmin} from './MyMiddleWare'
 import preprocess from './preprocess'
 import handlePart from './rest/part'
 import handlePartDeletion from './rest/sudoRequests/partDeletion'
+import handleAttachments from './rest/attachment';
 // ============================================================================
 
 const app = express();
+const upload = multer();
 // enable CORS, parse body, set req.currentUser etc.
 preprocess(app);
 
@@ -28,6 +29,9 @@ handlePart(app);
 
 // CRD part deletion requests from normal user to admins.
 handlePartDeletion(app);
+
+// CRD attachments of parts
+handleAttachments(app, upload);
 
 
 // for testing if the server is running
@@ -193,24 +197,7 @@ app.get('/api/notifications', userMustLoggedIn, async (req :Request, res: Respon
   }
 });
 
-// ============================attachments=====================================
-app.get('/api/attachments/:id', userMustLoggedIn, async (req :Request, res: Response) => {
-  try {
-    const {id} = req.params;
-    console.log('getting file', id)
-    if(id === undefined) {
-      res.status(404).json({message: 'file not found'})
-    }
-    const file = await FileData.findOne({_id:id});
-    if(file){
-      res.send(file.data);
-    } else {
-      res.status(404).json({'message': 'file not found'})
-    }
-  } catch (err) {
-    res.status(404).json({err})
-  }
-});
+
 
 // ===========================admin==========================================
 app.get('/api/users', userMustBeAdmin, async (req :Request, res: Response) => {

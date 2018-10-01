@@ -732,7 +732,7 @@ class PartsList extends React.Component<IProps, IState> {
   private onClickAttachment = async (fileId: string, fileName: string, e:React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     const res = await axios({
-      url: serverURL+`/api/attachments/${fileId}`,
+      url: serverURL+`/api/attachment/${fileId}`,
       method: 'GET',
       responseType: 'blob', // important
       ...getAuthHeader(),
