@@ -13,8 +13,8 @@ import { serverURL } from 'config';
 import getAuthHeader from 'authHeader';
 
 import {IPart, IPartForm} from 'types'
-import Dropzone from 'react-dropzone';
-import {fileSizeHumanReadable} from './tools'
+import Dropzone, { FileWithPreview } from 'react-dropzone';
+import {fileSizeHumanReadable, readFileAsBase64} from './tools'
 
 
 
@@ -54,12 +54,21 @@ const DeletedFileSpan = styled.span`
 text-decoration:line-through;
 `;
 
+interface IFileValue {
+  _id: string,
+  contentType: string,
+  fileId: string,
+  fileName: string,
+  fileSize: number,
+}
+
+type FormFieldValue = string|number|Date|IFileValue;
 
 interface IFormField {
   name: string,
   type: string,
   key: string,
-  value: any,
+  value: FormFieldValue,
 }
 
 function FormField( name: string, type: string, key:string, value: any) {
@@ -82,6 +91,8 @@ interface IState {
   formFields: IFormField[],
   count: number,
 }
+
+
 
 class EditPartDialog extends React.Component<IProps, IState> {
   private attachmentToBeRemoved: Set<string> = new Set();
@@ -106,17 +117,17 @@ class EditPartDialog extends React.Component<IProps, IState> {
                 {field.type==='label' && <div>{field.value}</div>}
                 {field.type==='input' && <Input value={field.value} onChange={this.onChangeText.bind(this, index)}/>}
                 {field.type==='multiline' && <Input type="textarea" autosize={true} value={field.value} onChange={this.onChangeText.bind(this, index)}/>}
-                {field.type==='date' && <DatePicker value={field.value}/>}
+                {field.type==='date' && <DatePicker value={field.value as Date}/>}
                 {field.type==='file' && 
                   <span>
-                    {field.value.fileName} {fileSizeHumanReadable(field.value.fileSize)}
-                    <Button type="text" icon="delete" onClick={this.onClickDeleteAttachment.bind(this, index, field.value.fileId)}/>
+                    {(field.value as IFileValue).fileName} {fileSizeHumanReadable((field.value as IFileValue).fileSize)}
+                    <Button type="text" icon="delete" onClick={this.onClickDeleteAttachment.bind(this, index, (field.value as IFileValue).fileId)}/>
                   </span>
                 }
                 {field.type==='deletedFile' && 
                   <DeletedFileSpan>
-                    {field.value.fileName} {fileSizeHumanReadable(field.value.fileSize)}
-                    <Button type="text" icon="plus" onClick={this.onClickCancelDeleteAttachment.bind(this, index, field.value.fileId)}/>
+                    {(field.value as IFileValue).fileName} {fileSizeHumanReadable((field.value as IFileValue).fileSize)}
+                    <Button type="text" icon="plus" onClick={this.onClickCancelDeleteAttachment.bind(this, index, (field.value as IFileValue).fileId)}/>
                   </DeletedFileSpan>
                 }
             </FormValue>
@@ -136,7 +147,21 @@ class EditPartDialog extends React.Component<IProps, IState> {
         <Dialog.Body>
           <Panel>
               {fields}
-              <MyDropzone>add more attachments</MyDropzone>
+              <MyDropzone
+                maxSize = {10*1024*1024}
+                multiple = {false}
+                onDrop={this.onDropFiles}
+                rejectStyle={{
+                  borderColor:'#f00',
+                  backgroundColor:'#f77',
+                }}
+                acceptStyle={{
+                  borderColor:'#0f0',
+                  backgroundColor:'#7f7',
+                }}
+              >
+                add more attachments
+              </MyDropzone>
           </Panel>          
         </Dialog.Body>
         <Dialog.Footer>
@@ -146,6 +171,19 @@ class EditPartDialog extends React.Component<IProps, IState> {
         
       </Dialog>
     )
+  }
+
+  private onDropFiles = async (acceptedFiles: FileWithPreview[], rejectedFiles: FileWithPreview[]) => {
+    for (const file of acceptedFiles) {
+      const fileContent = await readFileAsBase64(file);
+      this.state.formFields.push({
+        name: 'attachment',
+        type: 'file',
+        key: Math.random().toString(10),
+        value: fileContent,
+      });
+      this.setState({count:this.state.count+1}); // just change state to refresh
+    }
   }
 
   private onChangeText = (index:number, content: string) => {
@@ -170,7 +208,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
     const partForm:IPartForm = {}
     for (const field of formFields) {
       if (field.type === 'multiline'){
-        partForm[field.key] = field.value.split(/\n|;/).filter(item=>item.length>0);
+        partForm[field.key] = (field.value as string).split(/\n|;/).filter(item=>item.length>0);
       } else {
         partForm[field.key] = field.value;
       }

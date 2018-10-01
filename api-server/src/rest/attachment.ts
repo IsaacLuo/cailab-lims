@@ -31,7 +31,6 @@ export default function handleAttachments(app:Express, upload:multer.Instance) {
   app.get('/api/attachment/:id', userMustLoggedIn, async (req :Request, res: Response) => {
     try {
       const {id} = req.params;
-      console.log('getting file', id)
       if(id === undefined) {
         res.status(404).json({message: 'file not found'})
       }
