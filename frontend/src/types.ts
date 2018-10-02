@@ -19,7 +19,7 @@ export interface IPart {
   createdAt: Date,
   updatedAt: Date,
   date?: Date, 
-  tags?: [string],
+  tags?: string[],
   content?: {
     // primers only
     description?: string,
@@ -100,6 +100,15 @@ export interface IReactRouterProps {
   location: Location,
 }
 
+export interface IPartFormAttachment {
+  fileId?:string,
+  fileName?:string,
+  contentType?:string,
+  fileSize?:number,
+  content?:string,
+}
+
+
 export interface IPartForm {
   sampleType?: string,
   comment?: string,
@@ -113,8 +122,9 @@ export interface IPartForm {
   plasmidType?: string,
   sequence?: string,
   orientation?: string,
-  meltingTemperature?: string,
+  meltingTemperature?: number,
   concentration?: string,
   vendor?: string,
-  attachments?: string[],
+  attachments?: IPartFormAttachment[],
+  customData?: any,
 }

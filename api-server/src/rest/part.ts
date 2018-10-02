@@ -145,7 +145,7 @@ export default function handlePart(app:Express) {
     const {id} = req.params;
     const form:IPartForm = req.body;
     try {
-      const part:IPart = await Part.findOne({_id:id}).exec();
+      const part = await Part.findOne({_id:id}).exec();
       // user must own this part
       if (part._id.toString() === id && part.ownerId.toString() === req.currentUser.id) {
         part.comment = form.comment;
@@ -171,7 +171,7 @@ export default function handlePart(app:Express) {
 
         // handling attachments
         try {
-          const originalAttachments = part.attachments;
+          // const originalAttachments = part.attachments;
           const newAttachments:IAttachment[] = [];
           for (const attachment of form.attachments) {
             if(attachment.fileId) {
@@ -187,9 +187,13 @@ export default function handlePart(app:Express) {
                       attachment.fileName && 
                       attachment.contentType && 
                       attachment.fileSize) {
+                let attContent = attachment.content;
+                if (/data:(.*);base64,/.test(attContent)) {
+                  attContent = attContent.split(',')[1];
+                }
               const fileData = new FileData({
                 name: attachment.fileName,
-                data: attachment.content,
+                data: new Buffer(attContent, 'base64'),
                 size: attachment.fileSize,
                 contentType: attachment.contentType,
               });
@@ -204,16 +208,19 @@ export default function handlePart(app:Express) {
               throw new Error('incorrect attachmentformat');
             }
           }
+          part.attachments = newAttachments;
         } catch(err) {
+          console.log(err);
           res.status(401).json({message: 'unable to modify this part', err: err.message});
+          return;
         }
-
-        // await part.save();
+        await part.save();
         res.json({message:'OK'});
       } else {
         res.status(401).json({message: 'unable to modify this part'})
       }
     } catch (err) {
+      console.log(err);
       res.status(404).send(err.message);
     }
   });

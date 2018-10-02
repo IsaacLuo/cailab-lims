@@ -12,9 +12,9 @@ import Axios from 'axios';
 import { serverURL } from 'config';
 import getAuthHeader from 'authHeader';
 
-import {IPart, IPartForm} from 'types'
+import {IPart, IPartForm, IPartFormAttachment} from 'types'
 import Dropzone, { FileWithPreview } from 'react-dropzone';
-import {fileSizeHumanReadable, readFileAsBase64} from './tools'
+import {fileSizeHumanReadable, readFileAsDataURL} from './tools'
 
 
 
@@ -55,11 +55,12 @@ text-decoration:line-through;
 `;
 
 interface IFileValue {
-  _id: string,
+  _id?: string,
   contentType: string,
-  fileId: string,
+  fileId?: string,
   fileName: string,
   fileSize: number,
+  content?: string,
 }
 
 type FormFieldValue = string|number|Date|IFileValue;
@@ -96,7 +97,7 @@ interface IState {
 
 class EditPartDialog extends React.Component<IProps, IState> {
   private attachmentToBeRemoved: Set<string> = new Set();
-  private attachmentToBeAdded: Set<string> = new Set();
+  // private attachmentToBeAdded: Set<string> = new Set();
 
   constructor(props:IProps) {
     super(props);
@@ -122,6 +123,12 @@ class EditPartDialog extends React.Component<IProps, IState> {
                   <span>
                     {(field.value as IFileValue).fileName} {fileSizeHumanReadable((field.value as IFileValue).fileSize)}
                     <Button type="text" icon="delete" onClick={this.onClickDeleteAttachment.bind(this, index, (field.value as IFileValue).fileId)}/>
+                  </span>
+                }
+                {field.type==='newFile' && 
+                  <span>
+                    {(field.value as IFileValue).fileName} {fileSizeHumanReadable((field.value as IFileValue).fileSize)}
+                    <Button type="text" icon="delete" onClick={this.onClickCancelUploadAttachment.bind(this, index, (field.value as IFileValue).fileId)}/>
                   </span>
                 }
                 {field.type==='deletedFile' && 
@@ -175,13 +182,21 @@ class EditPartDialog extends React.Component<IProps, IState> {
 
   private onDropFiles = async (acceptedFiles: FileWithPreview[], rejectedFiles: FileWithPreview[]) => {
     for (const file of acceptedFiles) {
-      const fileContent = await readFileAsBase64(file);
+      const fileContent = await readFileAsDataURL(file);
+      // add a new row of attachments
       this.state.formFields.push({
         name: 'attachment',
-        type: 'file',
+        type: 'newFile',
         key: Math.random().toString(10),
-        value: fileContent,
+        value: {  
+          contentType: file.type,
+          fileName: file.name,
+          fileSize: file.size,
+          content: fileContent,
+        },
       });
+      // add a item of new file
+
       this.setState({count:this.state.count+1}); // just change state to refresh
     }
   }
@@ -191,35 +206,71 @@ class EditPartDialog extends React.Component<IProps, IState> {
     this.setState({count:this.state.count+1}); // just change state to refresh
   }
 
+  /**
+   * triggered when clicking delete icon on an existing attachment, it will mark
+   * the item as "will be deleted", and remove it at submitting.
+   * @param number: the index of this.state.formFields array
+   * @param fileId: the id of this file in db
+   */
   private onClickDeleteAttachment = (index: number, fileId:string) => {
     this.state.formFields[index].type = 'deletedFile';
     this.attachmentToBeRemoved.add(fileId);
     this.setState({count:this.state.count+1}); // just change state to refresh
   }
-
+  /**
+   * triggered when clicking delete icon again on an existing attachment, it will
+   * remove the item from "will be deleted" list.
+   */
   private onClickCancelDeleteAttachment = (index: number, fileId:string) => {
-    this.state.formFields[index].type = 'file';
-    this.attachmentToBeRemoved.delete(fileId);
+    this.state.formFields.splice(index,1);
+    this.setState({count:this.state.count+1}); // just change state to refresh
+  }
+
+  /**
+   * triggered when clicking delete icon on a newly added attachment, it will remove
+   * the added file immediately.
+   */
+  private onClickCancelUploadAttachment = (index: number, fileId:string) => {
+    this.state.formFields[index].type = 'deletedFile';
     this.setState({count:this.state.count+1}); // just change state to refresh
   }
 
   private onSubmit = async () => {
     const {formFields} = this.state;
-    const partForm:IPartForm = {}
+    const partForm:IPartForm = {};
+    const attachments:IPartFormAttachment[] = [];
     for (const field of formFields) {
-      if (field.type === 'multiline'){
-        partForm[field.key] = (field.value as string).split(/\n|;/).filter(item=>item.length>0);
-      } else {
-        partForm[field.key] = field.value;
-      }
+      switch (field.type) {
+        case 'label':
+        case 'deletedFile':
+          // do nothing
+          break;
+        case 'input':
+        case 'date':
+          // save this value
+          partForm[field.key] = field.value;
+          break;
+        case 'multiline':
+          // convert multiline to array and save
+          partForm[field.key] = (field.value as string).split(/\n|;/).filter(item=>item.length>0);
+          break;
+        case 'file':
+        case 'newFile':
+          attachments.push(field.value as IPartFormAttachment);
+          break;
+        default:
+          throw new Error(`unknown field type ${field.type}`);
+      } 
     }
+    partForm.attachments = attachments;
     try {
       await Axios.put(`${serverURL}/api/part/${this.props.partId}`, partForm, getAuthHeader());
+      this.props.hideDialog();
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      Notification.error({title: 'error', message: err.message});
     }
-
-    this.props.hideDialog();
+    
   }
 
   private onCancel = () => {

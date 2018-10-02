@@ -74,6 +74,24 @@ export async function sleep(time: number) {
   },time);
 }
 
+function readExcelDateStringOrNumber(data: number|string) {
+  if(typeof(data) === 'number') {
+      // 25569 is the days of 1970/1/1 - 1900/1/1, 86400000 is the ms of a day
+      return new Date((data - 25569)*86400000);
+    } else if(typeof(data) === 'string') {
+      // this is a string, analyse it as mm/dd/yyyy
+      const match = /([0-9]{2})\/([0-9]{2})\/([0-9]{4})/.exec(data);
+      if (!match) {
+        throw new Error('invalid date format');  
+      }
+      const [_,d,m,y] = match;
+      console.log('dmy', d,m,y);
+      return new Date(parseInt(y, 10), parseInt(m, 10)-1, parseInt(d, 10));
+    } else {
+      throw new Error('invalid date format');
+    }
+}
+
 
 function toColStr(col:number) {
   const nums:number[] = [];
@@ -135,23 +153,20 @@ export class PartFormReader {
       const dataObj:any = {};
       for(let col=0; col<this.cols; col++) {
         const header = this.headers[col];
-        
         const originalData = this.loc(row,col);
         console.debug(`row ${row}, col ${col},`, originalData);
         if (this.customHeaders.has(header)) {
           if (dataObj.customData === undefined) {
             dataObj.customData = [];
           }
-          if (/(^|\s)date($|\s)/.test(header) && typeof(originalData) === 'number') {
-            // 25569 is the days of 1970/1/1 - 1900/1/1, 86400000 is the ms of a day
-          dataObj.customData[header] = new Date((originalData - 25569)*86400000);
+          if (/(^|\s)date($|\s)/.test(header)) {
+            dataObj.customData[header] = readExcelDateStringOrNumber(originalData);
           } else {
           dataObj.customData[header] = originalData;
           }
         }
         if (header === 'date') {
-          // 25569 is the days of 1970/1/1 - 1900/1/1, 86400000 is the ms of a day
-          dataObj[header] = new Date((originalData - 25569)*86400000);
+          dataObj[header] = readExcelDateStringOrNumber(originalData);
         } else {
           dataObj[header] = originalData;
         }

@@ -55,6 +55,14 @@ export interface IPart {
   },
 }
 
+export interface IPartFormAttachment {
+  fileId?:string,
+  fileName?:string,
+  contentType?:string,
+  fileSize?:number,
+  content?:string,
+}
+
 export interface IPartForm {
   sampleType?: string,
   comment?: string,
@@ -71,12 +79,6 @@ export interface IPartForm {
   meltingTemperature?: number,
   concentration?: string,
   vendor?: string,
-  attachments?: [{
-    fileId?:string,
-    fileName?:string,
-    contentType?:string,
-    fileSize?:number,
-    content?:string,
-  }],
+  attachments?: IPartFormAttachment[],
   customData?: any,
 }

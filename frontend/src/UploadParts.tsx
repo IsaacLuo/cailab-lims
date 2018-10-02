@@ -17,7 +17,7 @@ import { ActionSetUploadPartsDialogVisible, ActionClearLoginInformation } from '
 import { serverURL } from './config'
 import getAuthHeader from './authHeader'
 import * as xlsx from 'xlsx'
-import {readFileAsBuffer,readFileAsDataURL, PartFormReader, readFileAsBase64} from './tools'
+import {readFileAsBuffer,readFileAsDataURL, PartFormReader} from './tools'
 import {IColumn, IAttachment} from './types'
 import axios from 'axios';
 import NewPartDialog from './NewPartDialog';
