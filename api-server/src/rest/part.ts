@@ -4,7 +4,7 @@ import {Request} from '../MyRequest'
 import {userMustLoggedIn} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
-import { IPartForm } from '../types';
+import { IPart, IAttachment, IPartForm } from '../types';
 const ObjectId = mongoose.Types.ObjectId;
 
 export default function handlePart(app:Express) {
@@ -76,6 +76,8 @@ export default function handlePart(app:Express) {
         const att = new FileData({
           name: attachment.name,
           data: new Buffer(attContent, 'base64'),
+          size: attachment.size,
+          contentType: attachment.type,
         });
         await att.save();
         attachmentIds.push(
@@ -143,7 +145,8 @@ export default function handlePart(app:Express) {
     const {id} = req.params;
     const form:IPartForm = req.body;
     try {
-      const part = await Part.findOne({_id:id}).exec();
+      const part:IPart = await Part.findOne({_id:id}).exec();
+      // user must own this part
       if (part._id.toString() === id && part.ownerId.toString() === req.currentUser.id) {
         part.comment = form.comment;
         part.date = form.date? new Date(form.date) : undefined;
@@ -165,7 +168,47 @@ export default function handlePart(app:Express) {
           part.content.markers = form.markers;
         }
         part.content.customData = form.customData;
-        await part.save();
+
+        // handling attachments
+        try {
+          const originalAttachments = part.attachments;
+          const newAttachments:IAttachment[] = [];
+          for (const attachment of form.attachments) {
+            if(attachment.fileId) {
+              // there is a file Id, check if the file Id exist then add it.
+              const fileData = await FileData.findOne({_id:attachment.fileId});
+              newAttachments.push({
+                fileId: fileData._id,
+                fileName: fileData.name,
+                contentType: fileData.contentType,
+                fileSize: fileData.fileSize,
+              })
+            } else if(attachment.content && 
+                      attachment.fileName && 
+                      attachment.contentType && 
+                      attachment.fileSize) {
+              const fileData = new FileData({
+                name: attachment.fileName,
+                data: attachment.content,
+                size: attachment.fileSize,
+                contentType: attachment.contentType,
+              });
+              await fileData.save();
+              newAttachments.push({
+                fileId: fileData._id,
+                fileName: fileData.name,
+                contentType: fileData.contentType,
+                fileSize: fileData.fileSize,
+              });
+            } else {
+              throw new Error('incorrect attachmentformat');
+            }
+          }
+        } catch(err) {
+          res.status(401).json({message: 'unable to modify this part', err: err.message});
+        }
+
+        // await part.save();
         res.json({message:'OK'});
       } else {
         res.status(401).json({message: 'unable to modify this part'})

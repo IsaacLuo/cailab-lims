@@ -1,17 +1,25 @@
+export interface IAttachment {
+    fileName: string,
+    contentType: string,
+    fileSize: number,
+    fileId: string,
+}
+
 export interface IPart {
+  _id?:string,
   labName: string,
   labPrefix: string,
   labId: number,
   personalPrefix: string,
   personalId: number,
   personalName: string,
-  ownerUserId?: string,
+  ownerId?: string,
   sampleType?: string,
   comment?: string,
   createdAt: Date,
   updatedAt: Date,
   date?: Date, 
-  tags?: [string],
+  tags?: string[],
   content?: {
     // primers only
     description?: string,
@@ -40,7 +48,7 @@ export interface IPart {
     contentType: string,
     fileSize: number,
     fileId: string,
-  }],
+}],
   container?: {
     type: string,
     barcode: string,
@@ -60,9 +68,15 @@ export interface IPartForm {
   plasmidType?: string,
   sequence?: string,
   orientation?: string,
-  meltingTemperature?: string,
+  meltingTemperature?: number,
   concentration?: string,
   vendor?: string,
-  attachments?: string[],
+  attachments?: [{
+    fileId?:string,
+    fileName?:string,
+    contentType?:string,
+    fileSize?:number,
+    content?:string,
+  }],
   customData?: any,
 }
