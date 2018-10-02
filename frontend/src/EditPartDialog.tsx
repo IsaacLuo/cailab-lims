@@ -96,8 +96,6 @@ interface IState {
 
 
 class EditPartDialog extends React.Component<IProps, IState> {
-  private attachmentToBeRemoved: Set<string> = new Set();
-  // private attachmentToBeAdded: Set<string> = new Set();
 
   constructor(props:IProps) {
     super(props);
@@ -214,7 +212,6 @@ class EditPartDialog extends React.Component<IProps, IState> {
    */
   private onClickDeleteAttachment = (index: number, fileId:string) => {
     this.state.formFields[index].type = 'deletedFile';
-    this.attachmentToBeRemoved.add(fileId);
     this.setState({count:this.state.count+1}); // just change state to refresh
   }
   /**
@@ -222,7 +219,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
    * remove the item from "will be deleted" list.
    */
   private onClickCancelDeleteAttachment = (index: number, fileId:string) => {
-    this.state.formFields.splice(index,1);
+    this.state.formFields[index].type = 'file';
     this.setState({count:this.state.count+1}); // just change state to refresh
   }
 
@@ -231,7 +228,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
    * the added file immediately.
    */
   private onClickCancelUploadAttachment = (index: number, fileId:string) => {
-    this.state.formFields[index].type = 'deletedFile';
+    this.state.formFields.splice(index,1);
     this.setState({count:this.state.count+1}); // just change state to refresh
   }
 

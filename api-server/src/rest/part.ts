@@ -202,7 +202,7 @@ export default function handlePart(app:Express) {
                 fileId: fileData._id,
                 fileName: fileData.name,
                 contentType: fileData.contentType,
-                fileSize: fileData.fileSize,
+                fileSize: fileData.size,
               });
             } else {
               throw new Error('incorrect attachmentformat');
