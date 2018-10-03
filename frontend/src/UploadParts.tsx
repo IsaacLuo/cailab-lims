@@ -98,7 +98,7 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
       <MyPanel>
         {partsForm.length === 0 ? 
         <div>
-          <div>only modified xlsx from the <a href={`${serverURL}/public/bacterium_template.xlsx`}>template</a></div>
+          <div>only modified xlsx from the <a href={`${serverURL}/public/${sampleType}_template.xlsx`}>template</a></div>
           <MyDropzone
             maxSize = {10*1024*1024}
             accept = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'

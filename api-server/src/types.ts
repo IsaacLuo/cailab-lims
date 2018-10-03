@@ -30,7 +30,6 @@ export interface IPart {
     vendor?: string,
     
     // bacteria only
-    plasmidName?: string,
     hostStrain?: string,
 
     // yeasts only
@@ -39,6 +38,7 @@ export interface IPart {
     plasmidType?: string,
 
     // bacteria and yeasts
+    plasmidName?: string,
     markers?: string[],
     // all
     customData?: any,
