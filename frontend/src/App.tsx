@@ -33,12 +33,28 @@ import DeletionRequestsList from 'DeletionRequestsList';
 interface IProps {
   initializing: boolean,
   dispatchInitialize: () => {},
+  dispatchGetMyStatus: () => {},
 }
 
 class App extends React.Component<IProps, any> {
+  private intervalHandle:any;
+
   constructor(props:IProps) {
     super(props);
     props.dispatchInitialize();
+  }
+
+  public componentDidMount() {
+    // timer to refresh currentUser
+    console.log('app mount');
+    this.intervalHandle = setInterval(()=>{
+      this.props.dispatchGetMyStatus();
+    }, 60000);
+  }
+
+  public componentWillUnmount() {
+    console.log('app unmount');
+    clearInterval(this.intervalHandle);
   }
 
   public render() {
@@ -83,6 +99,7 @@ const mapStateToProps = (state :IStoreState) => ({
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   dispatchInitialize: () => dispatch({type: 'INITIALIZE'}),
+  dispatchGetMyStatus: () => dispatch({type: 'GET_MY_STATUS'}),
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App))

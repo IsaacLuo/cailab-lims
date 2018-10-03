@@ -386,7 +386,7 @@ class PartsList extends React.Component<IProps, IState> {
       {
         type: 'expand',
         expandPannel: data => {
-          const attachmentRows = data && data.attachments&& data.attachment.map(att => 
+          const attachmentRows = data && data.attachments&& data.attachments.map(att => 
           <div key={att.fileId}>
             <a
               onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
@@ -421,7 +421,7 @@ class PartsList extends React.Component<IProps, IState> {
                 {key: 'vendor', value: data.vendor},
               ]}
             />
-          {data.attachments&& data.attachment.length > 0 &&
+          {data.attachments&& data.attachments.length > 0 &&
             (<div style={{marginTop:10, marginBottom: 5}}> 
               <div><b>attachments</b></div> 
               {attachmentRows}
@@ -489,7 +489,7 @@ class PartsList extends React.Component<IProps, IState> {
         {
           type: 'expand',
           expandPannel: data => {
-            const attachmentRows = data && data.attachments&& data.attachment.map(att => 
+            const attachmentRows = data && data.attachments&& data.attachments.map(att => 
             <div key={att.fileId}>
               <a
                 onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
@@ -523,7 +523,7 @@ class PartsList extends React.Component<IProps, IState> {
                   {key: 'markers', value: data.markers},
                 ]}
               />
-            {data.attachments&& data.attachment.length > 0 &&
+            {data.attachments&& data.attachments.length > 0 &&
               (<div style={{marginTop:10, marginBottom: 5}}> 
                 <div><b>attachments</b></div> 
                 {attachmentRows}

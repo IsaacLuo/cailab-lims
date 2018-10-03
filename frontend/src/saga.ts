@@ -35,8 +35,8 @@ export function* getMyStatus() {
       }
       // save id, full name and groups to redux store.
       yield put(ActionSetLoginInformation(id, fullName, groups));
-      yield call(delay, 60000);
-      yield put({type:'GET_MY_STATUS'});
+      // yield call(delay, 60000);
+      // yield put({type:'GET_MY_STATUS'});
     }
   } catch (err) {
     // force log out if any error happened
