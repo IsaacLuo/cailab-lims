@@ -7,12 +7,12 @@
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "express-jwt": "^5.3.1",
-    "google-auth-library": "^1.6.1",
+    "google-auth-library": "^2.0.0",
     "jsonwebtoken": "^8.3.0",
     "mongoose": "^5.2.7",
     "multer": "^1.4.0",
     "node-xlsx": "^0.12.1",
-    "xlsx": "^0.13.5"
+    "xlsx": "^0.14.0"
   },
   "scripts": {
     "start": "ts-node src/server.ts",
