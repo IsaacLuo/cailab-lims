@@ -1,31 +1,34 @@
-import * as React from 'react';
-import './App.css';
-import 'element-theme-default'
+/**
+ * @file main component
+ */
 
+// react
+import * as React from 'react';
+
+// main CSS
+import './App.css';
+
+// element UI locale
+import 'element-theme-default'
 import { i18n, Loading } from 'element-react'
 import locale from 'element-react/src/locale/lang/en'
-
 i18n.use(locale);
 
-
+// react redux router
 import {Route} from 'react-router'
-
-import Users from './Users'
-import NavBar from './NavBar'
-
-import LoginDialog from './LoginDialog'
-import StatisticPanel from './StatisticPanel';
-import PartsList from './PartsList';
-
-// redux
 import { IStoreState } from './store'
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
+
+// components
+import Users from './Users'
+import NavBar from './NavBar'
+import LoginDialog from './LoginDialog'
+import StatisticPanel from './StatisticPanel';
+import PartsList from './PartsList';
 import UploadParts from './UploadParts';
 import DeletionRequestsList from 'DeletionRequestsList';
-import EditPartDialog from 'EditPartDialog';
-// import SystemNotification from 'SystemNotification';
 
 interface IProps {
   initializing: boolean,
@@ -55,6 +58,8 @@ class App extends React.Component<IProps, any> {
           <Route path='/parts/primers/' exact={true} render={this.renderPrimersComponent} />
           <Route path='/parts/yeasts/' exact={true} render={this.renderYeastsComponent} />
           <Route path='/parts/bacteria/upload' exact={true} render={this.renderBacteriaUpload} />
+          <Route path='/parts/primers/upload' exact={true} render={this.renderPrimersUpload} />
+          <Route path='/parts/yeasts/upload' exact={true} render={this.renderYeastsUpload} />
           <Route path='/requests/partsDeletion' exact={true} component={DeletionRequestsList} />
           <Route path='/users/' component={Users} />
         </div>
@@ -66,8 +71,8 @@ class App extends React.Component<IProps, any> {
   private renderPrimersComponent = props => <PartsList sampleType="primer"/>
   private renderYeastsComponent = props => <PartsList sampleType="yeast"/>
   private renderBacteriaUpload = props => <UploadParts sampleType="bacterium" returnTo="/parts/bacteria"/>
-  private renderPrimerUpload = props => <UploadParts sampleType="primer" returnTo="/parts/primer"/>
-  private renderYeastUpload = props => <UploadParts sampleType="yeast" returnTo="/parts/yeast"/>
+  private renderPrimersUpload = props => <UploadParts sampleType="primer" returnTo="/parts/primer"/>
+  private renderYeastsUpload = props => <UploadParts sampleType="yeast" returnTo="/parts/yeast"/>
 }
 
 

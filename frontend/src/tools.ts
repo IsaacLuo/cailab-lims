@@ -139,12 +139,12 @@ export class PartFormReader {
   private customHeaders: Set<string> = new Set();
 
   constructor(sheet: xlsx.Sheet, rows:number, cols:number) {
-    console.debug(sheet, rows, cols);
+    // console.debug(sheet, rows, cols);
     this.sheet = sheet;
     this.rows = rows;
     this.cols = cols;
     this.readTableHeaders();
-    console.debug(this.headers);
+    // console.debug(this.headers);
   }
 
   public readData() {
@@ -182,6 +182,9 @@ export class PartFormReader {
 
   public getHeaders() {
     return this.headers;
+  }
+  public getCustomHeaders() {
+    return Array.from(this.customHeaders);
   }
 
   private readTableHeaders() {

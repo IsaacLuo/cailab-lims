@@ -101,7 +101,7 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
           <div>only modified xlsx from the <a href={`${serverURL}/public/bacterium_template.xlsx`}>template</a></div>
           <MyDropzone
             maxSize = {10*1024*1024}
-            accept = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            accept = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             multiple = {false}
             onDrop={this.onDropFiles}
             rejectStyle={{
@@ -339,13 +339,13 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
     let necessaryHeaders:string[] = [];
     switch(sampleType) {
       case 'bacterium':
-        necessaryHeaders = ['Plasmid Name',	'Other Names\r\n(semicolon-seperated)', 'Description or Comment',	'Date\r\n(DD/MM/YYYY)', 'Host Strain', 'Bacterial Markers\r\n(semicolon-seperated)', 'Plate Barcode',	'Well ID', 'Tube Barcode'];
+        necessaryHeaders = ['plasmidName','tags','comment','date','hostStrain'];
         break;
       case 'primer':
       case 'yeast':
     }
     for(const header of necessaryHeaders) {
-      if (!headers.indexOf(header)) {
+      if (headers.indexOf(header)<0) {
         return false;
       }
     }
