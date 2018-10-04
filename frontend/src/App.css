@@ -64,3 +64,7 @@ a {
   color:#20a0ff;
   cursor: pointer;
 }
+
+div.cell {
+  text-align:center;
+}

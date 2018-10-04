@@ -353,7 +353,7 @@ class PartsList extends React.Component<IProps, IState> {
         label: "markers",
         prop: "markers",
         sortable: "custom",
-        width: 100,
+        width: 120,
       },
       {
         label: "date",
@@ -382,6 +382,7 @@ class PartsList extends React.Component<IProps, IState> {
     }
     
     private generatePrimerColumnTitle () :Array<IColumn|IExpandedPanel>{
+      const {userId} = this.props;
       return [
       {
         type: 'expand',
@@ -467,24 +468,27 @@ class PartsList extends React.Component<IProps, IState> {
         width: 180,
       },
       {
-        label: "att",
+        label: "...",
         prop: "attachment",
-        width: 50,
+        width: 100,
         render: (row, column, index) =>
         <div>
           {row.attachments&& row.attachments[0] &&
             (<a
               onClick={this.onClickAttachment.bind(this,row.attachments[0].fileId, row.attachments[0].fileName)}
             >
-              <Icon name="document" />
+              <MyClickableIcon type="text" icon="document"/>
             </a>)
           }
+          {row.ownerId === userId && <MyClickableIcon type="text" icon="edit" onClick={this.onClickEditPart.bind(this, row)} />}
+          {row.ownerId === userId && <MyClickableIcon type="text" icon="delete2" onClick={this.onClickDeletePart.bind(this, row)} />}
         </div>
       }
       ];
     }
 
     private generateYeastColumnTitle () :Array<IColumn|IExpandedPanel>{
+      const {userId} = this.props;
       return [
         {
           type: 'expand',
@@ -581,7 +585,7 @@ class PartsList extends React.Component<IProps, IState> {
           width: 180,
         },
         {
-          label: "att",
+          label: "...",
           prop: "attachment",
           width: 50,
           render: (row, column, index) =>
@@ -590,9 +594,11 @@ class PartsList extends React.Component<IProps, IState> {
               (<a
                 onClick={this.onClickAttachment.bind(this,row.attachments[0].fileId, row.attachments[0].fileName)}
               >
-                <Icon name="document" />
+                <MyClickableIcon type="text" icon="document"/>
               </a>)
             }
+            {row.ownerId === userId && <MyClickableIcon type="text" icon="edit" onClick={this.onClickEditPart.bind(this, row)} />}
+            {row.ownerId === userId && <MyClickableIcon type="text" icon="delete2" onClick={this.onClickDeletePart.bind(this, row)} />}
           </div>
         }
         ];
@@ -770,7 +776,7 @@ class PartsList extends React.Component<IProps, IState> {
     }
   }
 
-  private rowStyle = ()=>({border:0})
+  private rowStyle = ()=>({border:0, textAlign:'left'})
 
 }
 
