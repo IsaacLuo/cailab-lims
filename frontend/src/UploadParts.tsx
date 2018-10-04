@@ -160,6 +160,7 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
         console.log(workbook);
         const partFormReader = PartFormReader.fromWorkBook(workbook);
         const partsForm = partFormReader.readData();
+        console.log('data read');
         if (partsForm.length === 0) {
           throw new Error('empty form');
         }

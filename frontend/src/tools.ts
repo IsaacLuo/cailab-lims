@@ -189,49 +189,55 @@ export class PartFormReader {
 
   private readTableHeaders() {
     this.headers = [];
+    const headerDict = {
+      // primers
+      'Sequence': 'sequence',
+      'Orientation\r\n(forward/backward)': 'orientation',
+      'Melting Temperature\r\n(number only)': 'meltingTemperature',
+      'Concentration': 'concentration',
+      'Vendor': 'vendor',
+
+      // bacteria
+      'Host Strain': 'hostStrain',
+      'Bacterial Markers\r\n(semicolon-seperated)': 'markers',
+
+      // yeasts
+      'Parents\r\n(semicolon-seperated)': 'parents',
+      'Genotype\r\n(semicolon-seperated)': 'genoType',
+      'Plasmid Type': 'plasmidType',
+
+      // common
+      'Plasmid Name': 'plasmidName',
+      'tags\r\n(semicolon-seperated)': 'tags',
+      'Other Names\r\n(semicolon-seperated)': 'tags',
+      'Description or Comment': 'comment',
+      'Date\r\n(DD/MM/YYYY)': 'date',
+      
+      // plate info
+      'Plate Barcode': 'plateBarcode',
+      'Well ID': 'wellId',
+      'Tube Barcode': 'tubeBarcode',
+    };
     for(let col=0; col<this.cols; col++) {
       const columnHead = this.loc(0, col);
-      console.debug(columnHead);
-      switch(columnHead) {
-        case 'Plasmid Name':
-          this.headers.push('plasmidName');
-          break;
-        case 'Other Names\r\n(semicolon-seperated)':
-          this.headers.push('tags');
-          break;
-        case 'Description or Comment':
-          this.headers.push('comment');
-          break;
-        case 'Date\r\n(DD/MM/YYYY)':
-          this.headers.push('date');
-          break;
-        case 'Host Strain':
-          this.headers.push('hostStrain');
-          break;
-        case 'Bacterial Markers\r\n(semicolon-seperated)':
-          this.headers.push('markers');
-          break;
-        case 'Plate Barcode':
-          this.headers.push('plateBarcode');
-          break;
-        case 'Well ID':
-          this.headers.push('wellId');
-          break;
-        case 'Tube Barcode':
-          this.headers.push('tubeBarcode');
-          break;
-        default:
-          if (col < 9) {
-            throw new Error('table header error');
-          }
-          this.headers.push(columnHead);
-          this.customHeaders.add(columnHead);
+      console.debug(columnHead, col);
+      if (headerDict[columnHead]) {
+        this.headers.push(headerDict[columnHead]);  
+      } else {
+        this.headers.push(columnHead);
+        this.customHeaders.add(columnHead);
       }
+      
     }
   }
 
 
   private loc(row, col) {
-    return this.sheet[`${toColStr(col)}${row+1}`].v;
+    const cell = this.sheet[`${toColStr(col)}${row+1}`];
+    if (cell) {
+      return cell.v;
+    } else {
+      return undefined;
+    }
   }
 }

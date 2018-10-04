@@ -87,8 +87,8 @@ class App extends React.Component<IProps, any> {
   private renderPrimersComponent = props => <PartsList sampleType="primer"/>
   private renderYeastsComponent = props => <PartsList sampleType="yeast"/>
   private renderBacteriaUpload = props => <UploadParts sampleType="bacterium" returnTo="/parts/bacteria"/>
-  private renderPrimersUpload = props => <UploadParts sampleType="primer" returnTo="/parts/primer"/>
-  private renderYeastsUpload = props => <UploadParts sampleType="yeast" returnTo="/parts/yeast"/>
+  private renderPrimersUpload = props => <UploadParts sampleType="primer" returnTo="/parts/primers"/>
+  private renderYeastsUpload = props => <UploadParts sampleType="yeast" returnTo="/parts/yeasts"/>
 }
 
 
