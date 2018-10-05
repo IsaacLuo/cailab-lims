@@ -6,7 +6,7 @@
  * GET    /api/attachment/:id/metadata
  */
 import {Express, Response} from 'express'
-import {Part, FileData} from '../models'
+import {Part, FileData, LogOperation} from '../models'
 import {Request} from '../MyRequest'
 import {userMustLoggedIn, userMustBeAdmin} from '../MyMiddleWare'
 import mongoose from 'mongoose'
@@ -66,13 +66,27 @@ export default function handleAttachments(app:Express, upload:multer.Instance) {
       }
       const fileData = new FileData({
         name: req.file.originalname,
-        data: req.file.buffer,
         size: req.file.size,
         contentType: req.file.mimetype,
+        data: req.file.buffer,
       })
       await fileData.save();
       res.json({message:'OK', id:fileData._id});
-      
+      // =============log================
+      LogOperation.create({
+        operatorId: req.currentUser.id,
+        operatorName: req.currentUser.fullName,
+        type: 'create attachment',
+        level: 3,
+        sourceIP: req.ip,
+        timeStamp: new Date(),
+        data: {
+          name: req.file.originalname,
+          contentType: req.file.mimetype,
+          size: req.file.size, 
+        },
+      });
+      // ===========log end=============
     } catch (err) {
       console.log(err);
       res.status(500).json({message:err.message});
@@ -96,13 +110,26 @@ export default function handleAttachments(app:Express, upload:multer.Instance) {
         res.status(404).json({message: 'file not found'})
       }
       // check if the attachment is in using
-      try {
-        const part = await Part.findOne({'attachments.fileId':ObjectId(id)}).exec();
-        res.status(403).json({message: `${part._id} (${part.labName}) is using this attachment`});
-      } catch(e) {
-        const result = await FileData.deleteOne({_id:id})
+
+      const part = await Part.findOne({'attachments.fileId':ObjectId(id)}).exec();
+      if (!part) {
+        const result = await FileData.findOneAndDelete({_id:id})
         res.json({message:'OK', result});
+        // =============log================
+        LogOperation.create({
+          operatorId: req.currentUser.id,
+          operatorName: req.currentUser.fullName,
+          type: 'delete attachment',
+          level: 4,
+          sourceIP: req.ip,
+          timeStamp: new Date(),
+          data: result,
+        });
+        // ===========log end=============
+      } else {
+        res.status(403).json({message: `${part._id} (${part.labName}) is using this attachment`});
       }
+
     } catch (err) {
       res.status(404).json({message:err.message});
     }

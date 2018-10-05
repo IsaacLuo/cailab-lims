@@ -5,7 +5,7 @@ import verifyGoogleToken from './googleOauth'
 import jwt from 'jsonwebtoken'
 
 import secret from '../secret.json'
-import {User, Part, FileData, PartsIdCounter, PartDeletionRequest} from './models'
+import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, LogLogin, LogOperation} from './models'
 import multer from 'multer'
 
 import {Request} from './MyRequest'
@@ -72,6 +72,14 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
         groups.push('guests')
         await newUser.save();
         id = newUser.id;
+        // log to database
+        LogLogin.create({
+          operatorId: id,
+          operatorName: name,
+          type: 'register',
+          sourceIP: req.ip,
+          timeStamp: new Date(),
+        });
       } else {
         groups = user.groups;
         id = user.id;
@@ -84,6 +92,14 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
       }, 
       secret.jwt.key,
       {expiresIn:'1h'})
+    // log to database
+    LogLogin.create({
+      operatorId: id,
+      operatorName: name,
+      type: 'login',
+      sourceIP: req.ip,
+      timeStamp: new Date(),
+    });
     res.json({message: `welcome ${name}`, id, token, name, email, groups})
     
   } catch (err) {
@@ -217,7 +233,8 @@ app.get('/api/users', userMustBeAdmin, async (req :Request, res: Response) => {
 app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res: Response) => {
   const {email} = req.params
   try {
-    const user = await User.findOne({email})
+    const user = await User.findOne({email}).exec();
+    const originalUserInfo = JSON.parse(JSON.stringify(user));
     console.log('found user', user)
     if (user) {
       let groups = new Set(user.groups);
@@ -229,7 +246,20 @@ app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res:
         }
       }
       user.groups = Array.from(groups);
-      user.save();
+      await user.save();
+      // log
+      LogOperation.create({
+        operatorId: req.currentUser.id,
+        operatorName: req.currentUser.fullName,
+        type: 'change privilege',
+        level: 5,
+        sourceIP: req.ip,
+        timeStamp: new Date(),
+        data: {
+          originalUserInfo,
+          newUserInfo: user,
+        },
+      });
       res.json({message:'OK'});   
     } else {
       res.status(404).json({message: 'user not found'})

@@ -74,7 +74,8 @@ export const PartSchema = new Schema({
     id: Number,
     userId: Number,
   },
-  history: Schema.Types.Mixed,      // previous version of this part.
+  // history: Schema.Types.Mixed,      // previous version of this part.
+  historyId: Schema.Types.ObjectId, // previous version of this part.
 });
 
 export const Part = mongoose.model('Part', PartSchema);
@@ -101,14 +102,28 @@ export const LogLogin = mongoose.model('LogLogin', {
   timeStamp: Date,
 });
 
+/**
+ * level: the important level of operations
+ *  - 0: debugging information
+ *  - 1: listing or getting data
+ *  - 2: exporting data
+ *  - 3: adding more data into the database
+ *  - 4: modifying data, deleting data,
+ *  - 5: change previleges, change user information, and other admin operations
+ */
 export const LogOperation = mongoose.model('LogOperation', {
   operatorId: Schema.Types.ObjectId,
   operatorName: String,
   type: String,
-  level: Number,
+  level: Number,        
   sourceIP: String,
   timeStamp: Date,
   data: Schema.Types.Mixed,
+});
+
+export const PartHistory = mongoose.model('PartHistory', {
+  partId: Schema.Types.ObjectId,
+  histories: [Schema.Types.Mixed],
 });
 
 export const PartDeletionRequest = mongoose.model('PartDeletionRequest', {

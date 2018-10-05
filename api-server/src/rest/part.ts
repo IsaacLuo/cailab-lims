@@ -1,5 +1,5 @@
 import {Express, Response} from 'express'
-import {User, Part, FileData, PartsIdCounter, PartDeletionRequest} from '../models'
+import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation} from '../models'
 import {Request} from '../MyRequest'
 import {userMustLoggedIn} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
@@ -126,6 +126,17 @@ export default function handlePart(app:Express) {
         attachments: attachmentIds,
       });
       await part.save();
+      // =============log================
+      LogOperation.create({
+        operatorId: req.currentUser.id,
+        operatorName: req.currentUser.fullName,
+        type: 'create part',
+        level: 3,
+        sourceIP: req.ip,
+        timeStamp: new Date(),
+        data: { part },
+      });
+      // ===========log end=============
       res.json(part);
     } catch (err) {
       console.log(err);
@@ -150,6 +161,15 @@ export default function handlePart(app:Express) {
       const part = await Part.findOne({_id:id}).exec();
       // user must own this part
       if (part._id.toString() === id && part.ownerId.toString() === req.currentUser.id) {
+        // ===============save history before change=============
+        let partHistory = await PartHistory.findOne({partId: part._id}).exec();
+        if (!partHistory) partHistory = new PartHistory({partId: part._id, histories:[] });
+        partHistory.histories.push(part);
+        await partHistory.save();
+        // ===============end saving hisoty======================
+
+        // now save the part
+        part.history = partHistory._id;
         part.comment = form.comment;
         part.date = form.date? new Date(form.date) : undefined;
         part.tags = form.tags;
@@ -219,6 +239,17 @@ export default function handlePart(app:Express) {
         }
         await part.save();
         res.json({message:'OK'});
+        // =============log================
+        LogOperation.create({
+          operatorId: req.currentUser.id,
+          operatorName: req.currentUser.fullName,
+          type: 'update part',
+          level: 4,
+          sourceIP: req.ip,
+          timeStamp: new Date(),
+          data: { part },
+        });
+        // ===========log end=============
       } else {
         res.status(401).json({message: 'unable to modify this part'})
       }
@@ -248,9 +279,27 @@ export default function handlePart(app:Express) {
         ) {
         res.status(401).json({message: 'unable to delete a part older than 1 week'});
       } else {
+        // ===============save history before change=============
+        let partHistory = await PartHistory.findOne({partId: part._id}).exec();
+        if (!partHistory) partHistory = new PartHistory({partId: part._id, histories:[] });
+        partHistory.histories.push(part);
+        await partHistory.save();
+        // ===============end saving hisoty======================
         await Part.findOneAndDelete({_id:id}).exec(); 
         await PartDeletionRequest.findOneAndDelete({partId:id}).exec();
         res.json(part);
+
+        // =============log================
+        LogOperation.create({
+          operatorId: req.currentUser.id,
+          operatorName: req.currentUser.fullName,
+          type: 'delete part',
+          level: 4,
+          sourceIP: req.ip,
+          timeStamp: new Date(),
+          data: { part },
+        });
+        // ===========log end=============
       }
     } catch (err) {
       console.error('err', err);

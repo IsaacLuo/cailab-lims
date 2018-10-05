@@ -1,5 +1,5 @@
 import {Express, Response} from 'express'
-import {Part, PartDeletionRequest} from '../../models'
+import {Part, PartDeletionRequest, LogOperation} from '../../models'
 import {Request} from '../../MyRequest'
 import {userMustLoggedIn, userMustBeAdmin} from '../../MyMiddleWare'
 
@@ -45,6 +45,17 @@ app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Requ
           {new: true, upsert: true}
         ).exec();
         res.json(deletionRequest);
+        // =============log================
+        LogOperation.create({
+          operatorId: req.currentUser.id,
+          operatorName: req.currentUser.fullName,
+          type: 'create deletion request',
+          level: 4,
+          sourceIP: req.ip,
+          timeStamp: new Date(),
+          data: deletionRequest,
+        });
+        // ===========log end=============
       } catch (_) {
         console.log('create new one');
         const createResult = await PartDeletionRequest.create({
@@ -55,6 +66,17 @@ app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Requ
           requestedAt: [Date.now()],
         });
         res.json(createResult);
+        // =============log================
+        LogOperation.create({
+          operatorId: req.currentUser.id,
+          operatorName: req.currentUser.fullName,
+          type: 'create deletion request',
+          level: 4,
+          sourceIP: req.ip,
+          timeStamp: new Date(),
+          data: createResult,
+        });
+        // ===========log end=============
       }
       
       
@@ -73,6 +95,17 @@ app.delete('/api/sudoRequests/partDeletion/:id', userMustBeAdmin, async (req :Re
     const parts = PartDeletionRequest.deleteMany({partId:id}).exec();
     console.log(parts);
     res.json(parts);
+    // =============log================
+    LogOperation.create({
+      operatorId: req.currentUser.id,
+      operatorName: req.currentUser.fullName,
+      type: 'cancel deletion request',
+      level: 4,
+      sourceIP: req.ip,
+      timeStamp: new Date(),
+      data: parts,
+    });
+    // ===========log end=============
   } catch (err) {
     console.log(err)
     res.status(500).json({err})
