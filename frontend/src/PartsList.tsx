@@ -301,6 +301,7 @@ class PartsList extends React.Component<IProps, IState> {
                 {key: 'comment', value: data.comment},
                 {key: 'creator', value: data.ownerName},
                 {key: 'created at', value: data.createdAt},
+                {key: 'updated at', value: data.updatedAt},
                 // customData
                 ...Object.keys(data.customData).map(key => ({key, value: data.customData[key]})),
               ]}
@@ -655,9 +656,10 @@ class PartsList extends React.Component<IProps, IState> {
         ownerId: item.ownerId,
         ownerName: item.ownerName,
         createdAt: new Date(item.createdAt).toLocaleDateString(),
+        updatedAt: new Date(item.updatedAt).toLocaleDateString(),
         createdAtRaw: item.createdAt,
         attachments: item.attachments,
-        customData: item.content.customData,
+        customData: item.content.customData ? item.content.customData : {},
       }))
     break;
     case 'primer':
@@ -677,6 +679,7 @@ class PartsList extends React.Component<IProps, IState> {
         ownerId: item.ownerId,
         ownerName: item.ownerName,
         createdAt: new Date(item.createdAt).toLocaleDateString(),
+        updatedAt: new Date(item.updatedAt).toLocaleDateString(),
         createdAtRaw: item.createdAt,
         customData: item.content.customData,
       }))
@@ -692,6 +695,7 @@ class PartsList extends React.Component<IProps, IState> {
         ownerId: item.ownerId,
         ownerName: item.ownerName,
         createdAt: new Date(item.createdAt).toLocaleDateString(),
+        updatedAt: new Date(item.updatedAt).toLocaleDateString(),
         createdAtRaw: item.createdAt,
         attachments: item.attachments,
         
