@@ -681,7 +681,7 @@ class PartsList extends React.Component<IProps, IState> {
         createdAt: new Date(item.createdAt).toLocaleDateString(),
         updatedAt: new Date(item.updatedAt).toLocaleDateString(),
         createdAtRaw: item.createdAt,
-        customData: item.content.customData,
+        customData: item.content.customData ? item.content.customData : {},
       }))
     break;
     case 'yeast':
@@ -703,7 +703,7 @@ class PartsList extends React.Component<IProps, IState> {
         genotype: item.content.genotype ? item.content.genotype.join('; ') : '' ,
         plasmidType: item.content.plasmidType,
         markers: item.content.markers ? item.content.markers.join('; ') : '' ,
-        customData: item.content.customData,
+        customData: item.content.customData ? item.content.customData : {},
       }))
     break;
     }
