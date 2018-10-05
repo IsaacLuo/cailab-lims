@@ -153,6 +153,7 @@ export default function handlePart(app:Express) {
         part.comment = form.comment;
         part.date = form.date? new Date(form.date) : undefined;
         part.tags = form.tags;
+        part.updatedAt = new Date();
         if (part.sampleType === 'bacterium') {
           part.content.plasmidName = form.plasmidName;
           part.content.hostStrain = form.hostStrain;
