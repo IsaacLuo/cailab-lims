@@ -301,6 +301,8 @@ class PartsList extends React.Component<IProps, IState> {
                 {key: 'comment', value: data.comment},
                 {key: 'creator', value: data.ownerName},
                 {key: 'created at', value: data.createdAt},
+                // customData
+                ...Object.keys(data.customData).map(key => ({key, value: data.customData[key]})),
               ]}
             />
           {data.attachments && data.attachments.length > 0 &&
@@ -381,9 +383,117 @@ class PartsList extends React.Component<IProps, IState> {
       ];
     }
     
-    private generatePrimerColumnTitle () :Array<IColumn|IExpandedPanel>{
-      const {userId} = this.props;
-      return [
+  private generatePrimerColumnTitle () :Array<IColumn|IExpandedPanel>{
+    const {userId} = this.props;
+    return [
+    {
+      type: 'expand',
+      expandPannel: data => {
+        const attachmentRows = data && data.attachments&& data.attachments.map(att => 
+        <div key={att.fileId}>
+          <a
+            onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
+          >
+            {att.fileName},
+            {fileSizeHumanReadable(att.fileSize)}
+          </a>
+        </div>);
+        return <div className="partDetailPanel"style={{width:'100%'}}>
+          <Table
+            style={this.detailTableStyle}
+            rowStyle={this.rowStyle}
+            showHeader={false}
+            columns={[
+              {
+                label: "key",
+                prop: "key",
+                align: "right",
+                width: 200,
+              },
+              {
+                label: "value",
+                prop: "value",
+              },
+            ]}
+            data={[
+              {key: 'description', value: data.comment},
+              {key: 'sequence', value: data.sequence},
+              {key: 'orientation', value: data.orientation},
+              {key: 'melting temperature', value: data.meltingTemperature},
+              {key: 'concentration', value: data.concentration},
+              {key: 'vendor', value: data.vendor},
+              // customData
+              ...Object.keys(data.customData).map(key => ({key, value: data.customData[key]})),
+            ]}
+          />
+        {data.attachments&& data.attachments.length > 0 &&
+          (<div style={{marginTop:10, marginBottom: 5}}> 
+            <div><b>attachments</b></div> 
+            {attachmentRows}
+          </div>
+        )}
+        </div>
+      },
+    },
+    {
+      label: "lab name",
+      prop: "labName",
+      sortable: "custom",
+      width:100,
+    },
+    {
+      label: "personal name",
+      prop: "personalName",
+      sortable: "custom",
+      width:150,
+    },
+    {
+      label: "other names",
+      prop: "tags",
+      sortable: "custom",
+      width:100,
+    },
+    {
+      label: "comment",
+      prop: "comment",
+      sortable: "custom",
+      minWidth: 200,
+      render: (data, column, index) =>
+        <div style={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}>{data.description} {data.comment}</div> 
+    },
+    {
+      label: "date",
+      prop: "date",
+      sortable: "custom",
+      width: 180,
+    },
+    {
+      label: "...",
+      prop: "attachment",
+      width: 100,
+      render: (row, column, index) =>
+      <div>
+        {row.attachments&& row.attachments[0] &&
+          (<a
+            onClick={this.onClickAttachment.bind(this,row.attachments[0].fileId, row.attachments[0].fileName)}
+          >
+            <MyClickableIcon type="text" icon="document"/>
+          </a>)
+        }
+        {row.ownerId === userId && <MyClickableIcon type="text" icon="edit" onClick={this.onClickEditPart.bind(this, row)} />}
+        {row.ownerId === userId && <MyClickableIcon type="text" icon="delete2" onClick={this.onClickDeletePart.bind(this, row)} />}
+      </div>
+    }
+    ];
+  }
+
+  private generateYeastColumnTitle () :Array<IColumn|IExpandedPanel>{
+    const {userId} = this.props;
+    return [
       {
         type: 'expand',
         expandPannel: data => {
@@ -415,11 +525,13 @@ class PartsList extends React.Component<IProps, IState> {
               ]}
               data={[
                 {key: 'description', value: data.comment},
-                {key: 'sequence', value: data.sequence},
-                {key: 'orientation', value: data.orientation},
-                {key: 'melting temperature', value: data.meltingTemperature},
-                {key: 'concentration', value: data.concentration},
-                {key: 'vendor', value: data.vendor},
+                {key: 'parents', value: data.parents},
+                {key: 'genotype', value: data.genotype},
+                {key: 'plasmidType', value: data.plasmidType},
+                {key: 'markers', value: data.markers},
+                {key: 'createdAt', value: data.createdAt},
+                // customData
+                ...Object.keys(data.customData).map(key => ({key, value: data.customData[key]})),
               ]}
             />
           {data.attachments&& data.attachments.length > 0 &&
@@ -462,6 +574,18 @@ class PartsList extends React.Component<IProps, IState> {
           }}>{data.description} {data.comment}</div> 
       },
       {
+        label: "parents",
+        prop: "parents",
+        sortable: "custom",
+        width: 180,
+      },
+      {
+        label: "markers",
+        prop: "markers",
+        sortable: "custom",
+        width: 180,
+      },
+      {
         label: "date",
         prop: "date",
         sortable: "custom",
@@ -485,125 +609,7 @@ class PartsList extends React.Component<IProps, IState> {
         </div>
       }
       ];
-    }
-
-    private generateYeastColumnTitle () :Array<IColumn|IExpandedPanel>{
-      const {userId} = this.props;
-      return [
-        {
-          type: 'expand',
-          expandPannel: data => {
-            const attachmentRows = data && data.attachments&& data.attachments.map(att => 
-            <div key={att.fileId}>
-              <a
-                onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
-              >
-                {att.fileName},
-                {fileSizeHumanReadable(att.fileSize)}
-              </a>
-            </div>);
-            return <div className="partDetailPanel"style={{width:'100%'}}>
-              <Table
-                style={this.detailTableStyle}
-                rowStyle={this.rowStyle}
-                showHeader={false}
-                columns={[
-                  {
-                    label: "key",
-                    prop: "key",
-                    align: "right",
-                    width: 200,
-                  },
-                  {
-                    label: "value",
-                    prop: "value",
-                  },
-                ]}
-                data={[
-                  {key: 'description', value: data.comment},
-                  {key: 'parents', value: data.parents},
-                  {key: 'genotype', value: data.genotype},
-                  {key: 'plasmidType', value: data.plasmidType},
-                  {key: 'markers', value: data.markers},
-                  {key: 'createdAt', value: data.createdAt},
-                ]}
-              />
-            {data.attachments&& data.attachments.length > 0 &&
-              (<div style={{marginTop:10, marginBottom: 5}}> 
-                <div><b>attachments</b></div> 
-                {attachmentRows}
-              </div>
-            )}
-            </div>
-          },
-        },
-        {
-          label: "lab name",
-          prop: "labName",
-          sortable: "custom",
-          width:100,
-        },
-        {
-          label: "personal name",
-          prop: "personalName",
-          sortable: "custom",
-          width:150,
-        },
-        {
-          label: "other names",
-          prop: "tags",
-          sortable: "custom",
-          width:100,
-        },
-        {
-          label: "comment",
-          prop: "comment",
-          sortable: "custom",
-          minWidth: 200,
-          render: (data, column, index) =>
-            <div style={{
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}>{data.description} {data.comment}</div> 
-        },
-        {
-          label: "parents",
-          prop: "parents",
-          sortable: "custom",
-          width: 180,
-        },
-        {
-          label: "markers",
-          prop: "markers",
-          sortable: "custom",
-          width: 180,
-        },
-        {
-          label: "date",
-          prop: "date",
-          sortable: "custom",
-          width: 180,
-        },
-        {
-          label: "...",
-          prop: "attachment",
-          width: 100,
-          render: (row, column, index) =>
-          <div>
-            {row.attachments&& row.attachments[0] &&
-              (<a
-                onClick={this.onClickAttachment.bind(this,row.attachments[0].fileId, row.attachments[0].fileName)}
-              >
-                <MyClickableIcon type="text" icon="document"/>
-              </a>)
-            }
-            {row.ownerId === userId && <MyClickableIcon type="text" icon="edit" onClick={this.onClickEditPart.bind(this, row)} />}
-            {row.ownerId === userId && <MyClickableIcon type="text" icon="delete2" onClick={this.onClickDeletePart.bind(this, row)} />}
-          </div>
-        }
-        ];
-    }
+  }
 
   private async getCount () {
     const {sampleType} = this.props;
@@ -651,6 +657,7 @@ class PartsList extends React.Component<IProps, IState> {
         createdAt: new Date(item.createdAt).toLocaleDateString(),
         createdAtRaw: item.createdAt,
         attachments: item.attachments,
+        customData: item.content.customData,
       }))
     break;
     case 'primer':
@@ -671,6 +678,7 @@ class PartsList extends React.Component<IProps, IState> {
         ownerName: item.ownerName,
         createdAt: new Date(item.createdAt).toLocaleDateString(),
         createdAtRaw: item.createdAt,
+        customData: item.content.customData,
       }))
     break;
     case 'yeast':
@@ -691,6 +699,7 @@ class PartsList extends React.Component<IProps, IState> {
         genotype: item.content.genotype ? item.content.genotype.join('; ') : '' ,
         plasmidType: item.content.plasmidType,
         markers: item.content.markers ? item.content.markers.join('; ') : '' ,
+        customData: item.content.customData,
       }))
     break;
     }

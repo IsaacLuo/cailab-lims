@@ -29,6 +29,7 @@ export default function handlePart(app:Express) {
       concentration,
       vendor,
       attachments,
+      customData,
     } = req.body;
   
     try {
@@ -120,6 +121,7 @@ export default function handlePart(app:Express) {
           meltingTemperature,
           concentration,
           vendor,
+          customData: customData,
         },
         attachments: attachmentIds,
       });

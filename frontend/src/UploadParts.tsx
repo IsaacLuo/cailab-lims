@@ -160,7 +160,7 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
         console.log(workbook);
         const partFormReader = PartFormReader.fromWorkBook(workbook);
         const partsForm = partFormReader.readData();
-        console.log('data read');
+        console.debug('data read', partsForm);
         if (partsForm.length === 0) {
           throw new Error('empty form');
         }
@@ -237,7 +237,7 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
             ],
             partsForm,
             partsFormUI,
-          });
+          }, ()=>{console.log({state:this.state,form:partsForm})});
         } else {
           throw new Error('headers doesn\'t match sampleType');
         }
