@@ -525,6 +525,7 @@ class PartsList extends React.Component<IProps, IState> {
                   {key: 'genotype', value: data.genotype},
                   {key: 'plasmidType', value: data.plasmidType},
                   {key: 'markers', value: data.markers},
+                  {key: 'createdAt', value: data.createdAt},
                 ]}
               />
             {data.attachments&& data.attachments.length > 0 &&
@@ -587,7 +588,7 @@ class PartsList extends React.Component<IProps, IState> {
         {
           label: "...",
           prop: "attachment",
-          width: 50,
+          width: 100,
           render: (row, column, index) =>
           <div>
             {row.attachments&& row.attachments[0] &&
@@ -648,6 +649,7 @@ class PartsList extends React.Component<IProps, IState> {
         ownerId: item.ownerId,
         ownerName: item.ownerName,
         createdAt: new Date(item.createdAt).toLocaleDateString(),
+        createdAtRaw: item.createdAt,
         attachments: item.attachments,
       }))
     break;
@@ -668,6 +670,7 @@ class PartsList extends React.Component<IProps, IState> {
         ownerId: item.ownerId,
         ownerName: item.ownerName,
         createdAt: new Date(item.createdAt).toLocaleDateString(),
+        createdAtRaw: item.createdAt,
       }))
     break;
     case 'yeast':
@@ -681,6 +684,7 @@ class PartsList extends React.Component<IProps, IState> {
         ownerId: item.ownerId,
         ownerName: item.ownerName,
         createdAt: new Date(item.createdAt).toLocaleDateString(),
+        createdAtRaw: item.createdAt,
         attachments: item.attachments,
         
         parents: item.content.parents ? item.content.parents.join('; ') : '' ,
@@ -757,9 +761,10 @@ class PartsList extends React.Component<IProps, IState> {
 
   private onClickDeletePart = async (data:any) => {
     const id = data._id;
-    const createdAt = new Date(data.createdAt);
+    const createdAt = new Date(data.createdAtRaw);
     const cancelMessage = () => Message({type: 'info', message: 'canceled'})
-    if ( Date.now() - createdAt.getTime() < 3600000) {
+    console.log(createdAt.getTime() );
+    if ( Date.now() - createdAt.getTime() < 7*24*3600000) {
       MessageBox.confirm('delete this part? this operation CANNOT be undone', 'warning', {
         type: 'warning'
       }).then(() => {
