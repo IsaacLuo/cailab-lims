@@ -316,7 +316,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
       fields.push(FormField('comment', 'input', 'comment', part.comment));
       if (part.content && part.content.customData) {
         for(const key of Object.keys(part.content.customData)){
-          fields.push(FormField(key, 'input', key, part.content[key]));
+          fields.push(FormField(key, 'input', key, part.content.customData[key]));
         }
       }
       if (part.attachments) {
