@@ -116,7 +116,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
                 {field.type==='label' && <div>{field.value}</div>}
                 {field.type==='input' && <Input value={field.value} onChange={this.onChangeText.bind(this, index)}/>}
                 {field.type==='multiline' && <Input type="textarea" autosize={true} value={field.value} onChange={this.onChangeText.bind(this, index)}/>}
-                {field.type==='date' && <DatePicker value={field.value as Date}/>}
+                {field.type==='date' && <DatePicker value={field.value as Date} onChange={this.onChangeText.bind(this, index)}/>}
                 {field.type==='file' && 
                   <span>
                     {(field.value as IFileValue).fileName} {fileSizeHumanReadable((field.value as IFileValue).fileSize)}
