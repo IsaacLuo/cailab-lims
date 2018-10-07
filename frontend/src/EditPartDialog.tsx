@@ -116,7 +116,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
                 {field.type==='label' && <div>{field.value}</div>}
                 {field.type==='input' && <Input value={field.value} onChange={this.onChangeText.bind(this, index)}/>}
                 {field.type==='multiline' && <Input type="textarea" autosize={true} value={field.value} onChange={this.onChangeText.bind(this, index)}/>}
-                {field.type==='date' && <DatePicker value={field.value as Date}/>}
+                {field.type==='date' && <DatePicker value={field.value as Date} onChange={this.onChangeText.bind(this, index)}/>}
                 {field.type==='file' && 
                   <span>
                     {(field.value as IFileValue).fileName} {fileSizeHumanReadable((field.value as IFileValue).fileSize)}
@@ -316,7 +316,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
       fields.push(FormField('comment', 'input', 'comment', part.comment));
       if (part.content && part.content.customData) {
         for(const key of Object.keys(part.content.customData)){
-          fields.push(FormField(key, 'input', key, part.content[key]));
+          fields.push(FormField(key, 'input', key, part.content.customData[key]));
         }
       }
       if (part.attachments) {
