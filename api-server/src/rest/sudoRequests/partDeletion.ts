@@ -27,7 +27,6 @@ export default function handlePartDeletion(app:Express) {
 app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Request, res: Response) => {
   try {
     const {id} = req.params;
-    console.log('request to delete ', id);
     const part = await Part.findById(id).exec();
     if (part.ownerId.toString() !== req.currentUser.id && req.currentUser.groups.indexOf('administrators')===-1) {
       res.status(401).json({message: 'unable to delete a part of others'});
@@ -57,7 +56,6 @@ app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Requ
         });
         // ===========log end=============
       } catch (_) {
-        console.log('create new one');
         const createResult = await PartDeletionRequest.create({
           senderId: req.currentUser.id,
           senderName: req.currentUser.fullName,
@@ -82,7 +80,7 @@ app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Requ
       
     }
   } catch (err) {
-    console.log(err)
+    req.log.error(err)
     res.status(500).json({err})
   }
 });
@@ -93,7 +91,6 @@ app.delete('/api/sudoRequests/partDeletion/:id', userMustBeAdmin, async (req :Re
   try {
     const {id} = req.params;
     const parts = PartDeletionRequest.deleteMany({partId:id}).exec();
-    console.log(parts);
     res.json(parts);
     // =============log================
     LogOperation.create({
@@ -107,7 +104,7 @@ app.delete('/api/sudoRequests/partDeletion/:id', userMustBeAdmin, async (req :Re
     });
     // ===========log end=============
   } catch (err) {
-    console.log(err)
+    req.log.error(err)
     res.status(500).json({err})
   }
 });

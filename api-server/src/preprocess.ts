@@ -5,14 +5,35 @@ import * as bodyParser from 'body-parser'
 import mongoose from 'mongoose'
 import secret from '../secret.json'
 import jwt from 'jsonwebtoken'
+import log4js from 'log4js'
 
 export default function preprocess(app :Express) {
   app.use(cors())
 
   app.use(bodyParser.json({ type: 'application/json' , limit:'10MB'}))
 
+  log4js.configure({
+    appenders: {
+      console: { type: 'console' },
+      file: {
+        type: 'file',
+        filename: 'logs/access.log',
+        maxLogSize: 1024,
+        backups:3,
+      },
+    },
+    categories: {
+      default: {
+        appenders: ['console', 'file'],
+        level: 'info',
+      } 
+    }
+  })
+
   app.use((req :Request, res :Response, next: NextFunction) => {
-    console.log(`${req.method} ${req.path}`)
+    const loggerFile = log4js.getLogger();
+    loggerFile.info(`${req.ip}: ${req.method} ${req.path}`);
+    req.log = loggerFile;
     res.set('Cache-Control', 'public, max-age=1');
     next();
   });
@@ -22,7 +43,6 @@ export default function preprocess(app :Express) {
     switch (mongooseState) {
       case 3:
       case 0:
-      console.log('mongooseState=', mongooseState);
       await mongoose.connect(
         secret.mongoDB.url,
         {
@@ -44,11 +64,9 @@ export default function preprocess(app :Express) {
       if (tokenType === 'bearer') {  
         jwt.verify(token, secret.jwt.key, (err, decoded :IUserJWT) => {
           if (!err) {
-            // console.log('verified user');
-            // console.log(decoded);
             req.currentUser = decoded;
           } else {
-            console.log('bad verification');
+            req.log.info(`${req.ip}: user not logged in`);
           }
           next();
         })

@@ -21,12 +21,7 @@ async function main() {
   );
 
 
-  const labPrefix = 'XXXX';
-  const doc = await PartsIdCounter.findOneAndUpdate({name:labPrefix}, {$inc:{count:1}}, {new: true, upsert: true}).exec();
-  console.log(doc);
-  // const x = await PartsIdCounter.findOne({_id:'15b8fe1c7a1e1c63a6c527456'}).exec();
-  // console.log(x);
-
+  
   mongoose.disconnect();
 }
 main();

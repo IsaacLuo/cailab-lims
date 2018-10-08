@@ -91,7 +91,7 @@ export default function handlePart(app:Express) {
         );
       }
   
-      console.log('saved attachmes', attachmentIds.length);
+      req.log.info('saved attachmes', attachmentIds.length);
   
       // createNewPart
       let part = new Part({
@@ -139,7 +139,7 @@ export default function handlePart(app:Express) {
       // ===========log end=============
       res.json(part);
     } catch (err) {
-      console.log(err);
+      req.log.error(err);
       res.status(500).json({err: err.toString()});
     }
   });
@@ -233,7 +233,7 @@ export default function handlePart(app:Express) {
           }
           part.attachments = newAttachments;
         } catch(err) {
-          console.log(err);
+          req.log.error(err);
           res.status(401).json({message: 'unable to modify this part', err: err.message});
           return;
         }
@@ -254,7 +254,7 @@ export default function handlePart(app:Express) {
         res.status(401).json({message: 'unable to modify this part'})
       }
     } catch (err) {
-      console.log(err);
+      req.log.error(err);
       res.status(404).send(err.message);
     }
   });
@@ -262,7 +262,7 @@ export default function handlePart(app:Express) {
   app.delete('/api/part/:id', userMustLoggedIn, async (req :Request, res: Response) => {
     try {
       const {id} = req.params;
-      console.log('delete ', id);
+      req.log.info(`${req.ip} delete part ${id}`);
       const part = await Part.findById(id).exec();
       if(!part) {
         await PartDeletionRequest.findOneAndDelete({partId:id}).exec();
@@ -344,8 +344,8 @@ export default function handlePart(app:Express) {
     // .select('labName')
     parts.exec((err, data)=>{
       if (err) {
-        console.log(err)
-        res.status(500).json({err})
+        req.log.error(err);
+        res.status(500).json({message:err.message});
       } else {
         switch(format) {
           case 'xlsx':
@@ -370,7 +370,7 @@ export default function handlePart(app:Express) {
     Part.countDocuments(condition)
     .exec((err, data)=>{
       if (err) {
-        console.log(err)
+        req.log.error(err)
         res.status(500).json({err})
       } else {
         res.json({count: data});

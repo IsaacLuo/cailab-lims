@@ -18,6 +18,7 @@ import handlePart from './rest/part'
 import handlePartDeletion from './rest/sudoRequests/partDeletion'
 import handleAttachments from './rest/attachment';
 // ============================================================================
+console.info(`running in ${process.env.NODE_ENV}`)
 
 const app = express();
 const upload = multer();
@@ -50,13 +51,10 @@ app.get('/test/',(req :Request, res: Response) => {
 //      groups: can be one or more of "guests, users, administrators, visitors"}
 app.post('/api/googleAuth/', async (req :Request, res: Response) => {
   try {
-    // console.log(req.body)
     const {name, email} = await verifyGoogleToken(req.body.token);
     const abbr = name.trim().split(' ').map(v=>v[0]).join('').toUpperCase();
-    // console.log(`verified user ${name} ${email}`)
     let groups = []
       const user = await User.findOne({email})
-      // console.log(`found user ${user}`)
       let id = '';
       if (!user) {
         // no user, create one in db
@@ -68,7 +66,6 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
           groups: ['guests'],
           createdAt: new Date(),
         });
-        // console.log(`new user: ${newUser}`)
         groups.push('guests')
         await newUser.save();
         id = newUser.id;
@@ -103,7 +100,7 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
     res.json({message: `welcome ${name}`, id, token, name, email, groups})
     
   } catch (err) {
-    console.log(err);
+    req.log.error(err);
     res.status(401).json({message: err})
   }
 })
@@ -131,7 +128,7 @@ app.get('/api/currentUser', async (req :Request, res: Response) =>
   if (req.currentUser) {
   const {id, fullName, email, groups, exp} = req.currentUser;
   const now = Math.floor(Date.now()/1000);
-  console.log({exp, now})
+  req.log.debug({exp, now});
   let payload :{id:string, fullName :string, groups: string[], token?:string, tokenExpireIn?:number} = {id, fullName, groups}
   if (now < exp && exp - now < 1200) {
     payload.token = jwt.sign({
@@ -235,7 +232,6 @@ app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res:
   try {
     const user = await User.findOne({email}).exec();
     const originalUserInfo = JSON.parse(JSON.stringify(user));
-    console.log('found user', user)
     if (user) {
       let groups = new Set(user.groups);
       for(const key of Object.keys(req.body)) {
@@ -289,6 +285,6 @@ app.use('/public', express.static('public'));
 app.use('/', express.static('../frontend/build'));
 // ----------------------------------------------------------------------------
 app.listen(8000, (err) => {
-  console.log('api server on 8000');
-  if (err) console.log(err);
+  console.info('api server on 8000');
+  if (err) console.error(err);
 })

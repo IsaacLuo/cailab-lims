@@ -34,7 +34,7 @@ async function main() {
   }
   mongoose.disconnect();
 } catch (err) {
-  console.log(err);
+  req.log.error(err);
 }
 
 }

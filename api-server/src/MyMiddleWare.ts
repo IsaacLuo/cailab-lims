@@ -3,7 +3,7 @@ import {Request} from './MyRequest'
 
 export function userMustBeAdmin (req :Request, res :Response, next: NextFunction) {
     if (req.currentUser && req.currentUser.groups.indexOf('administrators')>=0) {
-      console.log('currentGoup', req.currentUser.groups)
+      req.log.info('currentGoup', req.currentUser.groups)
       next();
     } else if (req.headers['test-token'] === 'a30aa7f7de512963a03c') {
       req.currentUser = {
@@ -16,6 +16,11 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
       }
       next();
     } else {
+      if(req.currentUser) {
+        req.log.warn(`${req.currentUser.fullName} is trying to access admin functions ${req.url}`);
+      } else {
+        req.log.warn(`guest is trying to access admin functions ${req.url}`);
+      }
       res.status(401).json({message: 'require admin'})
     }
   }
@@ -34,6 +39,7 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
     if (req.currentUser && req.currentUser.groups.indexOf('users')>=0) {
       next();
     } else {
+      req.log.warn(`guest is trying to access admin functions ${req.url}`);
       res.status(401).json({message: 'require log in'})
     }
   }

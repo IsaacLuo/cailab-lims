@@ -1,5 +1,5 @@
 import express from 'express'
-
+import log4js from 'log4js'
 export interface IUserInfo {
     id:string,
     fullName: string,
@@ -13,4 +13,5 @@ export interface IUserInfo {
   
   export interface Request extends express.Request {
     currentUser :IUserJWT,
+    log: log4js.Logger,
   }
