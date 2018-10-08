@@ -1,0 +1,12 @@
+version: '3.0'
+services:
+  cailab-lims:
+    build: ./
+    ports:
+      - "11080:11080"
+    working_dir: /app/api-server
+    command: ['yarn', 'run', 'production']
+    restart: always
+    volumes:
+      - /srv/cailab-database-v2/logs:/app/api-server/logs
+      

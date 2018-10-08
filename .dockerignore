@@ -1,0 +1,13 @@
+node_modules
+api-server/node_modules/**/*
+api-server/node_modules
+frontend/node_modules/**/*
+frontend/node_modules
+api-server/yarn.lock
+frontend/yarn.lock
+.git
+.gitignore
+.vscode
+Dockerfile
+docker-compose*
+.github
