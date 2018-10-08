@@ -286,6 +286,7 @@ app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res:
 
 // ============================static files===================================
 app.use('/public', express.static('public'));
+app.use('/', express.static('../frontend/build'));
 // ----------------------------------------------------------------------------
 app.listen(8000, (err) => {
   console.log('api server on 8000');

@@ -59,6 +59,7 @@ class LoginDialog extends React.Component<ILoginDialogProps, any> {
   private onCancel = () => this.props.setDialogVisible(false)
 
   private loginSuccessful = async (response :any) => {
+    console.log('login successful');
     console.log(response)
     try {
       const res = await axios.post(
@@ -67,11 +68,11 @@ class LoginDialog extends React.Component<ILoginDialogProps, any> {
           token: response.tokenId,
         }
       )
-      Message.success(res.data.message);
       localStorage.setItem('token',res.data.token);
       localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
-      this.props.setDialogVisible(false);
       this.props.setLoginInformation(res.data.id, res.data.name, res.data.groups);
+      this.props.setDialogVisible(false);
+      Message.success(res.data.message);
     } catch (err) {
       if (err.response) {
         Message.error({message:`${err.response.status}: ${err.response.statusText}`, duration:30000});

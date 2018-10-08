@@ -12,6 +12,7 @@
     "ordered-imports": false,
     "object-literal-sort-keys": false,
     "no-empty-interface": false,
-    "no-unused-vars": false
+    "no-unused-vars": false,
+    "one-variable-per-declaration": false
   }
 }
