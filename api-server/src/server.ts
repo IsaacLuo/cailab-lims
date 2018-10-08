@@ -10,6 +10,7 @@ import multer from 'multer'
 
 import {Request} from './MyRequest'
 import {userMustLoggedIn, userMustBeAdmin} from './MyMiddleWare'
+import config from '../config.json'
 
 // other processors
 
@@ -17,7 +18,12 @@ import preprocess from './preprocess'
 import handlePart from './rest/part'
 import handlePartDeletion from './rest/sudoRequests/partDeletion'
 import handleAttachments from './rest/attachment';
+
 // ============================================================================
+if (process.env.NODE_ENV === undefined) {
+  process.env.NODE_ENV = 'development'
+}
+
 console.info(`running in ${process.env.NODE_ENV}`)
 
 const app = express();
@@ -284,7 +290,11 @@ app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res:
 app.use('/public', express.static('public'));
 app.use('/', express.static('../frontend/build'));
 // ----------------------------------------------------------------------------
-app.listen(8000, (err) => {
-  console.info('api server on 8000');
+let {host, port} = config[process.env.NODE_ENV];
+if (!host) host = '127.0.0.1';
+if (!port) port = 8000;
+
+app.listen(port, host, (err) => {
+  console.info(`api server on ${host}:${port}`);
   if (err) console.error(err);
 })

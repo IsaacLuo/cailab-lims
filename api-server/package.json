@@ -5,6 +5,7 @@
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
+    "cross-env": "^5.2.0",
     "express": "^4.16.3",
     "express-jwt": "^5.3.1",
     "google-auth-library": "^2.0.0",
@@ -17,8 +18,8 @@
   },
   "scripts": {
     "start": "ts-node src/server.ts",
-    "build": "tsc",
-    "production": "node build/src/server.js",
+    "build": "cross-env NODE_ENV=production tsc",
+    "production": "cross-env NODE_ENV=production node build/src/server.js",
     "dev": "node ./node_modules/nodemon/bin/nodemon.js",
     "importDB": "ts-node src/script/importDB.ts",
     "testScript": "ts-node src/script/test.ts"
