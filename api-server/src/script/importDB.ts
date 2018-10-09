@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import {Schema} from 'mongoose'
 
 import secret from '../../secret.json'
-import {Part, FileData, PartsIdCounter, User} from '../models'
+import {Part, FileData, PartsIdCounter, User, LogLogin, LogOperation} from '../models'
 import fs from 'fs'
 import readline from 'readline'
 
@@ -144,6 +144,8 @@ function loadBateria() {
         const fileData = Buffer.from(bacterium.attachment.data, 'base64')
         const file = await FileData.create({
           name: bacterium.attachment.fileName,
+          size: bacterium.attachment.size,
+          contentType: bacterium.attachment.contentType,
           data: fileData,
         });
         attachments = [{
@@ -257,9 +259,11 @@ async function main() {
 
 console.log('start');
 console.log('cleaning');
-await User.deleteMany({}).exec();
-await Part.deleteMany({}).exec();
-await FileData.deleteMany({}).exec();
+await User.deleteMany({});
+await Part.deleteMany({});
+await FileData.deleteMany({});
+await LogLogin.deleteMany({});
+await LogOperation.deleteMany({});
 loadUsers();
 do {
   await sleep(1000);

@@ -82,9 +82,9 @@ export const Part = mongoose.model('Part', PartSchema);
 
 const FileDataSchema = new Schema({
   name: String,   // original file name, 
-  data: Buffer,   // data in binary
-  size: Number,   // bytes
   contentType: String,  // MIME type
+  size: Number,   // bytes
+  data: Buffer,   // data in binary
 })
 
 export const FileData = mongoose.model('FileData', FileDataSchema);
