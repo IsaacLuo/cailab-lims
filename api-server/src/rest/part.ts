@@ -274,7 +274,7 @@ export default function handlePart(app:Express) {
         ) {
         res.status(401).json({message: 'unable to delete a part of others'});
       } else if (
-        Date.now() - part.createdAt.getTime() > 3600000 * 24 * 7 ||
+        Date.now() - part.createdAt.getTime() > 3600000 * 24 * 7 &&
         req.currentUser.groups.indexOf('administrators')===-1
         ) {
         res.status(401).json({message: 'unable to delete a part older than 1 week'});
