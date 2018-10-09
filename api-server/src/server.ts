@@ -287,8 +287,8 @@ app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res:
 // })
 
 // ============================static files===================================
-app.use('/public', express.static('public'));
-app.use('/', express.static('../frontend/build'));
+app.use('/public',express.static(`public`));
+
 // ----------------------------------------------------------------------------
 let {host, port} = config[process.env.NODE_ENV];
 if (!host) host = '127.0.0.1';

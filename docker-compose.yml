@@ -1,12 +1,23 @@
 version: '3.0'
 services:
-  cailab-lims:
-    build: ./
+  api:
+    build: ./api-server
     ports:
       - "11080:11080"
-    working_dir: /app/api-server
+    working_dir: /app
     command: ['yarn', 'run', 'production']
     restart: always
     volumes:
-      - /srv/cailab-database-v2/logs:/app/api-server/logs
-      
+      - /srv/cailab-database-v2/logs:/app/logs
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "11180:80"
+    links:
+      - api
+    depends_on:
+      - api
+    command: ['nginx', '-g', 'daemon off;']
+
+    
