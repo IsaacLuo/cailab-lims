@@ -4,7 +4,7 @@ import * as React from 'react'
 
 // react-router-redux
 import { IStoreState } from './store';
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import {
@@ -72,14 +72,10 @@ class StatisticPanel extends React.Component<IProps, IState> {
 		});
 
     return <ErrorBoundary>
-			<h1>WARNING</h1>
-      <p>this is a project still in developing, all data submited to this database might be deleted soon</p>
-			<p>version {process.env.REACT_APP_VERSION}{process.env.NODE_ENV}</p>
-			
-			{this.state.loading ? <div>loading</div> : <div>
-			<div>bacteria: {this.state.count.bacteria}</div>
-			<div>primers: {this.state.count.primers}</div>
-			<div>yeast: {this.state.count.yeasts}</div>
+			{this.state.loading ? <div>loading</div> : <div style={{background:'#fafafa'}}>
+			<div><Link to="/parts/bacteria">bacteria: {this.state.count.bacteria}</Link></div>
+			<div><Link to="/parts/primers">primers: {this.state.count.primers}</Link></div>
+			<div><Link to="/parts/yeasts">yeast: {this.state.count.yeasts}</Link></div>
 			<div>
 				
 				<svg width={svgWidth} height={svgHeight}>

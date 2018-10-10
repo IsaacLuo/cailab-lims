@@ -18,6 +18,7 @@ import preprocess from './preprocess'
 import handlePart from './rest/part'
 import handlePartDeletion from './rest/sudoRequests/partDeletion'
 import handleAttachments from './rest/attachment';
+import hanleBroadCasts from './rest/broadcast';
 
 // ============================================================================
 if (process.env.NODE_ENV === undefined) {
@@ -39,6 +40,8 @@ handlePartDeletion(app);
 
 // CRD attachments of parts
 handleAttachments(app, upload);
+
+hanleBroadCasts(app);
 
 
 // for testing if the server is running

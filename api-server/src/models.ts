@@ -133,3 +133,7 @@ export const PartDeletionRequest = mongoose.model('PartDeletionRequest', {
   requestedCount: Number,
   requestedAt: [Date],
 });
+
+export const BroadCast = mongoose.model('BroadCast', {
+  message: String,
+});

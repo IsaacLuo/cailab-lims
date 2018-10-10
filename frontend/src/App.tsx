@@ -1,5 +1,20 @@
 /**
  * @file main component
+ * 
+ * APP
+ *  ├ NavBar
+ *  ├ LoginDialog
+ *  ├ Dashboard
+ *  │ └ StatisticPanel
+ *  ├ PartList
+ *  │ └ EditPartDialog
+ *  ├ UploadParts
+ *  ├ DeletionRequestList
+ *  └ Users
+ * 
+ *  abandoned components:
+ *  NewPartDialog
+ *  TagInput
  */
 
 // react
@@ -29,6 +44,7 @@ import StatisticPanel from './StatisticPanel';
 import PartsList from './PartsList';
 import UploadParts from './UploadParts';
 import DeletionRequestsList from 'DeletionRequestsList';
+import Dashboard from 'Dashboard';
 
 interface IProps {
   initializing: boolean,
@@ -69,7 +85,7 @@ class App extends React.Component<IProps, any> {
           <NavBar />
           </header>
           <LoginDialog/>
-          <Route path='/' exact={true} component={StatisticPanel} />
+          <Route path='/' exact={true} component={Dashboard} />
           <Route path='/parts/bacteria/' exact={true} render={this.renderBacteriaComponent} />
           <Route path='/parts/primers/' exact={true} render={this.renderPrimersComponent} />
           <Route path='/parts/yeasts/' exact={true} render={this.renderYeastsComponent} />
