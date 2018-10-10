@@ -73,7 +73,9 @@ class StatisticPanel extends React.Component<IProps, IState> {
 
     return <ErrorBoundary>
 			<h1>WARNING</h1>
-            <p>this is a project still in developing, all data submited to this database might be deleted soon</p>
+      <p>this is a project still in developing, all data submited to this database might be deleted soon</p>
+			<p>version {process.env.REACT_APP_VERSION} {process.env.NODE_ENV}</p>
+			
 			{this.state.loading ? <div>loading</div> : <div>
 			<div>bacteria: {this.state.count.bacteria}</div>
 			<div>primers: {this.state.count.primers}</div>
