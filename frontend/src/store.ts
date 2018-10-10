@@ -63,7 +63,7 @@ export const defaultStoreState:IStoreState = {
 
 const sagaMiddleware = createSagaMiddleware();
 let middleWare:any;
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'development') {
   const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ;
   middleWare = composeEnhancers(applyMiddleware(sagaMiddleware));
 } else {
