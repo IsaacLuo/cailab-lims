@@ -11,22 +11,6 @@ import store from './store'
 
 registerServiceWorker();
 
-// function registerHMR() {
-//   type ModuleHMR = typeof module & {
-//     hot?: {
-//       accept(dependencies: string | string[], callback: (updatedDependencies: any[]) => void): void
-//     }
-//   };
-//   if ((module as ModuleHMR).hot) {
-//     (module as ModuleHMR).hot!.accept('./App', () => {
-//       ReactDOM.render(
-//         <App />,
-//         document.getElementById('root') as HTMLElement
-//       );
-//     });
-//   }
-// }
-
 const render = (Component: any) => {
   return ReactDOM.render(
     <Provider store={store}>
@@ -40,7 +24,8 @@ const render = (Component: any) => {
 };
 
 render(App);
-if (module.hot) {
+
+if (process.env.NODE_ENV === 'production' && module.hot) {
   module.hot.accept('./App', () => {
     const NextApp = require('./App').default;
     render(NextApp);

@@ -62,21 +62,20 @@ export const defaultStoreState:IStoreState = {
 /* tslint-disable no-underscore-dangle */
 
 const sagaMiddleware = createSagaMiddleware();
-const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ;
+let middleWare:any;
+if (process.env.NODE_ENV === 'production') {
+  const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ;
+  middleWare = composeEnhancers(applyMiddleware(sagaMiddleware));
+} else {
+  middleWare = applyMiddleware(sagaMiddleware);
+}
+
 const store = createStore(
     reducer,
-    composeEnhancers(applyMiddleware(sagaMiddleware)),
+    middleWare,
   );
 sagaMiddleware.run(saga);
 
 export default store;
-
-// export default createStore(
-//   reducer,
-//   // (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__(
-//   //   applyMiddleware(createSagaMiddleware(saga))
-//   // )
-
-// );
 
 /* tslint-enable */
