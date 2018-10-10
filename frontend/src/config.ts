@@ -5,7 +5,7 @@ const config:{
 } = {};
 
 if (process.env.NODE_ENV === 'production') {
-  config.serverURL = 'https://lims.cailab.org:11080';
+  config.serverURL = 'https://api.lims.cailab.org';
   config.googleAuthURL = '656734864012-ga7roednhiabgbfe53ttevcguivra19a.apps.googleusercontent.com';
 } else {
   config.serverURL = 'http://localhost:8000';
