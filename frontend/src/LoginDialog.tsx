@@ -50,6 +50,8 @@ class LoginDialog extends React.Component<ILoginDialogProps, any> {
             buttonText="Login"
             onSuccess={this.loginSuccessful}
             onFailure={this.loginFailed}
+            // uxMode="redirect" // or popup
+            // redirectUri="https://lims.cailab.org"
           />
         </Dialog.Body>
       </Dialog>
@@ -83,7 +85,10 @@ class LoginDialog extends React.Component<ILoginDialogProps, any> {
   }
 
   private loginFailed = (response :any) => {
-    console.warn(response)
+    console.warn(response);
+    if(response.error) {
+      alert(response.error);
+    }
   }
 }
 
