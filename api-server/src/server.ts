@@ -19,6 +19,7 @@ import handlePart from './rest/part'
 import handlePartDeletion from './rest/sudoRequests/partDeletion'
 import handleAttachments from './rest/attachment';
 import hanleBroadCasts from './rest/broadcast';
+import handlePickList from './rest/picklist';
 
 // ============================================================================
 if (process.env.NODE_ENV === undefined) {
@@ -42,6 +43,8 @@ handlePartDeletion(app);
 handleAttachments(app, upload);
 
 hanleBroadCasts(app);
+
+handlePickList(app);
 
 
 // for testing if the server is running

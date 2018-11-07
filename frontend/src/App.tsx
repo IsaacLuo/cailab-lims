@@ -45,6 +45,7 @@ import PartsList from './PartsList';
 import UploadParts from './UploadParts';
 import DeletionRequestsList from 'DeletionRequestsList';
 import Dashboard from 'Dashboard';
+import Basket from './Basket';
 
 interface IProps {
   initializing: boolean,
@@ -94,6 +95,7 @@ class App extends React.Component<IProps, any> {
           <Route path='/parts/yeasts/upload' exact={true} render={this.renderYeastsUpload} />
           <Route path='/requests/partsDeletion' exact={true} component={DeletionRequestsList} />
           <Route path='/users/' component={Users} />
+          <Route path='/myBasket/' component={Basket} />
         </div>
       );
     }

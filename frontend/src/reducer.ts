@@ -65,6 +65,12 @@ function myReducer(state :IStoreState = defaultStoreState, action: IAction) {
         editPartDialogVisible: action.data.visible,
         editPartDialogPartId: action.data.partId,
       }
+
+    case 'SET_CURRENT_BASKET':
+      return {
+        ...state,
+        currentBasket: action.data,
+      }
   }
   return state;
 }

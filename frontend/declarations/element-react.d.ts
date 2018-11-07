@@ -636,7 +636,7 @@ declare module "element-react" {
       highlightCurrentRow?: boolean
       onCurrentChange?(): void
       onSelectAll?(): void
-      onSelectChange?(): void
+      onSelectChange?(selection:any[]): void
       onSortChange?(sortProp?: {column:any, order:'ascending'|'descending', prop:string}): void
     }
     export class Table extends ElementReactLibs.Component<TableProps, {}> { }

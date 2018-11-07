@@ -7,7 +7,7 @@ import { Pagination, Icon, Loading, Select, Button, Notification, MessageBox, Me
 import NewPartDialog from './NewPartDialog'
 import ErrorBoundary from './ErrorBoundary'
 import EditPartDialog from 'EditPartDialog';
-import {Table} from 'element-react'
+import {Table, Checkbox, Badge} from 'element-react'
 
 
 // redux
@@ -32,6 +32,7 @@ import getAuthHeader from './authHeader'
 import {fileSizeHumanReadable, toPlural} from './tools'
 import {IUserInfo, IColumn, IPartListRowData} from './types'
 import styled from 'styled-components'
+import { number } from 'prop-types';
 
 const MyClickableIcon = styled(Button)`
   &+&{
@@ -42,7 +43,7 @@ const MyClickableIcon = styled(Button)`
 
 interface IExpandedPanel {
   type: string,
-  expandPannel: (data:any) => JSX.Element,
+  expandPannel?: (data:any) => JSX.Element,
 }
 
 interface IPartsCount {
@@ -59,9 +60,12 @@ interface IProps extends IReactRouterProps {
   loggedIn: boolean,
   userId: string,
   editPartDialogVisible: boolean,
+  basketCount: number,
   getUserList: () => void,
   setNewPartDialogVisible: (visible: boolean) => void,
   setEditPartDialogVisible: (visible: boolean, partId: string) => void,
+  addPartToBasket: (ids: string[]) => void,
+  getBasketSize: () => void,
 }
 
 interface IState {
@@ -74,6 +78,7 @@ interface IState {
 
   userFilter: string,
   sortMethod: {order?:'ascending'|'descending', prop?:string},
+  selectedIds: string[],
 }
 
 class PartsList extends React.Component<IProps, IState> {
@@ -94,11 +99,16 @@ class PartsList extends React.Component<IProps, IState> {
       loading: true,
       userFilter: userFilter ? userFilter : '',
       sortMethod: {order:undefined, prop:undefined},
+      selectedIds: [],
     };
     if (props.loggedIn) {
       this.fetchPartsData();
       props.getUserList();
     }
+  }
+
+  public componentDidMount() {
+    this.props.getBasketSize();
   }
 
   public componentWillReceiveProps(nextProps:IProps) {
@@ -109,7 +119,7 @@ class PartsList extends React.Component<IProps, IState> {
   }
   
   public render() {
-    const {loggedIn, allUsers, editPartDialogVisible} = this.props;
+    const {loggedIn, allUsers, editPartDialogVisible, basketCount} = this.props;
     const {skip, limit, total, loading, userFilter} = this.state;
     if (!loggedIn) {
       console.log('not logged in, why?', this.props, this.state);
@@ -138,6 +148,7 @@ class PartsList extends React.Component<IProps, IState> {
           </Link>
           <Button onClick = {this.exportToXlsxCurrentPage}>export page</Button>
           <Button onClick = {this.exportToXlsxAllPages}>export all</Button>
+          <Button icon="plus" onClick = {this.addPartsToBasket} >add to basket {basketCount?`(${basketCount})`:''}</Button>
         </div>
         <Pagination
           layout="total, sizes, prev, pager, next, jumper"
@@ -154,6 +165,7 @@ class PartsList extends React.Component<IProps, IState> {
             data={this.state.data}
             stripe={true}
             onSortChange={this.onTableSortChange}
+            onSelectChange={this.onSelectChange}
           />
         </Loading>
         <Pagination
@@ -207,6 +219,10 @@ class PartsList extends React.Component<IProps, IState> {
     const {order, prop} = sortProp;
     this.setState({sortMethod: {order, prop}}, this.fetchPartsData);
   }
+  private onSelectChange = (selection:any[]) => {
+    console.log(selection);
+    this.setState({selectedIds: selection.map(v => v._id)})
+  }
 
   private exportToXlsxCurrentPage = async () => {
     const {skip, limit } = this.state;
@@ -250,6 +266,11 @@ class PartsList extends React.Component<IProps, IState> {
     document.body.appendChild(link);
     link.click();
     link.remove();
+  }
+
+  private addPartsToBasket = async () => {
+    this.props.addPartToBasket(this.state.selectedIds);
+
   }
 
   private generateCoulumnTitle () :Array<IColumn|IExpandedPanel> {
@@ -495,6 +516,9 @@ class PartsList extends React.Component<IProps, IState> {
   private generateYeastColumnTitle () :Array<IColumn|IExpandedPanel>{
     const {userId} = this.props;
     return [
+      {
+        type: 'selection',
+      },
       {
         type: 'expand',
         expandPannel: data => {
@@ -805,13 +829,16 @@ const mapStateToProps = (state :IStoreState) => ({
   loggedIn: state.loggedIn,
   userId: state.userId,
   editPartDialogVisible: state.editPartDialogVisible,
+  basketCount: state.currentBasket.partsCount,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   getUserList: ()=>dispatch({type:'GET_USER_LIST'}),
   setNewPartDialogVisible: visible => dispatch(ActionSetNewPartDialogVisible(visible)),
   setEditPartDialogVisible: (visible, partId) => dispatch(ActionSetEditPartDialogVisible(visible, partId)),
-  getParts: data => dispatch({type:'GET_PARTS', data})
+  getParts: data => dispatch({type:'GET_PARTS', data}),
+  getBasketSize: () => dispatch({type:'GET_CURRENT_BASKET'}),
+  addPartToBasket: data => dispatch ({type:'ADD_PARTS_TO_BASKET', data}),
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PartsList))

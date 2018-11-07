@@ -137,3 +137,15 @@ export const PartDeletionRequest = mongoose.model('PartDeletionRequest', {
 export const BroadCast = mongoose.model('BroadCast', {
   message: String,
 });
+
+export const PersonalPickList = mongoose.model('PersonalPickList', {
+  userId: Schema.Types.ObjectId,
+  createdAt: Date,
+  updatedAt: Date,
+  parts: [{
+    _id:Schema.Types.ObjectId,
+    labName: String,
+    personalName: String,
+  }],
+  partsCount: Number,
+});

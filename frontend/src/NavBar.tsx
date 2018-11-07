@@ -50,6 +50,7 @@ class NavBar extends React.Component<INavBarProps, any> {
         {loggedIn ?
         <Menu.SubMenu index="user" title={username}>
           <Menu.Item index="logout">log out</Menu.Item>
+          <Link to="/myBasket/"><Menu.Item index='pickList'>my basket</Menu.Item></Link>
           {groups.indexOf('administrators')>=0 && 
           <Link to="/users/"><Menu.Item index="user management">
             user management

@@ -38,6 +38,8 @@ export interface IStoreState {
 
   // edit dialog information  
   editPartDialogPartId: string,
+
+  currentBasket: any,
 }
 
 export const defaultStoreState:IStoreState = {
@@ -57,6 +59,7 @@ export const defaultStoreState:IStoreState = {
   newPartDialogVisible: false,
   editPartDialogVisible: false,
   editPartDialogPartId: '',
+  currentBasket: {},
 }
 
 /* tslint-disable no-underscore-dangle */
