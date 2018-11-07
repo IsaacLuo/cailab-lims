@@ -290,6 +290,9 @@ class PartsList extends React.Component<IProps, IState> {
     const {userId} = this.props;
     return [
       {
+        type: 'selection',
+      },
+      {
         type: 'expand',
         expandPannel: data => {
           const attachmentRows = data && data.attachments && data.attachments.map(att => 
@@ -408,6 +411,9 @@ class PartsList extends React.Component<IProps, IState> {
   private generatePrimerColumnTitle () :Array<IColumn|IExpandedPanel>{
     const {userId} = this.props;
     return [
+    {
+      type: 'selection',
+    },
     {
       type: 'expand',
       expandPannel: data => {
