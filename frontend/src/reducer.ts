@@ -81,7 +81,7 @@ function myReducer(state :IStoreState = defaultStoreState, action: IAction) {
     case 'SET_DEFAULT_BASKET':
       return {
         ...state,
-        defaultBasket: action.data,
+        defaultBasketId: action.data,
       }
 
     case 'SET_A_BASKET_NAME':

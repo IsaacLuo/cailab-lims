@@ -8,21 +8,25 @@ import {
   ActionSetABasketName,
 } from './actions'
 
-import {Button, Radio, Table, Input, Notification} from 'element-react'
+import {Button, Radio, Table, Input, Notification, Tag} from 'element-react'
 import styled from 'styled-components'
 
 export interface IProps {
   basketList:any[],
+  defaultBasketId:string,
+  currentBasket:any,
   getBasketList: ()=>void,
   submitDefaultBasket:(basketId :string)=>void,
-  defaultBasket:string,
   setABasketName:(basketId:string, basketName :string) => void,
   submitABasketName:(basketId:string, basketName :string) => void,
+  getBasket: (basketId:string)=>void,
+  deleteAPart: (partId :string, basketId :string) => void  
 }
 
 interface IState {
   ifEdit: boolean[],
   inputRef: any,
+  expandRowKeys: any[],
 }
 
 class BasketList extends React.Component<IProps, IState> {
@@ -31,6 +35,7 @@ class BasketList extends React.Component<IProps, IState> {
     this.state = {
       ifEdit:this.props.basketList.map(v=>false), 
       inputRef: undefined,
+      expandRowKeys:[],
     }
   }
 
@@ -50,8 +55,48 @@ class BasketList extends React.Component<IProps, IState> {
     const length:number = basketList? basketList.length: 0
     const expr:string = length > 1? 'baskets':'basket'
 
+    const {currentBasket} = this.props
+    let tags:any[] = []
+    if (currentBasket && currentBasket.parts) {
+      tags = currentBasket.parts.map(v => {
+        return {key:v._id, name:v.personalName, type:'gray'}
+      })
+    }
     const tableColumns = [
-      {label:'Basket Name', prop:'name', 
+      {
+        type:'expand',
+        expandPannel:(data)=> {
+  
+          if (tags.length > 0 ) {
+            return (
+              <div>
+                {
+                  tags.map(tag => { // 大改，改store里partlist的结构
+                    return (
+                      <Tag 
+                        style={{margin:'5px', fontSize:'15px'}}
+                        key={tag.key}
+                        closable = {true}
+                        type = {tag.type}
+                        hit = {true}
+                        closeTransition = {false}
+                        onClose = {this.closeTag.bind(this, tag)}
+                      >{tag.name}</Tag>
+                    )
+                  })
+                }
+              </div>
+            )
+          } else {
+            return (
+              <div>No parts</div>
+            )
+          }
+        }
+      },
+      {
+        label:'Basket Name', 
+        prop:'name', 
         render:(row, column, index)=> {
           // console.log(this.state.ifEdit)
           if (this.state.ifEdit[index] === false) {
@@ -74,19 +119,29 @@ class BasketList extends React.Component<IProps, IState> {
           }
           
         }},
-      {label:'Parts Count', prop:'partsCount'},
-      {label:'Created At', prop:'createdAt'},
-      {label:'Select Default', prop:'default', 
+      {
+        label:'Parts Count', 
+        prop:'partsCount'
+      },
+      {
+        label:'Created At', 
+        prop:'createdAt'
+      },
+      {
+        label:'Select Default', 
+        prop:'default', 
         render:(row)=>{
           return (
             <div>
-              <Radio checked={row._id === this.props.defaultBasket} value='' name='defaultBastket' 
+              <Radio checked={row._id === this.props.defaultBasketId} value='' name='defaultBastket' 
               onChange={this.changeRadio.bind(this,row._id)}/>
             </div>
           )
         }
       },
-      {label:'Operation', prop:'name',
+      {
+        label:'Operation', 
+        prop:'name',
         render:()=>{
           return (
             <span>
@@ -107,6 +162,9 @@ class BasketList extends React.Component<IProps, IState> {
             style={{margin:'auto'}}
             columns = {tableColumns}
             data = {this.props.basketList}
+            rowKey = {this.getRowId}
+            expandRowKeys = {this.state.expandRowKeys}
+            onExpand = {this.expandRow}
           /> }
       </div>
     );
@@ -123,7 +181,7 @@ class BasketList extends React.Component<IProps, IState> {
   }
 
   private blurBasketName = (basketId:string, index:number, e:any) =>{
-    console.log(e.target.value)
+    // console.log(e.target.value)
     const basketName = e.target.value.trim()
     if (basketName === '') {
       Notification.error('The basket name can\'t be empty');
@@ -157,11 +215,35 @@ class BasketList extends React.Component<IProps, IState> {
       input.focus()
     }
   }
+
+  private getRowId = (row: any) => {
+    return row._id
+  }
+
+  private expandRow = (row, expanded) => {
+    if (expanded) {
+      const {expandRowKeys} = this.state
+      expandRowKeys.pop()
+      expandRowKeys.push(row._id)
+      this.setState({expandRowKeys})
+      this.props.getBasket(row._id)
+    } else {
+      const {expandRowKeys} = this.state
+      expandRowKeys.pop()
+      this.setState({expandRowKeys})
+    }
+  }
+
+  private closeTag = (tag: any) => {
+    console.log(tag)
+  }
+
 }
 
 const mapStateToProps = (state :IStoreState) => ({
   basketList: state.basketList,
-  defaultBasket: state.defaultBasket,
+  defaultBasketId: state.defaultBasketId,
+  currentBasket: state.currentBasket,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
@@ -169,6 +251,8 @@ const mapDispatchToProps = (dispatch :Dispatch) => ({
   submitDefaultBasket:(basketId:string) => dispatch({type:'SUBMIT_DEFAULT_BASKET', data:basketId}),
   setABasketName:(basketId:string, basketName :string) => dispatch(ActionSetABasketName(basketId, basketName)),
   submitABasketName:(basketId:string, basketName :string) => dispatch({type:'SUBMIT_A_BASKET_NAME', data:{basketId, basketName}}),
+  getBasket: (basketId:string) => dispatch({type:'GET_CURRENT_BASKET', data:basketId}),
+  deleteAPart: (partId :string, basketId :string) => dispatch({type:'DELETE_A_PART_IN_BASKET', data:{partId, basketId}})
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(BasketList))

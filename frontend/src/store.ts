@@ -42,7 +42,7 @@ export interface IStoreState {
 
   currentBasket: any,
   basketList: any[],
-  defaultBasket:string,
+  defaultBasketId:string,
 }
 
 export const defaultStoreState:IStoreState = {
@@ -64,7 +64,7 @@ export const defaultStoreState:IStoreState = {
   editPartDialogPartId: '',
   currentBasket: {},
   basketList:[],
-  defaultBasket:'',
+  defaultBasketId:'',
 }
 
 /* tslint-disable no-underscore-dangle */

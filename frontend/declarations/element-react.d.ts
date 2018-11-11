@@ -634,10 +634,13 @@ declare module "element-react" {
       rowStyle?: any
       showHeader?: boolean
       highlightCurrentRow?: boolean
+      rowKey?: ((row:any)=>string) | string
+      expandRowKeys?:any[]
       onCurrentChange?(): void
       onSelectAll?(): void
       onSelectChange?(selection:any[]): void
       onSortChange?(sortProp?: {column:any, order:'ascending'|'descending', prop:string}): void
+      onExpand?:(row:any, expanded:any) => void
     }
     export class Table extends ElementReactLibs.Component<TableProps, {}> { }
   
