@@ -19,7 +19,7 @@ import handlePart from './rest/part'
 import handlePartDeletion from './rest/sudoRequests/partDeletion'
 import handleAttachments from './rest/attachment';
 import hanleBroadCasts from './rest/broadcast';
-import handlePickList from './rest/pickList';
+import handlePickList from './rest/picklist';
 
 // ============================================================================
 if (process.env.NODE_ENV === undefined) {
@@ -120,8 +120,41 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
 /**
  * use smartscanner to log in
  */
-app.post('/api/scannerSession/', async (req :Request, res: Response) => {
-
+app.post('/api/scannerSessions/', async (req :Request, res: Response) => {
+  try {
+    const barcode = req.body.barcode;
+    if(!barcode) {
+      throw new Error('no barcode');
+    }
+    const user = await User.findOne({barcode})
+    if (user) {
+      const {id, name, email, groups} = user;
+      const token = jwt.sign({
+        id,
+        fullName: name,
+        email,
+        groups:['scannerUser'],
+      }, 
+      secret.jwt.key,
+      {expiresIn:'1h'})
+    
+      // log to database
+      LogLogin.create({
+      operatorId: id,
+      operatorName: name,
+      type: 'login',
+      sourceIP: req.ip,
+      timeStamp: new Date(),
+      
+    });
+    res.json({message: `welcome ${name}`, id, token, name, email, groups})
+    } else {
+      res.status(401).json({message: 'wrong barcode'})  
+    }
+  } catch (err) {
+    req.log.error(err);
+    res.status(401).json({message: err.message})
+  }
 });
 
 // get user names
