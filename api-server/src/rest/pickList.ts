@@ -74,9 +74,12 @@ export default function handlePickList(app:Express) {
   app.get('/api/pickLists/', userMustLoggedIn, async (req :Request, res: Response) => {
     const userId = req.currentUser.id;
     try {
-      const pickList = await PersonalPickList.find({userId:ObjectId(userId)}, '_id createdAt updatedAt partsCount')
-      console.log(pickList)
-      res.json(pickList);
+      const user = await User.findOne({_id:userId})
+      const defaultBasket = user.defaultBasket
+      const pickList = await PersonalPickList.find({userId:ObjectId(userId)}, '_id createdAt updatedAt partsCount default name')
+      // console.log(user.defaultBasket)
+      // console.log(pickList)
+      res.json({defaultBasket, pickList});
     } catch (err) {
       res.status(404).json({message:err.message});
     }
@@ -130,4 +133,55 @@ export default function handlePickList(app:Express) {
     }
   });
 
-  }
+  /**
+   * set user's default basket, basketId in request body.
+   */
+  app.post('/api/defaultBasket/', userMustLoggedIn, async (req :Request, res :Response) => {
+    const userId = req.currentUser.id;
+    const newBasketId = req.body.basketId;
+    try {
+      const user = await User.findOne({_id:userId});
+      //verify
+      const basket = await PersonalPickList.findOne({_id:newBasketId, userId});
+      if (!basket) {
+        res.status(404).json({message:'basket doesn\'t match'});
+      } else {
+        user.defaultBasket = newBasketId;
+        await user.save();
+        res.json({basketId:newBasketId});
+      }
+    } catch (err) {
+      res.status(404).json({message:err.message});
+    }
+  });
+
+  /**
+   * set new basket name, basket name in request body
+   * @param id the basket id in mongodb
+   */
+  app.post('/api/picklist/:id/basketName', userMustLoggedIn, async (req :Request, res :Response) => {
+    const userId = req.currentUser.id;
+    const basketId = req.params.id;
+    const newBasketName = req.body.basketName;
+
+    if (newBasketName === undefined || newBasketName === '') {
+      res.status(404).json({message:'basket can\'t be empty'});
+      return;
+    }
+
+    try {
+      const user = await User.findOne({_id:userId});
+      // verify
+      const basket = await PersonalPickList.findOne({_id:basketId, userId});
+      if (!basket) {
+        res.status(404).json({message:'basket doesn\'t match'});
+      } else {
+        basket.name = newBasketName;
+        await basket.save();
+        res.json({basketName:newBasketName});
+      }
+    } catch (err) {
+      res.status(404).json({message:err.message});
+    }
+  });
+}
