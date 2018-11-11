@@ -198,9 +198,10 @@ function* addPartsToBasket(action:IAction) {
   }
 }
 
-function* getCurrentBasket(action:IAction) {
+function* getBasket(action:IAction) {
+  const basketId = action.data;
   try {
-    const res = yield call(axios.get, serverURL+'/api/picklist/0', getAuthHeader());
+    const res = yield call(axios.get, serverURL+`/api/picklist/${basketId}`, getAuthHeader());
     yield put({type:'SET_CURRENT_BASKET', data:res.data});
   } catch (err) {
     Notification.error('failed read basket');
@@ -266,11 +267,16 @@ function* submitABasketname(action:IAction) {
   }
 }
 
+function* deleteAPartInBasket(action:IAction) {
+  const basketId = action.data.basketId;
+  const partId = action.data.partId;
+}
+
 export function* watchParts() {
   yield takeLatest('GET_PARTS_COUNT', getPartsCount);
   yield takeLatest('GET_PARTS', getParts);
   yield takeLatest('ADD_PARTS_TO_BASKET', addPartsToBasket);
-  yield takeLatest('GET_CURRENT_BASKET', getCurrentBasket);
+  
   yield takeLatest('DELETE_PART_FROM_BASKET', deletePartFromBasket);
   yield takeLatest('CLEAR_BASKET', clearBasket);
 }
@@ -279,6 +285,8 @@ export function* watchBasket() {
   yield takeLatest('GET_BASKET_LIST', getBasketList);
   yield takeLatest('SUBMIT_DEFAULT_BASKET', submitDefaultBasket);
   yield takeLatest('SUBMIT_A_BASKET_NAME', submitABasketname);
+  yield takeLatest('GET_CURRENT_BASKET', getBasket);
+  yield takeLatest('DELETE_A_PART_IN_BASKET', deleteAPartInBasket);
 }
 
 export default function* rootSaga() {

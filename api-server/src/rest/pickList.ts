@@ -115,7 +115,7 @@ export default function handlePickList(app:Express) {
   });
 
     /**
-   * delete an item in basket
+   * delete all items in basket
    * @param id the basket id in mongodb
    */
   app.delete('/api/pickList/:id/items/', userMustLoggedIn, async (req :Request, res: Response) => {
@@ -177,6 +177,7 @@ export default function handlePickList(app:Express) {
         res.status(404).json({message:'basket doesn\'t match'});
       } else {
         basket.name = newBasketName;
+        basket.updatedAt = new Date();
         await basket.save();
         res.json({basketName:newBasketName});
       }
