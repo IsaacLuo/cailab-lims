@@ -117,6 +117,13 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
   }
 })
 
+/**
+ * use smartscanner to log in
+ */
+app.post('/api/scannerSession/', async (req :Request, res: Response) => {
+
+});
+
 // get user names
 // response: [{name: user's full name, id: unique user id in db}]
 app.get('/api/users/names/', userMustLoggedIn, async (req :Request, res: Response) => {

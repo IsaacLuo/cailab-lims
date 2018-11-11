@@ -18,6 +18,7 @@ export const UserSchema = new Schema({
   groups: [String], // array of group name, 'guest', 'users', 'visitors', or 'administrators'
   createdAt: Date,
   updatedAt: Date,
+  barcode: String,
 });
 
 export const User = mongoose.model('User', UserSchema);
