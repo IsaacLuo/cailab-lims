@@ -19,6 +19,7 @@ export const UserSchema = new Schema({
   createdAt: Date,
   updatedAt: Date,
   barcode: String,
+  defaultBasket: String,
 });
 
 export const User = mongoose.model('User', UserSchema);
@@ -140,6 +141,7 @@ export const BroadCast = mongoose.model('BroadCast', {
 });
 
 export const PersonalPickList = mongoose.model('PersonalPickList', {
+  name: String,
   userId: Schema.Types.ObjectId,
   createdAt: Date,
   updatedAt: Date,
@@ -149,4 +151,5 @@ export const PersonalPickList = mongoose.model('PersonalPickList', {
     personalName: String,
   }],
   partsCount: Number,
+  default: Boolean,
 });

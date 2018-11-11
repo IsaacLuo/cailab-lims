@@ -19,7 +19,7 @@ import handlePart from './rest/part'
 import handlePartDeletion from './rest/sudoRequests/partDeletion'
 import handleAttachments from './rest/attachment';
 import hanleBroadCasts from './rest/broadcast';
-import handlePickList from './rest/picklist';
+import handlePickList from './rest/pickList';
 
 // ============================================================================
 if (process.env.NODE_ENV === undefined) {

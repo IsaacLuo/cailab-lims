@@ -9,6 +9,7 @@ import {
   ActionSetAllUserNames,
   IAction,
   ActionClearLoginInformation,
+  ActionSetABasketName,
 } from './actions'
 
 // other libs
@@ -226,6 +227,45 @@ function* clearBasket(action:IAction) {
   }
 }
 
+function* getBasketList(action:IAction) {
+  try {
+    const res = yield call(axios.get, serverURL+'/api/pickLists/', getAuthHeader());
+    yield put({type:'SET_BASKET_LIST', data:res.data.pickList});
+    yield put({type:'SET_DEFAULT_BASKET', data:res.data.defaultBasket})
+  } catch (err) {
+    Notification.error('failed load basket list');
+  }
+}
+
+function* submitDefaultBasket(action:IAction) {
+  const basketId = action.data;
+  // console.log(basketId)
+  try{
+    yield put({type:'SET_DEFAULT_BASKET', data:action.data});
+    // 再请求再调一次
+    const res = yield call(axios.post, serverURL+'/api/defaultBasket/',{basketId}, getAuthHeader());
+    if (res.data.basketId !== basketId) {
+      yield put({type:'SET_DEFAULT_BASKET', data:res.data.basketId});
+    }
+  } catch (err) {
+    Notification.error('failed set default basket');
+  }
+}
+
+function* submitABasketname(action:IAction) {
+  const basketName = action.data.basketName;
+  const basketId = action.data.basketId;
+  try {
+    yield put(ActionSetABasketName(basketId, basketName));
+    const res = yield call(axios.post, serverURL+`/api/picklist/${basketId}/basketName`, {basketName}, getAuthHeader());
+    if (res.data.basketName !== basketName) {
+      yield put(ActionSetABasketName(basketId, res.data.basketName));
+    }
+  } catch (err) {
+    Notification.error('failed change basket name');
+  }
+}
+
 export function* watchParts() {
   yield takeLatest('GET_PARTS_COUNT', getPartsCount);
   yield takeLatest('GET_PARTS', getParts);
@@ -235,9 +275,16 @@ export function* watchParts() {
   yield takeLatest('CLEAR_BASKET', clearBasket);
 }
 
+export function* watchBasket() {
+  yield takeLatest('GET_BASKET_LIST', getBasketList);
+  yield takeLatest('SUBMIT_DEFAULT_BASKET', submitDefaultBasket);
+  yield takeLatest('SUBMIT_A_BASKET_NAME', submitABasketname);
+}
+
 export default function* rootSaga() {
   yield all([
     fork(watchMyInformation),
     fork(watchParts),
+    fork(watchBasket),
   ]);
 }

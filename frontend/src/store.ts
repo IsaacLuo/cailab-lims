@@ -5,6 +5,7 @@ import createSagaMiddleware from 'redux-saga'
 import {IUserInfo} from './types'
 import {IPart} from './types'
 import { getDefaultSettings } from 'http2';
+import { string } from 'prop-types';
 
 
 interface IPartsCount {
@@ -40,6 +41,8 @@ export interface IStoreState {
   editPartDialogPartId: string,
 
   currentBasket: any,
+  basketList: any[],
+  defaultBasket:string,
 }
 
 export const defaultStoreState:IStoreState = {
@@ -60,6 +63,8 @@ export const defaultStoreState:IStoreState = {
   editPartDialogVisible: false,
   editPartDialogPartId: '',
   currentBasket: {},
+  basketList:[],
+  defaultBasket:'',
 }
 
 /* tslint-disable no-underscore-dangle */
