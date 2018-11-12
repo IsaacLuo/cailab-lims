@@ -244,7 +244,7 @@ function* submitDefaultBasket(action:IAction) {
   try{
     yield put({type:'SET_DEFAULT_BASKET', data:action.data});
     // 再请求再调一次
-    const res = yield call(axios.post, serverURL+'/api/defaultBasket/',{basketId}, getAuthHeader());
+    const res = yield call(axios.put, serverURL+'/api/defaultBasket',{basketId}, getAuthHeader());
     if (res.data.basketId !== basketId) {
       yield put({type:'SET_DEFAULT_BASKET', data:res.data.basketId});
     }
