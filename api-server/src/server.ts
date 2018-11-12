@@ -120,8 +120,45 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
 /**
  * use smartscanner to log in
  */
-app.post('/api/scannerSession/', async (req :Request, res: Response) => {
-
+app.post('/api/scannerSessions/', async (req :Request, res: Response) => {
+  try {
+    const {barcode} = req.body;
+    if(!barcode) {
+      throw new Error('barcode is required');
+    }
+    const user = await User.findOne({barcode});
+    if (!user) {
+      throw new Error('invalid user');
+    }
+    const {id, name, email, groups} = user;
+    
+    if (groups.indexOf('scanner')<0) {
+      throw new Error('invalid user');
+    }
+    const token = jwt.sign({
+      id,
+      fullName: name,
+      email,
+      groups:['scanner'], // user who only provide barcode get the scanner group only
+    }, 
+    secret.jwt.key,
+    {expiresIn:'1h'});
+    
+    LogLogin.create({
+      operatorId: id,
+      operatorName: name,
+      type: 'login',
+      sourceIP: req.ip,
+      timeStamp: new Date(),
+    });
+    console.log(`scanner logged in as ${name}`);
+    res.json({message: `welcome ${name} on scanner`, id, token, name, email, groups:['scanner']});
+    
+  } catch (err) {
+    console.error(err.message);
+    req.log.error(err);
+    res.status(401).json({message: err})
+  }
 });
 
 // get user names
