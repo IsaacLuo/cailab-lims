@@ -76,7 +76,7 @@ export default function handlePickList(app:Express) {
     try {
       const user = await User.findOne({_id:userId})
       const defaultBasket = user.defaultBasket
-      const pickList = await PersonalPickList.find({userId:ObjectId(userId)}, '_id createdAt updatedAt partsCount default name')
+      const pickList = await PersonalPickList.find({userId:ObjectId(userId)}, '_id createdAt updatedAt partsCount name')
       // console.log(user.defaultBasket)
       // console.log(pickList)
       res.json({defaultBasket, pickList});

@@ -202,6 +202,7 @@ function* getBasket(action:IAction) {
   const basketId = action.data;
   try {
     const res = yield call(axios.get, serverURL+`/api/picklist/${basketId}`, getAuthHeader());
+    // console.log(res.data)
     yield put({type:'SET_CURRENT_BASKET', data:res.data});
   } catch (err) {
     Notification.error('failed read basket');
@@ -231,7 +232,7 @@ function* clearBasket(action:IAction) {
 function* getBasketList(action:IAction) {
   try {
     const res = yield call(axios.get, serverURL+'/api/pickLists/', getAuthHeader());
-    yield put({type:'SET_BASKET_LIST', data:res.data.pickList});
+    yield put({type:'SET_BASKET_LIST', data:res.data.pickList.map(v=>({...v, parts:[]})) });
     yield put({type:'SET_DEFAULT_BASKET', data:res.data.defaultBasket})
   } catch (err) {
     Notification.error('failed load basket list');

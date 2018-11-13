@@ -14,6 +14,15 @@ interface IPartsCount {
   yeasts: number,
 }
 
+export interface IBasket {
+  _id: string, 
+  createAt: Date,
+  updatedAt: Date,
+  partsCount: number,
+  name: string,
+  parts: any[],
+}
+
 export interface IStoreState {
 
   // the app is initializing(fetching data from server first time)
@@ -41,7 +50,7 @@ export interface IStoreState {
   editPartDialogPartId: string,
 
   currentBasket: any,
-  basketList: any[],
+  basketList: IBasket[],
   defaultBasketId:string,
 }
 
