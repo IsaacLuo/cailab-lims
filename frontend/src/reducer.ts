@@ -71,10 +71,9 @@ function myReducer(state :IStoreState = defaultStoreState, action: IAction) {
       if (basket !== undefined) {
         basket.parts = action.data.parts
       }
-      // console.log(state.basketList)
       return {
         ...state,
-        basketList: state.basketList
+        basketList: [...state.basketList],
       }
 
     case 'SET_BASKET_LIST':
