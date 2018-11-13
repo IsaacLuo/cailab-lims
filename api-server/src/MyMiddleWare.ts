@@ -1,11 +1,12 @@
 import {Response, NextFunction} from 'express'
 import {Request} from './MyRequest'
+import secret from '../secret.json'
 
 export function userMustBeAdmin (req :Request, res :Response, next: NextFunction) {
     if (req.currentUser && req.currentUser.groups.indexOf('administrators')>=0) {
       req.log.info('currentGoup', req.currentUser.groups)
       next();
-    } else if (req.headers['test-token'] === 'a30aa7f7de512963a03c') {
+    } else if (req.headers['test-token'] === secret.test.token) {
       req.currentUser = {
         id:'5b718be08274212924fe4a94',
         fullName: 'test man',
@@ -26,7 +27,7 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
   }
   
   export function userMustLoggedIn (req :Request, res :Response, next: NextFunction) {
-    if (req.headers['test-token'] === 'a30aa7f7de512963a03c') {
+    if (req.headers['test-token'] === secret.test.token) {
       req.currentUser = {
         id:'5b718be08274212924fe4a94',
         fullName: 'test man',
@@ -45,7 +46,7 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
   }
 
   export function userCanUseScanner (req :Request, res :Response, next: NextFunction) {
-    if (req.headers['test-token'] === 'a30aa7f7de512963a03c') {
+    if (req.headers['test-token'] === secret.test.token) {
       req.currentUser = {
         id:'5b718be08274212924fe4a94',
         fullName: 'test man',
