@@ -67,9 +67,13 @@ function myReducer(state :IStoreState = defaultStoreState, action: IAction) {
       }
 
     case 'SET_CURRENT_BASKET':
+      const basket = state.basketList.find(v=>v._id===action.data._id)
+      if (basket !== undefined) {
+        basket.parts = action.data.parts
+      }
       return {
         ...state,
-        currentBasket: action.data,
+        basketList: [...state.basketList],
       }
 
     case 'SET_BASKET_LIST':

@@ -1,7 +1,7 @@
 import {Express, Response} from 'express'
 import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, PersonalPickList} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn} from '../MyMiddleWare'
+import {userMustLoggedIn, userCanUseScanner} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
 import { IPart, IAttachment, IPartForm } from '../types';
@@ -48,7 +48,7 @@ export default function handlePickList(app:Express) {
    * get content of a basket
    * @param id the basket id in mongodb,  if id is 0, use the current newest basket 
    */
-  app.get('/api/pickList/:id', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.get('/api/pickList/:id', userCanUseScanner, async (req :Request, res: Response) => {
     const pickListId = req.params.id;
     if (pickListId === '0') {
       try {
@@ -71,12 +71,12 @@ export default function handlePickList(app:Express) {
   /**
    * get all basket and item count of current user
    */
-  app.get('/api/pickLists/', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.get('/api/pickLists/', userCanUseScanner, async (req :Request, res: Response) => {
     const userId = req.currentUser.id;
     try {
       const user = await User.findOne({_id:userId})
       const defaultBasket = user.defaultBasket
-      const pickList = await PersonalPickList.find({userId:ObjectId(userId)}, '_id createdAt updatedAt partsCount default name')
+      const pickList = await PersonalPickList.find({userId:ObjectId(userId)}, '_id createdAt updatedAt partsCount name')
       // console.log(user.defaultBasket)
       // console.log(pickList)
       res.json({defaultBasket, pickList});
@@ -136,7 +136,7 @@ export default function handlePickList(app:Express) {
   /**
    * set user's default basket, basketId in request body.
    */
-  app.post('/api/defaultBasket/', userMustLoggedIn, async (req :Request, res :Response) => {
+  app.put('/api/defaultBasket', userMustLoggedIn, async (req :Request, res :Response) => {
     const userId = req.currentUser.id;
     const newBasketId = req.body.basketId;
     try {

@@ -1,6 +1,6 @@
 import * as React from 'react'
 // react-router-redux
-import { IStoreState } from './store';
+import { IStoreState, IBasket } from './store';
 import { withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
@@ -12,7 +12,7 @@ import {Button, Radio, Table, Input, Notification, Tag} from 'element-react'
 import styled from 'styled-components'
 
 export interface IProps {
-  basketList:any[],
+  basketList:IBasket[],
   defaultBasketId:string,
   currentBasket:any,
   getBasketList: ()=>void,
@@ -46,7 +46,6 @@ class BasketList extends React.Component<IProps, IState> {
   public componentWillReceiveProps(newProps:IProps) {
     if (newProps.basketList.length !== this.props.basketList.length) {
       this.setState({ifEdit: newProps.basketList.map(v=>false)})
-      console.log('hahaha')
     }
   }
 
@@ -55,41 +54,34 @@ class BasketList extends React.Component<IProps, IState> {
     const length:number = basketList? basketList.length: 0
     const expr:string = length > 1? 'baskets':'basket'
 
-    const {currentBasket} = this.props
-    let tags:any[] = []
-    if (currentBasket && currentBasket.parts) {
-      tags = currentBasket.parts.map(v => {
-        return {key:v._id, name:v.personalName, type:'gray'}
-      })
-    }
     const tableColumns = [
       {
         type:'expand',
         expandPannel:(data)=> {
-  
-          if (tags.length > 0 ) {
+          console.log(data)
+          const {parts} = data
+          console.log(parts)
+          if (data.partsCount===0) {
             return (
-              <div>
-                {
-                  tags.map(tag => { // 大改，改store里partlist的结构
-                    return (
-                      <Tag 
-                        style={{margin:'5px', fontSize:'15px'}}
-                        key={tag.key}
-                        closable = {true}
-                        type = {tag.type}
-                        hit = {true}
-                        closeTransition = {false}
-                        onClose = {this.closeTag.bind(this, tag)}
-                      >{tag.name}</Tag>
-                    )
-                  })
-                }
-              </div>
+              <div>No parts</div>
             )
           } else {
             return (
-              <div>No parts</div>
+              <div>
+                {
+                  data.parts.map(v=>(
+                    <Tag 
+                      style={{margin:'5px', fontSize:'15px'}}
+                      key={v._id}
+                      closable = {true}
+                      type = 'gray'
+                      hit = {true}
+                      closeTransition = {false}
+                      onClose = {this.closeTag.bind(this, v)}
+                    >{v.personalName}</Tag>)
+                  )
+                }
+              </div>
             )
           }
         }
@@ -222,11 +214,17 @@ class BasketList extends React.Component<IProps, IState> {
 
   private expandRow = (row, expanded) => {
     if (expanded) {
+      const basketId = row._id
       const {expandRowKeys} = this.state
       expandRowKeys.pop()
-      expandRowKeys.push(row._id)
+      expandRowKeys.push(basketId)
       this.setState({expandRowKeys})
-      this.props.getBasket(row._id)
+
+      const basket = this.props.basketList.find(v => v._id === basketId)
+      if (basket !== undefined && basket.partsCount !== basket.parts.length) {
+        console.log('getBasket')
+        this.props.getBasket(basketId)
+      }
     } else {
       const {expandRowKeys} = this.state
       expandRowKeys.pop()
