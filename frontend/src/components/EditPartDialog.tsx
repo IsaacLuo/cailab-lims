@@ -1,20 +1,23 @@
+
+import { IStoreState } from '../types'
+
 import * as React from 'react'
 import { Dialog, Input, Notification, DatePicker, Tag, Button } from 'element-react'
 import styled from 'styled-components'
 // redux
-import { IStoreState } from './store'
+
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { ActionSetEditPartDialogVisible } from './actions'
-import TagInput from './TagInput';
+import { ActionSetEditPartDialogVisible } from '../actions/appActions'
+
 import Axios from 'axios';
 import { serverURL } from 'config';
 import getAuthHeader from 'authHeader';
 
 import {IPart, IPartForm, IPartFormAttachment} from 'types'
 import Dropzone, { FileWithPreview } from 'react-dropzone';
-import {fileSizeHumanReadable, readFileAsDataURL} from './tools'
+import {fileSizeHumanReadable, readFileAsDataURL} from '../tools'
 
 
 
@@ -330,7 +333,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
 }
 
 const mapStateToProps = (state :IStoreState) => ({
-  dialogVisible: state.editPartDialogVisible,
+  dialogVisible: state.app.editPartDialogVisible,
   partId: state.editPartDialogPartId,
 })
 

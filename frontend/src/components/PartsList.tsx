@@ -6,12 +6,12 @@ import qs from 'qs'
 import { Pagination, Icon, Loading, Select, Button, Notification, MessageBox, Message } from 'element-react'
 import NewPartDialog from './NewPartDialog'
 import ErrorBoundary from './ErrorBoundary'
-import EditPartDialog from 'EditPartDialog';
+import EditPartDialog from './EditPartDialog';
 import {Table, Checkbox, Badge} from 'element-react'
 
 
 // redux
-import { IStoreState } from './store'
+import { IStoreState } from '../types'
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
@@ -19,18 +19,18 @@ import { connect } from 'react-redux'
 import {
   ActionSetNewPartDialogVisible,
   ActionSetEditPartDialogVisible,
-} from './actions'
+} from '../actions/appActions'
 
 // react-router
 import {Redirect} from 'react-router'
 import {Link} from 'react-router-dom'
-import {IReactRouterProps} from './types'
+import {IReactRouterProps} from '../types'
 
 // helpers
-import { serverURL } from './config'
-import getAuthHeader from './authHeader'
-import {fileSizeHumanReadable, toPlural} from './tools'
-import {IUserInfo, IColumn, IPartListRowData} from './types'
+import { serverURL } from '../config'
+import getAuthHeader from '../authHeader'
+import {fileSizeHumanReadable, toPlural} from '../tools'
+import {IUserInfo, IColumn, IPartListRowData} from '../types'
 import styled from 'styled-components'
 import { number } from 'prop-types';
 
@@ -830,11 +830,11 @@ class PartsList extends React.Component<IProps, IState> {
 
 const mapStateToProps = (state :IStoreState) => ({
   partsCount: state.partsCount,
-  allUsers: state.allUsers,
-  newPartDialogVisible: state.newPartDialogVisible,
-  loggedIn: state.loggedIn,
-  userId: state.userId,
-  editPartDialogVisible: state.editPartDialogVisible,
+  allUsers: state.app.allUsers,
+  newPartDialogVisible: state.app.newPartDialogVisible,
+  loggedIn: state.user.loggedIn,
+  userId: state.user.userId,
+  editPartDialogVisible: state.app.editPartDialogVisible,
   basketCount: state.currentBasket.partsCount,
 })
 

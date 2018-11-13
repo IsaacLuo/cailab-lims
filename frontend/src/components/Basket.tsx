@@ -1,13 +1,9 @@
 import * as React from 'react'
 // react-router-redux
-import { IStoreState } from './store';
+import { IStoreState } from '../types';
 import { withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
-import {
-  ActionLoginDialogVisible,
-  ActionClearLoginInformation,
-} from './actions'
 
 import {Menu, Button} from 'element-react'
 import styled from 'styled-components'

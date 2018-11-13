@@ -1,12 +1,13 @@
+import {IStoreState, IBasket} from 'types'
+
 import * as React from 'react'
 // react-router-redux
-import { IStoreState, IBasket } from './store';
 import { withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import {
   ActionSetABasketName,
-} from './actions'
+} from 'actions/appActions'
 
 import {Button, Radio, Table, Input, Notification, Tag} from 'element-react'
 import styled from 'styled-components'

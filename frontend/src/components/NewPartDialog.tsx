@@ -2,11 +2,11 @@ import * as React from 'react'
 import { Dialog, Input, DatePicker, Tag, Button } from 'element-react'
 import styled from 'styled-components'
 // redux
-import { IStoreState } from './store'
+import { IStoreState } from '../types'
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { ActionSetNewPartDialogVisible } from './actions'
+import { ActionSetNewPartDialogVisible } from '../actions/appActions'
 import TagInput from './TagInput';
 
 

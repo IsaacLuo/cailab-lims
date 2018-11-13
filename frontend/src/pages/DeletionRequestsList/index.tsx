@@ -2,24 +2,26 @@
 // delete some parts but they are not allowed to delete by themselves, administrators
 // can review, confirm or cancel the requests
 
+import { IStoreState } from 'types'
+
 import * as React from 'react'
 import axios from 'axios'
 
 // components
 import { Pagination, Icon, Loading, Select, Button, MessageBox, Message } from 'element-react'
-import ErrorBoundary from './ErrorBoundary'
+import ErrorBoundary from 'components/ErrorBoundary'
 import {Table} from 'element-react'
 import styled from 'styled-components'
 
 // redux
-import { IStoreState } from './store'
+
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 
 // helpers
-import { serverURL } from './config'
-import getAuthHeader from './authHeader'
+import { serverURL } from 'config'
+import getAuthHeader from 'authHeader'
 
 interface IProps {
   loggedIn: boolean,
@@ -143,8 +145,8 @@ class DeletionRequestsList extends React.Component<IProps, IState> {
 }
 
 const mapStateToProps = (state :IStoreState) => ({
-  loggedIn: state.loggedIn,
-  userId: state.userId,
+  loggedIn: state.user.loggedIn,
+  userId: state.user.userId,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
