@@ -47,7 +47,7 @@ export interface IPartsState {
 }
 
 export interface IBasketState {
-  currentBasket: any,
+  currentBasket?: any,
   basketList: IBasket[],
   defaultBasketId:string,
 }

@@ -1,0 +1,2 @@
+export const SET_BASKET_LIST = 'SET_BASKET_LIST';
+export const SET_DEFAULT_BASKET = 'SET_DEFAULT_BASKET';

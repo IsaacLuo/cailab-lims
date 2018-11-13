@@ -835,7 +835,7 @@ const mapStateToProps = (state :IStoreState) => ({
   loggedIn: state.user.loggedIn,
   userId: state.user.userId,
   editPartDialogVisible: state.app.editPartDialogVisible,
-  basketCount: state.currentBasket.partsCount,
+  basketCount: state.basket.currentBasket.partsCount,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({

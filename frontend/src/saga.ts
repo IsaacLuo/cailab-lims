@@ -6,10 +6,8 @@ import {call, all, fork, put, take, takeLatest} from 'redux-saga/effects'
 // redux actions
 import {
   ActionInitizeDone,
-  
   ActionSetPartsCount,
   ActionSetAllUserNames,
-  
   ActionSetABasketName,
 } from './actions/appActions'
 
