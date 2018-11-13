@@ -61,7 +61,7 @@ export default function preprocess(app :Express) {
     const auth = req.headers.authorization;
     if (auth) {
       const [tokenType, token] = auth.split(' ');
-      if (tokenType === 'bearer') {  
+      if (tokenType === 'bearer' || tokenType === 'Bearer' ) {
         jwt.verify(token, secret.jwt.key, (err, decoded :IUserJWT) => {
           if (!err) {
             req.currentUser = decoded;
