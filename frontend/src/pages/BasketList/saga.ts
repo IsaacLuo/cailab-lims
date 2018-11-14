@@ -4,7 +4,13 @@ import { delay} from 'redux-saga';
 import {call, all, fork, put, take, select, takeLatest} from 'redux-saga/effects'
 // redux actions
 import {
-  ActionSetABasketName, ADD_BASKET, SET_BASKET_LIST, SET_DEFAULT_BASKET, DELETE_BASKET, GET_BASKET_LIST,
+  ActionSetABasketName,
+  ADD_BASKET,
+  SET_BASKET_LIST,
+  SET_DEFAULT_BASKET,
+  DELETE_BASKET,
+  GET_BASKET_LIST,
+  FILL_PARTS_INTO_BASKET_LIST,
 } from './actions'
 
 
@@ -22,8 +28,7 @@ function* getBasket(action:IAction) {
   const basketId = action.data;
   try {
     const res = yield call(axios.get, serverURL+`/api/picklist/${basketId}`, getAuthHeader());
-    // console.log(res.data)
-    yield put({type:'SET_CURRENT_BASKET', data:res.data});
+    yield put({type:FILL_PARTS_INTO_BASKET_LIST, data:res.data});
   } catch (err) {
     Notification.error('failed read basket');
   }
