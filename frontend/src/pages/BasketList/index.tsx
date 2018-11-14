@@ -11,6 +11,8 @@ import { Dispatch } from 'redux'
 import {
   ActionSetABasketName,
   ADD_BASKET,
+  DELETE_BASKET,
+  GET_BASKET_LIST,
 } from './actions'
 
 import {Button, Radio, Table, Input, Notification, Tag} from 'element-react'
@@ -27,6 +29,7 @@ export interface IProps {
   getBasket: (basketId:string)=>void,
   deleteAPart: (partId :string, basketId :string) => void  ,
   addBasket: () => void,
+  deleteBasket: (basketId:string) => void,
 }
 
 interface IState {
@@ -140,10 +143,10 @@ class BasketList extends React.Component<IProps, IState> {
       {
         label:'Operation', 
         prop:'name',
-        render:()=>{
+        render:(row)=>{
           return (
             <span>
-              <Button type="danger" size="small">delete</Button>
+              <Button type="danger" size="small" onClick={this.props.deleteBasket.bind(this,row._id)}>delete</Button>
             </span>)
         }
       }
@@ -255,13 +258,16 @@ const mapStateToProps = (state :IStoreState) => ({
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
-  getBasketList:() => dispatch({type:'GET_BASKET_LIST'}),
+  addBasket: ()=>dispatch({type:ADD_BASKET}),
+  deleteAPart: (partId :string, basketId :string) => dispatch({type:'DELETE_A_PART_IN_BASKET', data:{partId, basketId}}),
+  deleteBasket: (id:string) => dispatch({type:DELETE_BASKET, data: id}),
+  getBasket: (basketId:string) => dispatch({type:'GET_CURRENT_BASKET', data:basketId}),
+  getBasketList:() => dispatch({type:GET_BASKET_LIST}),
   submitDefaultBasket:(basketId:string) => dispatch({type:'SUBMIT_DEFAULT_BASKET', data:basketId}),
   setABasketName:(basketId:string, basketName :string) => dispatch(ActionSetABasketName(basketId, basketName)),
   submitABasketName:(basketId:string, basketName :string) => dispatch({type:'SUBMIT_A_BASKET_NAME', data:{basketId, basketName}}),
-  getBasket: (basketId:string) => dispatch({type:'GET_CURRENT_BASKET', data:basketId}),
-  deleteAPart: (partId :string, basketId :string) => dispatch({type:'DELETE_A_PART_IN_BASKET', data:{partId, basketId}}),
-  addBasket: ()=>dispatch({type:ADD_BASKET}),
+  
+  
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(BasketList))

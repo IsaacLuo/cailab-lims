@@ -1,4 +1,6 @@
 export const ADD_BASKET = 'ADD_BASKET';
+export const GET_BASKET_LIST = 'GET_BASKET_LIST';
+export const DELETE_BASKET = 'DELETE_BASKET';
 
 export const SET_BASKET_LIST = 'SET_BASKET_LIST';
 export const SET_DEFAULT_BASKET = 'SET_DEFAULT_BASKET';

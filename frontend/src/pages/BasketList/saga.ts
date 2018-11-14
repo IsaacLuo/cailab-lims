@@ -1,10 +1,10 @@
-import {IAction, IStoreState} from 'types'
+import {IAction, IStoreState, IBasketState} from 'types'
 // redux saga
 import { delay} from 'redux-saga';
 import {call, all, fork, put, take, select, takeLatest} from 'redux-saga/effects'
 // redux actions
 import {
-  ActionSetABasketName, ADD_BASKET, SET_BASKET_LIST, SET_DEFAULT_BASKET,
+  ActionSetABasketName, ADD_BASKET, SET_BASKET_LIST, SET_DEFAULT_BASKET, DELETE_BASKET, GET_BASKET_LIST,
 } from './actions'
 
 
@@ -105,6 +105,17 @@ function* addBasket(action:IAction) {
   }
 }
 
+function* deleteBasket(action:IAction) {
+  const basketId:string = action.data;
+  try {
+    const res = yield call(axios.delete, serverURL+`/api/picklist/${basketId}`, getAuthHeader());
+    yield put({type:GET_BASKET_LIST});
+  } catch (err) {
+    console.error(err);
+    Notification.error('failed to create a basket');
+  }
+}
+
 export default function* watchBasket() {
   yield takeLatest('GET_BASKET_LIST', getBasketList);
   yield takeLatest('SUBMIT_DEFAULT_BASKET', submitDefaultBasket);
@@ -114,4 +125,5 @@ export default function* watchBasket() {
   yield takeLatest('DELETE_PART_FROM_BASKET', deletePartFromBasket);
   yield takeLatest('CLEAR_BASKET', clearBasket);
   yield takeLatest(ADD_BASKET, addBasket);
+  yield takeLatest(DELETE_BASKET, deleteBasket);
 }

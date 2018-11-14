@@ -65,7 +65,6 @@ export default function handlePickList(app:Express) {
         res.status(404).json({message:err.message});
       }
     }
-    
   });
 
   /**
@@ -74,12 +73,23 @@ export default function handlePickList(app:Express) {
   app.get('/api/pickLists/', userCanUseScanner, async (req :Request, res: Response) => {
     const userId = req.currentUser.id;
     try {
-      const user = await User.findOne({_id:userId})
-      const defaultBasket = user.defaultBasket
-      const pickList = await PersonalPickList.find({userId:ObjectId(userId)}, '_id createdAt updatedAt partsCount name')
-      // console.log(user.defaultBasket)
-      // console.log(pickList)
-      res.json({defaultBasket, pickList});
+      const pickList = await PersonalPickList.find({userId:ObjectId(userId)}, '_id createdAt updatedAt partsCount name').exec();
+      // if the user does not have a picklist, generate a default one.
+      if (pickList.length === 0) {
+        const newPickList = new PersonalPickList({
+        userId,
+        createdAt: new Date(),
+        parts: [],
+        name: 'default',
+        });
+        pickList.push(await newPickList.save());
+      }
+      const user = await User.findOne({_id:userId});
+      if (!user.defaultBasket || !pickList.find(v=>v._id === user.defaultBasket)) {
+        user.defaultBasket = pickList[0]._id;
+        user.save();
+      }
+      res.json({defaultBasket:user.defaultBasket, pickList});
     } catch (err) {
       res.status(404).json({message:err.message});
     }
@@ -92,6 +102,7 @@ export default function handlePickList(app:Express) {
   app.delete('/api/pickList/:id', userMustLoggedIn, async (req :Request, res: Response) => {
     const _id = req.params.id;
     const parts = await PersonalPickList.deleteMany({_id,}).exec();
+    res.json(parts);
   });
 
   /**
