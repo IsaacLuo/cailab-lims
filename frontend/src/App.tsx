@@ -31,21 +31,20 @@ i18n.use(locale);
 
 // react redux router
 import {Route} from 'react-router'
-import { IStoreState } from './store'
+import { IStoreState } from './types'
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 
 // components
-import Users from './Users'
-import NavBar from './NavBar'
-import LoginDialog from './LoginDialog'
-import StatisticPanel from './StatisticPanel';
-import PartsList from './PartsList';
-import UploadParts from './UploadParts';
-import DeletionRequestsList from 'DeletionRequestsList';
-import Dashboard from 'Dashboard';
-import BasketList from 'BasketList';
+import Users from 'components/Users'
+import NavBar from 'components/NavBar'
+import LoginDialog from './components/LoginDialog'
+import PartsList from 'pages/PartsList';
+import UploadParts from 'pages/UploadParts';
+import DeletionRequestsList from 'pages/DeletionRequestsList';
+import Dashboard from 'pages/Dashboard';
+import BasketList from 'pages/BasketList';
 
 interface IProps {
   initializing: boolean,
@@ -111,8 +110,8 @@ class App extends React.Component<IProps, any> {
 
 
 const mapStateToProps = (state :IStoreState) => ({
-  loggedIn: state.loggedIn,
-  initializing: state.initializing,
+  loggedIn: state.user.loggedIn,
+  initializing: state.app.initializing,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({

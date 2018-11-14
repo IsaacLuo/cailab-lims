@@ -1,20 +1,23 @@
 
+// types..
+import { IStoreState } from '../../types';
 
+// react
 import * as React from 'react'
 
 // react-router-redux
-import { IStoreState } from './store';
 import { withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
-import {
-} from './actions'
-import ErrorBoundary from 'ErrorBoundary';
+
+// tools
 import Axios from 'axios';
 import { serverURL } from 'config';
 import getAuthHeader from 'authHeader';
-
 import {Notification} from 'element-react'
+
+// components
+import ErrorBoundary from '../ErrorBoundary';
 
 export interface IProps {
 }

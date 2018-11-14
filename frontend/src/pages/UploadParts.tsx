@@ -1,3 +1,4 @@
+import {IColumn, IAttachment, IStoreState} from 'types'
 import * as React from 'react'
 import { Input, Loading, DatePicker, Tag, Button, Notification } from 'element-react'
 import Dropzone from 'react-dropzone'
@@ -7,20 +8,20 @@ import {Table} from 'element-react'
 // router 
 import { Link } from 'react-router-dom'
 // redux
-import { IStoreState } from './store'
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { ActionSetUploadPartsDialogVisible, ActionClearLoginInformation } from './actions'
+import { ActionSetUploadPartsDialogVisible} from 'actions/appActions'
+import { ActionClearLoginInformation } from 'actions/userActions'
 
 // helpers
-import { serverURL } from './config'
-import getAuthHeader from './authHeader'
+import { serverURL } from '../config'
+import getAuthHeader from '../authHeader'
 import * as xlsx from 'xlsx'
-import {readFileAsBuffer,readFileAsDataURL, PartFormReader} from './tools'
-import {IColumn, IAttachment} from './types'
+import {readFileAsBuffer,readFileAsDataURL, PartFormReader} from '../tools'
+
 import axios from 'axios';
-import NewPartDialog from './NewPartDialog';
+// import NewPartDialog from 'components/NewPartDialog';
 
 const MyPanel = styled.div`
   display:flex;

@@ -1,5 +1,72 @@
 import {History, Location} from 'history' 
 
+// interface of all actions
+export interface IAction {
+  type: string,
+  data: any,
+}
+
+
+interface IPartsCount {
+  bacteria: number,
+  primers: number,
+  yeasts: number,
+}
+
+export interface IBasket {
+  _id: string, 
+  createAt: Date,
+  updatedAt: Date,
+  partsCount: number,
+  name: string,
+  parts: any[],
+}
+
+export interface IUserState {
+  // ===user state controls===
+  loggedIn: boolean,
+  userId: string,
+  fullName: string,
+  profilePicture?: string,
+  groups: string[],
+}
+
+export interface IAppState {
+  // the app is initializing(fetching data from server first time)
+  initializing: boolean,
+  // ===dialogs visible controls===
+  loginDialogVisible: boolean,
+  newPartDialogVisible: boolean,
+  editPartDialogVisible: boolean,
+  // all user names, used in user filter combo box
+  allUsers: IUserInfo[],
+}
+
+export interface IPartListState {
+  currentBasket?: IBasket,
+}
+
+export interface IBasketState {
+  currentBasket?: IBasket,
+  basketList: IBasket[],
+  defaultBasketId:string,
+}
+
+export interface IStoreState {
+
+  app: IAppState,
+  user: IUserState,
+  partList: IPartListState,
+  basket: IBasketState,
+
+  // parts information
+  partsCount: IPartsCount,
+
+  // edit dialog information  
+  editPartDialogPartId: string,
+
+}
+
 export interface IUserInfo {
   id: string,
   name: string,

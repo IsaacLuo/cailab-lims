@@ -1,16 +1,18 @@
+import { IStoreState } from 'types';
+
 import * as React from 'react'
 
-
-
 // react-router-redux
-import { IStoreState } from './store';
 import { withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import {
   ActionLoginDialogVisible,
+} from 'actions/appActions'
+
+import {
   ActionClearLoginInformation,
-} from './actions'
+} from 'actions/userActions'
 
 import {Menu} from 'element-react'
 
@@ -61,7 +63,7 @@ class NavBar extends React.Component<INavBarProps, any> {
           </Menu.Item></Link>
           }
         </Menu.SubMenu> :
-        <Menu.Item index="login">log in</Menu.Item>
+        <Menu.Item index="login">log in.</Menu.Item>
         }
         </Menu>
       </div>
@@ -83,9 +85,9 @@ class NavBar extends React.Component<INavBarProps, any> {
 }
 
 const mapStateToProps = (state :IStoreState) => ({
-  loggedIn: state.loggedIn,
-  username: state.fullName,
-  groups: state.groups,
+  loggedIn: state.user.loggedIn,
+  username: state.user.fullName,
+  groups: state.user.groups,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({

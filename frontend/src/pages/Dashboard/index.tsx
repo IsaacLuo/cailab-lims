@@ -1,18 +1,11 @@
-// component for testing, should be removed for production
-
 import * as React from 'react'
 
-// react-router-redux
-import { IStoreState } from './store';
-import { withRouter } from 'react-router-dom'
-import { connect } from 'react-redux'
-import { Dispatch } from 'redux'
-
-import { Button } from 'element-react'
 import Axios from 'axios';
-import { serverURL } from './config';
-import getAuthHeader from './authHeader';
-import StatisticPanel from 'StatisticPanel';
+import { serverURL } from '../../config';
+import getAuthHeader from '../../authHeader';
+
+// components
+import StatisticPanel from 'components/StatisticPanel';
 
 interface IProps {
   dispatchGetMyStatus: ()=>void,
