@@ -11,7 +11,7 @@ const DEFAULT_STATE:IPartListState = {
   currentBasket: undefined,
 }
 
-function basketReducer(state :IPartListState = DEFAULT_STATE, action: IAction) {
+function partListReducer(state :IPartListState = DEFAULT_STATE, action: IAction) {
   switch(action.type){
     case SET_CURRENT_BASKET:
       return {
@@ -22,4 +22,4 @@ function basketReducer(state :IPartListState = DEFAULT_STATE, action: IAction) {
   return state;
 }
 
-export default basketReducer;
+export default partListReducer;

@@ -1,41 +1,55 @@
+/**
+ * partList
+ */
+
+// types
+import {
+  IStoreState,
+  IBasket,
+  IReactRouterProps,
+  IUserInfo,
+  IColumn,
+  IPartListRowData,
+} from 'types'
+
+// react
 import * as React from 'react'
 import axios from 'axios'
 import qs from 'qs'
 
-// components
-import { Pagination, Icon, Loading, Select, Button, Notification, MessageBox, Message } from 'element-react'
-import NewPartDialog from '../../components/NewPartDialog'
-import ErrorBoundary from '../../components/ErrorBoundary'
-import EditPartDialog from '../../components/EditPartDialog';
-import {Table, Checkbox, Badge} from 'element-react'
-
-
 // redux
-import { IStoreState, IBasket } from '../../types'
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-
 import {
   ActionSetNewPartDialogVisible,
   ActionSetEditPartDialogVisible,
-} from '../../actions/appActions'
-
+} from 'actions/appActions'
+import { GET_DEFAULT_BASKET } from './actions';
 
 // react-router
 import {Redirect} from 'react-router'
 import {Link} from 'react-router-dom'
-import {IReactRouterProps} from '../../types'
 
 // helpers
-import { serverURL } from '../../config'
-import getAuthHeader from '../../authHeader'
-import {fileSizeHumanReadable, toPlural} from '../../tools'
-import {IUserInfo, IColumn, IPartListRowData} from '../../types'
+import { serverURL } from 'config'
+import getAuthHeader from 'authHeader'
+import {fileSizeHumanReadable, toPlural} from 'tools'
+
+// components
+import {
+  Pagination,
+  Loading,
+  Select,
+  Button,
+  MessageBox,
+  Message,
+  Table,
+} from 'element-react'
 import styled from 'styled-components'
-import { number } from 'prop-types';
-import { GET_BASKET } from 'pages/BasketList/actions';
-import { GET_DEFAULT_BASKET } from './actions';
+import ErrorBoundary from 'components/ErrorBoundary'
+import EditPartDialog from 'components/EditPartDialog';
+
 
 const MyClickableIcon = styled(Button)`
   &+&{
@@ -842,6 +856,7 @@ const mapStateToProps = (state :IStoreState) => ({
   loggedIn: state.user.loggedIn,
   userId: state.user.userId,
   editPartDialogVisible: state.app.editPartDialogVisible,
+  defaultBasket: state.partList.currentBasket,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
