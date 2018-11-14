@@ -8,7 +8,6 @@ import {
   ActionInitizeDone,
   ActionSetPartsCount,
   ActionSetAllUserNames,
-  ActionSetABasketName,
 } from './actions/appActions'
 
 import {
@@ -24,6 +23,9 @@ import {Notification} from 'element-react'
 // helpers
 import {serverURL} from './config'
 import getAuthHeader from './authHeader'
+
+// other saga
+import watchBasket from 'pages/BasketList/saga'
 
 // get current user's status from the server, and ask again in 60 seconds
 export function* getMyStatus() {
@@ -202,97 +204,15 @@ function* addPartsToBasket(action:IAction) {
   }
 }
 
-function* getBasket(action:IAction) {
-  const basketId = action.data;
-  try {
-    const res = yield call(axios.get, serverURL+`/api/picklist/${basketId}`, getAuthHeader());
-    // console.log(res.data)
-    yield put({type:'SET_CURRENT_BASKET', data:res.data});
-  } catch (err) {
-    Notification.error('failed read basket');
-  }
-}
 
-function* deletePartFromBasket(action:IAction) {
-  const {basketId, partId} = action.data;
-  try {
-    const res = yield call(axios.delete, serverURL+`/api/picklist/${basketId}/items/${partId}`, getAuthHeader());
-    yield put({type:'SET_CURRENT_BASKET', data:res.data});
-  } catch (err) {
-    Notification.error('failed read basket');
-  }
-}
-
-function* clearBasket(action:IAction) {
-  const basketId = action.data;
-    try {
-    const res = yield call(axios.delete, serverURL+`/api/picklist/${basketId}/items/`, getAuthHeader());
-    yield put({type:'SET_CURRENT_BASKET', data:res.data});
-  } catch (err) {
-    Notification.error('failed read basket');
-  }
-}
-
-function* getBasketList(action:IAction) {
-  try {
-    const res = yield call(axios.get, serverURL+'/api/pickLists/', getAuthHeader());
-    yield put({type:'SET_BASKET_LIST', data:res.data.pickList.map(v=>({...v, parts:[]})) });
-    yield put({type:'SET_DEFAULT_BASKET', data:res.data.defaultBasket})
-  } catch (err) {
-    Notification.error('failed load basket list');
-  }
-}
-
-function* submitDefaultBasket(action:IAction) {
-  const basketId = action.data;
-  // console.log(basketId)
-  try{
-    yield put({type:'SET_DEFAULT_BASKET', data:action.data});
-    // 再请求再调一次
-    const res = yield call(axios.put, serverURL+'/api/defaultBasket',{basketId}, getAuthHeader());
-    if (res.data.basketId !== basketId) {
-      yield put({type:'SET_DEFAULT_BASKET', data:res.data.basketId});
-    }
-  } catch (err) {
-    Notification.error('failed set default basket');
-  }
-}
-
-function* submitABasketname(action:IAction) {
-  const basketName = action.data.basketName;
-  const basketId = action.data.basketId;
-  try {
-    yield put(ActionSetABasketName(basketId, basketName));
-    const res = yield call(axios.post, serverURL+`/api/picklist/${basketId}/basketName`, {basketName}, getAuthHeader());
-    if (res.data.basketName !== basketName) {
-      yield put(ActionSetABasketName(basketId, res.data.basketName));
-    }
-  } catch (err) {
-    Notification.error('failed change basket name');
-  }
-}
-
-function* deleteAPartInBasket(action:IAction) {
-  const basketId = action.data.basketId;
-  const partId = action.data.partId;
-}
 
 export function* watchParts() {
   yield takeLatest('GET_PARTS_COUNT', getPartsCount);
   yield takeLatest('GET_PARTS', getParts);
   yield takeLatest('ADD_PARTS_TO_BASKET', addPartsToBasket);
-  
-  yield takeLatest('DELETE_PART_FROM_BASKET', deletePartFromBasket);
-  yield takeLatest('CLEAR_BASKET', clearBasket);
 }
 
-export function* watchBasket() {
-  yield takeLatest('GET_BASKET_LIST', getBasketList);
-  yield takeLatest('SUBMIT_DEFAULT_BASKET', submitDefaultBasket);
-  yield takeLatest('SUBMIT_A_BASKET_NAME', submitABasketname);
-  yield takeLatest('GET_CURRENT_BASKET', getBasket);
-  yield takeLatest('DELETE_A_PART_IN_BASKET', deleteAPartInBasket);
-}
+
 
 export default function* rootSaga() {
   yield all([

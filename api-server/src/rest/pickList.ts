@@ -185,4 +185,31 @@ export default function handlePickList(app:Express) {
       res.status(404).json({message:err.message});
     }
   });
+
+  /**
+   * create a new basket with name
+   */
+  app.put('/api/pickList/:name', userMustLoggedIn, async (req :Request, res: Response) => {
+    const userId = req.currentUser.id;
+    const pickListName = req.params.name;
+    let pickList;
+    const now = new Date();  
+    pickList = await PersonalPickList.findOne({name: pickListName}).exec();
+    if (!pickList) {
+      pickList = new PersonalPickList({
+        name: pickListName,
+        userId,
+        createdAt: now,
+        updatedAt: now,
+        parts: [],
+        partsCount: 0,
+      });
+    await pickList.save();
+    res.json(pickList);
+    } else {
+      res.status(406).json({message:'wrong part ids'});
+      return;
+    }
+  });
+
 }

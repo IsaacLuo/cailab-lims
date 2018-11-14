@@ -1,4 +1,7 @@
-import {IStoreState, IBasket} from 'types'
+import {
+  IStoreState,
+  IBasket,
+} from 'types'
 
 import * as React from 'react'
 // react-router-redux
@@ -7,7 +10,8 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import {
   ActionSetABasketName,
-} from 'actions/appActions'
+  ADD_BASKET,
+} from './actions'
 
 import {Button, Radio, Table, Input, Notification, Tag} from 'element-react'
 import styled from 'styled-components'
@@ -21,7 +25,8 @@ export interface IProps {
   setABasketName:(basketId:string, basketName :string) => void,
   submitABasketName:(basketId:string, basketName :string) => void,
   getBasket: (basketId:string)=>void,
-  deleteAPart: (partId :string, basketId :string) => void  
+  deleteAPart: (partId :string, basketId :string) => void  ,
+  addBasket: () => void,
 }
 
 interface IState {
@@ -148,7 +153,7 @@ class BasketList extends React.Component<IProps, IState> {
       <div>
         <p>you have {length} {expr}.</p>
         
-        <Button>Add Basket</Button>
+        <Button onClick={this.onAddBasket}>Add Basket</Button>
 
         {length > 0 && 
           <Table 
@@ -237,6 +242,10 @@ class BasketList extends React.Component<IProps, IState> {
     console.log(tag)
   }
 
+  private onAddBasket = () => {
+    this.props.addBasket();
+  }
+
 }
 
 const mapStateToProps = (state :IStoreState) => ({
@@ -251,7 +260,8 @@ const mapDispatchToProps = (dispatch :Dispatch) => ({
   setABasketName:(basketId:string, basketName :string) => dispatch(ActionSetABasketName(basketId, basketName)),
   submitABasketName:(basketId:string, basketName :string) => dispatch({type:'SUBMIT_A_BASKET_NAME', data:{basketId, basketName}}),
   getBasket: (basketId:string) => dispatch({type:'GET_CURRENT_BASKET', data:basketId}),
-  deleteAPart: (partId :string, basketId :string) => dispatch({type:'DELETE_A_PART_IN_BASKET', data:{partId, basketId}})
+  deleteAPart: (partId :string, basketId :string) => dispatch({type:'DELETE_A_PART_IN_BASKET', data:{partId, basketId}}),
+  addBasket: ()=>dispatch({type:ADD_BASKET}),
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(BasketList))
