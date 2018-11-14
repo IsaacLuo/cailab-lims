@@ -42,8 +42,8 @@ export interface IAppState {
   allUsers: IUserInfo[],
 }
 
-export interface IPartsState {
-
+export interface IPartListState {
+  currentBasket?: IBasket,
 }
 
 export interface IBasketState {
@@ -56,6 +56,7 @@ export interface IStoreState {
 
   app: IAppState,
   user: IUserState,
+  partList: IPartListState,
   basket: IBasketState,
 
   // parts information

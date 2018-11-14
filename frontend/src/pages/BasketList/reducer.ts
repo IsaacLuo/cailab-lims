@@ -5,7 +5,7 @@ import {
 
 import {
   SET_BASKET_LIST,
-  SET_DEFAULT_BASKET,
+  SET_DEFAULT_BASKET_ID,
   FILL_PARTS_INTO_BASKET_LIST,
   SET_A_BASKET_NAME,
 } from './actions'
@@ -23,7 +23,7 @@ function basketReducer(state :IBasketState = DEFAULT_STATE, action: IAction) {
         basketList: action.data,
       }
 
-    case SET_DEFAULT_BASKET:
+    case SET_DEFAULT_BASKET_ID:
       return {
         ...state,
         defaultBasketId: action.data,
@@ -32,7 +32,8 @@ function basketReducer(state :IBasketState = DEFAULT_STATE, action: IAction) {
     case FILL_PARTS_INTO_BASKET_LIST:
       const basket = state.basketList.find(v=>v._id===action.data._id)
       if (basket !== undefined) {
-        basket.parts = action.data.parts
+        basket.parts = action.data.parts;
+        basket.partsCount = action.data.parts.length;
       }
       return {
         ...state,

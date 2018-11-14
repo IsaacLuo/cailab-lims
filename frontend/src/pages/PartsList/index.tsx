@@ -11,7 +11,7 @@ import {Table, Checkbox, Badge} from 'element-react'
 
 
 // redux
-import { IStoreState } from '../../types'
+import { IStoreState, IBasket } from '../../types'
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
@@ -20,6 +20,7 @@ import {
   ActionSetNewPartDialogVisible,
   ActionSetEditPartDialogVisible,
 } from '../../actions/appActions'
+
 
 // react-router
 import {Redirect} from 'react-router'
@@ -33,6 +34,8 @@ import {fileSizeHumanReadable, toPlural} from '../../tools'
 import {IUserInfo, IColumn, IPartListRowData} from '../../types'
 import styled from 'styled-components'
 import { number } from 'prop-types';
+import { GET_BASKET } from 'pages/BasketList/actions';
+import { GET_DEFAULT_BASKET } from './actions';
 
 const MyClickableIcon = styled(Button)`
   &+&{
@@ -61,11 +64,12 @@ interface IProps extends IReactRouterProps {
   userId: string,
   editPartDialogVisible: boolean,
   basketCount: number,
+  defaultBasket: IBasket,
   getUserList: () => void,
   setNewPartDialogVisible: (visible: boolean) => void,
   setEditPartDialogVisible: (visible: boolean, partId: string) => void,
   addPartToBasket: (ids: string[]) => void,
-  getBasketSize: () => void,
+  getBasket: () => void,
 }
 
 interface IState {
@@ -108,7 +112,7 @@ class PartsList extends React.Component<IProps, IState> {
   }
 
   public componentDidMount() {
-    this.props.getBasketSize();
+    this.props.getBasket();
   }
 
   public componentWillReceiveProps(nextProps:IProps) {
@@ -119,7 +123,10 @@ class PartsList extends React.Component<IProps, IState> {
   }
   
   public render() {
-    const {loggedIn, allUsers, editPartDialogVisible, basketCount} = this.props;
+    const {loggedIn, allUsers, editPartDialogVisible, defaultBasket} = this.props;
+    
+    const basketCount = defaultBasket ? defaultBasket.partsCount : undefined;
+    
     const {skip, limit, total, loading, userFilter} = this.state;
     if (!loggedIn) {
       console.log('not logged in, why?', this.props, this.state);
@@ -842,7 +849,7 @@ const mapDispatchToProps = (dispatch :Dispatch) => ({
   setNewPartDialogVisible: visible => dispatch(ActionSetNewPartDialogVisible(visible)),
   setEditPartDialogVisible: (visible, partId) => dispatch(ActionSetEditPartDialogVisible(visible, partId)),
   getParts: data => dispatch({type:'GET_PARTS', data}),
-  getBasketSize: () => dispatch({type:'GET_CURRENT_BASKET'}),
+  getBasket: () => dispatch({type:GET_DEFAULT_BASKET}),
   addPartToBasket: data => dispatch ({type:'ADD_PARTS_TO_BASKET', data}),
 })
 

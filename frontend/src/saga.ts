@@ -26,6 +26,7 @@ import getAuthHeader from './authHeader'
 
 // other saga
 import watchBasket from 'pages/BasketList/saga'
+import watchPartList from 'pages/PartsList/saga'
 
 // get current user's status from the server, and ask again in 60 seconds
 export function* getMyStatus() {
@@ -219,5 +220,6 @@ export default function* rootSaga() {
     fork(watchMyInformation),
     fork(watchParts),
     fork(watchBasket),
+    fork(watchPartList),
   ]);
 }

@@ -13,6 +13,8 @@ import {
   ADD_BASKET,
   DELETE_BASKET,
   GET_BASKET_LIST,
+  GET_BASKET,
+  DELETE_PART_FROM_BASKET,
 } from './actions'
 
 import {Button, Radio, Table, Input, Notification, Tag} from 'element-react'
@@ -86,7 +88,7 @@ class BasketList extends React.Component<IProps, IState> {
                       type = 'gray'
                       hit = {true}
                       closeTransition = {false}
-                      onClose = {this.closeTag.bind(this, v)}
+                      onClose = {this.closeTag.bind(this, data._id, v._id)}
                     >{v.personalName}</Tag>)
                   )
                 }
@@ -241,8 +243,8 @@ class BasketList extends React.Component<IProps, IState> {
     }
   }
 
-  private closeTag = (tag: any) => {
-    console.log(tag)
+  private closeTag = (basketId:string, partId:string) => {
+    this.props.deleteAPart(partId, basketId);
   }
 
   private onAddBasket = () => {
@@ -259,15 +261,13 @@ const mapStateToProps = (state :IStoreState) => ({
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   addBasket: ()=>dispatch({type:ADD_BASKET}),
-  deleteAPart: (partId :string, basketId :string) => dispatch({type:'DELETE_A_PART_IN_BASKET', data:{partId, basketId}}),
+  deleteAPart: (partId :string, basketId :string) => dispatch({type:DELETE_PART_FROM_BASKET, data:{partId, basketId}}),
   deleteBasket: (id:string) => dispatch({type:DELETE_BASKET, data: id}),
-  getBasket: (basketId:string) => dispatch({type:'GET_CURRENT_BASKET', data:basketId}),
+  getBasket: (basketId:string) => dispatch({type:GET_BASKET, data:basketId}),
   getBasketList:() => dispatch({type:GET_BASKET_LIST}),
   submitDefaultBasket:(basketId:string) => dispatch({type:'SUBMIT_DEFAULT_BASKET', data:basketId}),
   setABasketName:(basketId:string, basketName :string) => dispatch(ActionSetABasketName(basketId, basketName)),
   submitABasketName:(basketId:string, basketName :string) => dispatch({type:'SUBMIT_A_BASKET_NAME', data:{basketId, basketName}}),
-  
-  
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(BasketList))

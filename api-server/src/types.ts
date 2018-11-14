@@ -82,3 +82,19 @@ export interface IPartForm {
   attachments?: IPartFormAttachment[],
   customData?: any,
 }
+
+export interface IUser {
+  _id: any,
+  email: string,
+  authType: string, // 'logal' or 'google'
+  name: string, // user's full name
+  abbr: string, // user's initial letters of full name
+  groups: string[], // array of group name, 'guest', 'users', 'visitors', or 'administrators'
+  createdAt: Date,
+  updatedAt: Date,
+  barcode: string,
+  defaultBasket: string,
+  dbV1?:any,
+  passwordHash?: string, // empty if user signed up using google account
+  passwordSalt?: string, // empty if user signed up using google account
+}
