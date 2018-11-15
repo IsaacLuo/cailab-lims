@@ -19,7 +19,7 @@ export const UserSchema = new Schema({
   createdAt: Date,
   updatedAt: Date,
   barcode: String,
-  defaultBasket: String,
+  defaultPickListId: String,
 });
 
 export const User = mongoose.model('User', UserSchema);

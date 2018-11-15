@@ -13,6 +13,10 @@ import {
   FILL_PARTS_INTO_BASKET_LIST,
   GET_BASKET,
   DELETE_PART_FROM_BASKET,
+  SET_CURRENT_BASKET,
+  SUBMIT_DEFAULT_BASKET_ID,
+  SUBMIT_A_BASKET_NAME,
+  CLEAR_BASKET,
 } from './actions'
 
 
@@ -50,7 +54,7 @@ function* clearBasket(action:IAction) {
   const basketId = action.data;
     try {
     const res = yield call(axios.delete, serverURL+`/api/picklist/${basketId}/items/`, getAuthHeader());
-    yield put({type:'SET_CURRENT_BASKET', data:res.data});
+    yield put({type:SET_CURRENT_BASKET, data:res.data});
   } catch (err) {
     Notification.error('failed read basket');
   }
@@ -59,22 +63,20 @@ function* clearBasket(action:IAction) {
 function* getBasketList(action:IAction) {
   try {
     const res = yield call(axios.get, serverURL+'/api/pickLists/', getAuthHeader());
-    yield put({type:'SET_BASKET_LIST', data:res.data.pickList.map(v=>({...v, parts:[]})) });
-    yield put({type:'SET_DEFAULT_BASKET_ID', data:res.data.defaultBasket})
+    yield put({type:SET_BASKET_LIST, data:res.data.pickLists.map(v=>({...v, parts:[]})) });
+    yield put({type:SET_DEFAULT_BASKET_ID, data:res.data.defaultPickListId})
   } catch (err) {
     Notification.error('failed load basket list');
   }
 }
 
-function* submitDefaultBasket(action:IAction) {
+function* submitDefaultBasketId(action:IAction) {
   const basketId = action.data;
-  // console.log(basketId)
   try{
-    yield put({type:'SET_DEFAULT_BASKET_ID', data:action.data});
-    // 再请求再调一次
-    const res = yield call(axios.put, serverURL+'/api/defaultBasket',{basketId}, getAuthHeader());
-    if (res.data.basketId !== basketId) {
-      yield put({type:'SET_DEFAULT_BASKET_ID', data:res.data.basketId});
+    yield put({type:SET_DEFAULT_BASKET_ID, data:action.data});
+    const res = yield call(axios.put, serverURL+'/api/defaultPickListId',{pickListId:basketId}, getAuthHeader());
+    if (res.data.pickListId !== basketId) {
+      yield put({type:SET_DEFAULT_BASKET_ID, data:res.data.basketId});
     }
   } catch (err) {
     Notification.error('failed set default basket');
@@ -86,8 +88,8 @@ function* submitABasketname(action:IAction) {
   const basketId = action.data.basketId;
   try {
     yield put(ActionSetABasketName(basketId, basketName));
-    const res = yield call(axios.post, serverURL+`/api/picklist/${basketId}/basketName`, {basketName}, getAuthHeader());
-    if (res.data.basketName !== basketName) {
+    const res = yield call(axios.post, serverURL+`/api/picklist/${basketId}/name`, {name:basketName}, getAuthHeader());
+    if (res.data.pickListName !== basketName) {
       yield put(ActionSetABasketName(basketId, res.data.basketName));
     }
   } catch (err) {
@@ -124,13 +126,13 @@ function* deleteBasket(action:IAction) {
 }
 
 export default function* watchBasket() {
-  yield takeLatest('GET_BASKET_LIST', getBasketList);
-  yield takeLatest('SUBMIT_DEFAULT_BASKET', submitDefaultBasket);
-  yield takeLatest('SUBMIT_A_BASKET_NAME', submitABasketname);
+  yield takeLatest(GET_BASKET_LIST, getBasketList);
+  yield takeLatest(SUBMIT_DEFAULT_BASKET_ID, submitDefaultBasketId);
+  yield takeLatest(SUBMIT_A_BASKET_NAME, submitABasketname);
   yield takeLatest(GET_BASKET, getBasket);
 
   yield takeLatest(DELETE_PART_FROM_BASKET, deletePartFromBasket);
-  yield takeLatest('CLEAR_BASKET', clearBasket);
+  yield takeLatest(CLEAR_BASKET, clearBasket);
   yield takeLatest(ADD_BASKET, addBasket);
   yield takeLatest(DELETE_BASKET, deleteBasket);
 }

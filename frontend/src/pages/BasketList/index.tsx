@@ -15,6 +15,8 @@ import {
   GET_BASKET_LIST,
   GET_BASKET,
   DELETE_PART_FROM_BASKET,
+  SUBMIT_DEFAULT_BASKET_ID,
+  SUBMIT_A_BASKET_NAME,
 } from './actions'
 
 import {Button, Radio, Table, Input, Notification, Tag} from 'element-react'
@@ -25,7 +27,7 @@ export interface IProps {
   defaultBasketId:string,
   currentBasket:IBasket,
   getBasketList: ()=>void,
-  submitDefaultBasket:(basketId :string)=>void,
+  submitDefaultBasketId:(basketId :string)=>void,
   setABasketName:(basketId:string, basketName :string) => void,
   submitABasketName:(basketId:string, basketName :string) => void,
   getBasket: (basketId:string)=>void,
@@ -174,7 +176,7 @@ class BasketList extends React.Component<IProps, IState> {
   }
 
   private changeRadio = (id:string)=>{
-    this.props.submitDefaultBasket(id);
+    this.props.submitDefaultBasketId(id);
   }
 
   private editBasketName = (index: number) => {
@@ -265,9 +267,9 @@ const mapDispatchToProps = (dispatch :Dispatch) => ({
   deleteBasket: (id:string) => dispatch({type:DELETE_BASKET, data: id}),
   getBasket: (basketId:string) => dispatch({type:GET_BASKET, data:basketId}),
   getBasketList:() => dispatch({type:GET_BASKET_LIST}),
-  submitDefaultBasket:(basketId:string) => dispatch({type:'SUBMIT_DEFAULT_BASKET', data:basketId}),
+  submitDefaultBasketId:(basketId:string) => dispatch({type:SUBMIT_DEFAULT_BASKET_ID, data:basketId}),
   setABasketName:(basketId:string, basketName :string) => dispatch(ActionSetABasketName(basketId, basketName)),
-  submitABasketName:(basketId:string, basketName :string) => dispatch({type:'SUBMIT_A_BASKET_NAME', data:{basketId, basketName}}),
+  submitABasketName:(basketId:string, basketName :string) => dispatch({type:SUBMIT_A_BASKET_NAME, data:{basketId, basketName}}),
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(BasketList))

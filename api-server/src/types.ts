@@ -93,7 +93,7 @@ export interface IUser {
   createdAt: Date,
   updatedAt: Date,
   barcode: string,
-  defaultBasket: string,
+  defaultBasketId: string,
   dbV1?:any,
   passwordHash?: string, // empty if user signed up using google account
   passwordSalt?: string, // empty if user signed up using google account
