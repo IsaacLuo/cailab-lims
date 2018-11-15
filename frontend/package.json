@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@components": "file:./src/components",
     "@types/history": "^4.7.0",
     "@types/react-redux": "^6.0.9",
     "@types/webpack": "^4.4.11",
