@@ -29,6 +29,7 @@ export interface IUserState {
   fullName: string,
   profilePicture?: string,
   groups: string[],
+  barcode: string,
 }
 
 export interface IAppState {

@@ -5,6 +5,7 @@ export interface IUserInfo {
     fullName: string,
     email: string,
     groups: [string],
+    barcode: string,
   }
   export interface IUserJWT extends IUserInfo {
     iat: number,

@@ -19,6 +19,10 @@ export const UserSchema = new Schema({
   createdAt: Date,
   updatedAt: Date,
   barcode: String,
+  loginTags:[{    // tags are NFC, barcode, etc.
+    hash: String,
+    salt: String,
+  }],
   defaultPickListId: String,
 });
 

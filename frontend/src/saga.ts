@@ -27,12 +27,14 @@ import getAuthHeader from './authHeader'
 // other saga
 import watchBasket from 'pages/BasketList/saga'
 import watchPartList from 'pages/PartsList/saga'
+import watchUserBasket from 'components/TokenBarcode/saga'
+import { QUERY_MY_USER_BARCODE } from 'components/TokenBarcode/actions';
 
 // get current user's status from the server, and ask again in 60 seconds
 export function* getMyStatus() {
   try {
     const res = yield call(axios.get,serverURL+'/api/currentUser', getAuthHeader());
-    const {id, fullName, groups, token} = res.data;
+    const {id, fullName, groups, token, barcode,} = res.data;
     if (id === 'guest') {
       // force logout if current user becomes a guest
       yield put(ActionClearLoginInformation());
@@ -65,6 +67,7 @@ export function* initialize() {
         localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
       }
       yield put(ActionSetLoginInformation(id, fullName, groups));
+      yield put({type:QUERY_MY_USER_BARCODE});
       // get notifications when initilizing
       yield put({type:'GET_NOTIFICATIONS'});
     }
@@ -221,5 +224,6 @@ export default function* rootSaga() {
     fork(watchParts),
     fork(watchBasket),
     fork(watchPartList),
+    fork(watchUserBasket),
   ]);
 }

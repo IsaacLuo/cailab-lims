@@ -20,7 +20,13 @@ import {
 } from './actions'
 
 import {Button, Radio, Table, Input, Notification, Tag} from 'element-react'
+import TokenBarcode from 'components/TokenBarcode'
 import styled from 'styled-components'
+
+const MyTokenBarcode = styled(TokenBarcode)`
+  width:400px;
+  height:400px;
+`
 
 export interface IProps {
   basketList:IBasket[],
@@ -171,6 +177,8 @@ class BasketList extends React.Component<IProps, IState> {
             expandRowKeys = {this.state.expandRowKeys}
             onExpand = {this.expandRow}
           /> }
+
+          <MyTokenBarcode/>
       </div>
     );
   }

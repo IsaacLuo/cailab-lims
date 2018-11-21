@@ -3,6 +3,7 @@ import {Response, NextFunction} from 'express'
 import verifyGoogleToken from './googleOauth'
 
 import jwt from 'jsonwebtoken'
+import crypto from 'crypto'
 
 import secret from '../secret.json'
 import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, LogLogin, LogOperation} from './models'
@@ -101,6 +102,9 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
       }, 
       secret.jwt.key,
       {expiresIn:'1h'})
+    // generate a new barcode of user
+    user.barcode = crypto.createHash('md5').update(token).digest("hex");
+    user.save();
     // log to database
     LogLogin.create({
       operatorId: id,
@@ -202,6 +206,20 @@ app.get('/api/currentUser', async (req :Request, res: Response) =>
 } else {
   res.json({id:'guest', fullName: 'guest', groups:['guest']})
 }
+});
+
+// get current user barcode
+// response:
+//   {barcode: the barcode token for login}
+app.get('/api/currentUser/barcode', userMustLoggedIn, async (req :Request, res: Response) => 
+{
+  const {id} = req.currentUser;
+  const user = await User.findOne({_id:id}).exec();
+  if (user && user.barcode) {
+    res.json({barcode: user.barcode})
+  } else {
+    res.status(404).json({message: 'no barcode'});
+  }
 });
 
 // ===========================parts======================================
