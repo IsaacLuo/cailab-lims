@@ -14,6 +14,7 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
         groups: ['users'],
         iat: Math.floor(Date.now()),
         exp: Math.floor(Date.now()) + 3600,
+        barcode: '5b718be08274212924fe4a94',
       }
       next();
     } else {
@@ -35,6 +36,7 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
         groups: ['users'],
         iat: Math.floor(Date.now()),
         exp: Math.floor(Date.now()) + 3600,
+        barcode: '5b718be08274212924fe4a94',
       }
     }
     if (req.currentUser && req.currentUser.groups.indexOf('users')>=0) {
@@ -54,6 +56,7 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
         groups: ['scanner'],
         iat: Math.floor(Date.now()),
         exp: Math.floor(Date.now()) + 3600,
+        barcode: '5b718be08274212924fe4a94',
       }
     }
     if (req.currentUser && (req.currentUser.groups.indexOf('scanner')>=0 || req.currentUser.groups.indexOf('users')>=0)) {
