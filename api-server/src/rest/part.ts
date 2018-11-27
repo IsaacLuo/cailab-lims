@@ -1,10 +1,11 @@
 import {Express, Response} from 'express'
 import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn} from '../MyMiddleWare'
+import {userMustLoggedIn, userCanUseScanner} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
 import { IPart, IAttachment, IPartForm } from '../types';
+import { json } from 'body-parser';
 const ObjectId = mongoose.Types.ObjectId;
 
 export default function handlePart(app:Express) {
@@ -377,5 +378,22 @@ export default function handlePart(app:Express) {
       }
     })
   });
+
+  app.put('/api/part/:id/tube/:barcode', userCanUseScanner, async (req :Request, res: Response) => {
+    const {id, barcode} = req.params;
+    const part = await Part.findOne({_id:id}).exec();
+    if (part.container === undefined) {
+      part.container = [];
+    }
+    if (!part.container.find(v=>v.barcode === barcode)) {
+      part.container.push({
+        type: 'tube',
+        barcode,
+        assignedAt: new Date(),
+      });
+      await part.save();
+    }
+    res.json({id:part._id, containers: part.containers});
+  })
 }
 
