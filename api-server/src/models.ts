@@ -72,10 +72,11 @@ export const PartSchema = new Schema({
     fileSize: Number,                // redundant information
     fileId: Schema.Types.ObjectId,   // id in the FileData modal
   }],
-  container: {
+  containers: [{
     type: String,
     barcode: String,
-  },
+    assignedAt: Date,
+  }],
   dbV1:{                             // old id and user id data from the cailab-database-v1, useless in v2
     id: Number,
     userId: Number,
