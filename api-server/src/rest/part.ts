@@ -1,7 +1,7 @@
 import {Express, Response} from 'express'
 import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn} from '../MyMiddleWare'
+import {userMustLoggedIn,userCanUseScanner} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
 import { IPart, IAttachment, IPartForm } from '../types';
@@ -144,7 +144,7 @@ export default function handlePart(app:Express) {
     }
   });
   
-  app.get('/api/part/:id', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.get('/api/part/:id', userCanUseScanner, async (req :Request, res: Response) => {
     const {id} = req.params;
     try {
       let part = await Part.findOne({_id:id}).exec();
