@@ -49,6 +49,11 @@ class NavBar extends React.Component<INavBarProps, any> {
           <Link to="/parts/yeasts/"><Menu.Item index="yeasts">Yeasts</Menu.Item></Link>
         </Menu.SubMenu>
         }
+        { groups.indexOf('users') >=0 &&
+        <Menu.SubMenu index="3" title="Tasks">
+          <Link to="/tasks/assignTubes/"><Menu.Item index="assignTubes">Assign Tubes</Menu.Item></Link>
+        </Menu.SubMenu>
+        }
         {loggedIn ?
         <Menu.SubMenu index="user" title={username}>
           <Menu.Item index="logout">log out</Menu.Item>

@@ -45,6 +45,7 @@ import UploadParts from 'pages/UploadParts';
 import DeletionRequestsList from 'pages/DeletionRequestsList';
 import Dashboard from 'pages/Dashboard';
 import BasketList from 'pages/BasketList';
+import AssignTubes from 'pages/AssignTubes';
 
 interface IProps {
   initializing: boolean,
@@ -92,6 +93,9 @@ class App extends React.Component<IProps, any> {
           <Route path='/parts/bacteria/upload' exact={true} render={this.renderBacteriaUpload} />
           <Route path='/parts/primers/upload' exact={true} render={this.renderPrimersUpload} />
           <Route path='/parts/yeasts/upload' exact={true} render={this.renderYeastsUpload} />
+
+          <Route path='/tasks/assignTubes' exact={true} component={AssignTubes} />
+
           <Route path='/requests/partsDeletion' exact={true} component={DeletionRequestsList} />
           <Route path='/users/' component={Users} />
           <Route path='/myBasket/' component={BasketList} />
