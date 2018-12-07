@@ -4,7 +4,7 @@ import {
 } from 'types'
 
 import {
-  SET_CURRENT_BASKET,
+  // SET_CURRENT_BASKET,
 } from './actions'
 
 const DEFAULT_STATE:IPartListState = {
@@ -13,11 +13,6 @@ const DEFAULT_STATE:IPartListState = {
 
 function partListReducer(state :IPartListState = DEFAULT_STATE, action: IAction) {
   switch(action.type){
-    case SET_CURRENT_BASKET:
-      return {
-        ...state,
-        currentBasket: action.data,
-      }
   }
   return state;
 }
