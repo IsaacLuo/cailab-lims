@@ -112,10 +112,12 @@ export default function handlePickList(app:Express) {
    */
   app.get('/api/pickLists/', userCanUseScanner, async (req :Request, res: Response) => {
     const userId = req.currentUser.id;
+    
     try {
       const pickLists = await PersonalPickList.find({userId:ObjectId(userId)}, '_id createdAt updatedAt partsCount name').exec();
       // if the user does not have a picklist, generate a default one.
       const user = await User.findOne({_id:userId}).exec();
+      console.log(user);
       if (pickLists.length === 0) {
         const newPickList = await getDefaultPicklist(user)
         pickLists.push(newPickList);
@@ -127,6 +129,7 @@ export default function handlePickList(app:Express) {
       }
       res.json({defaultPickListId:user.defaultPickListId, pickLists});
     } catch (err) {
+      console.error(err);
       res.status(404).json({message:err.message});
     }
   });

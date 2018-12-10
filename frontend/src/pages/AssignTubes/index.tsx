@@ -22,9 +22,7 @@ import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 
-import {
-  // GET_DEFAULT_BASKET,
- } from './actions';
+import { GET_BASKET_FULL } from './actions';
 
 // react-router
 import {Redirect} from 'react-router'
@@ -137,9 +135,12 @@ class AssignTubes extends React.Component<IProps, IState> {
   {
     label: "barcodes",
     prop: "barcodes",
-    minWidth: 200,
+    minWidth: 100,
     render: (row, column, index) =>
-      <Input ref={x=>{this.inputRefs[row._id] = x}} onKeyUp={this.onBarcodeInputKeyUp}/>
+      <div>
+        <div>{row.barcodes}</div>
+        <Input ref={x=>{this.inputRefs[index] = x}} onKeyUp={this.onBarcodeInputKeyUp}/>
+      </div>
   },
 ];
 
@@ -155,6 +156,17 @@ class AssignTubes extends React.Component<IProps, IState> {
     this.props.getBasketList();
   }
 
+  public componentDidUpdate() {
+    const {currentBasketIdx, currentBarcodeInputIdx} = this.state;
+    if (currentBasketIdx>=0 && this.props.basketList[currentBasketIdx]) {
+      if (this.inputRefs[currentBarcodeInputIdx]) {
+        console.log(currentBarcodeInputIdx, this.inputRefs[currentBarcodeInputIdx]);
+      this.inputRefs[currentBarcodeInputIdx].focus();
+      }
+      
+    }
+  }
+
   public render() {
     const loading = false;
     const {currentBasketIdx} = this.state;
@@ -167,6 +179,7 @@ class AssignTubes extends React.Component<IProps, IState> {
       stripe={true}
     /> :
     <div>no data</div>
+    
     return (
       <ErrorBoundary>
         <h1>parts</h1>
@@ -187,6 +200,7 @@ class AssignTubes extends React.Component<IProps, IState> {
       </ErrorBoundary>
     )
   }
+
   private onChangeBasket = (basketId: string) => {
     // this.props.onChangeBasket(basketId);
     if(basketId !== '') {
@@ -201,7 +215,15 @@ class AssignTubes extends React.Component<IProps, IState> {
 
   private onBarcodeInputKeyUp = (key) => {
     if (key.keyCode === 13) {
-      console.log(key.target);
+      const {currentBarcodeInputIdx} = this.state;
+      const currentInput = key.target;
+      currentInput.value = '';
+      // const nextInput = this.inputRefs[currentBarcodeInputIdx+1];
+      // if(nextInput) {
+      //   nextInput.focus();
+      // }
+      console.log(currentBarcodeInputIdx);
+      this.setState({currentBarcodeInputIdx:currentBarcodeInputIdx+1});
     }
   }
 }
@@ -212,7 +234,7 @@ const mapStateToProps = (state :IStoreState) => ({
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   getBasketList:() => dispatch({type:GET_BASKET_LIST}),
-  getBasket: (basketId:string) => dispatch({type:GET_BASKET, data:basketId}),
+  getBasket: (basketId:string) => dispatch({type:GET_BASKET_FULL, data:basketId}),
   // onChangeBasket: (basketName: string) => dispatch({type:, basketName}),
 })
 

@@ -28,6 +28,8 @@ import getAuthHeader from './authHeader'
 import watchBasket from 'pages/BasketList/saga'
 import watchPartList from 'pages/PartsList/saga'
 import watchUserBasket from 'components/TokenBarcode/saga'
+import watchAssignTubes from 'pages/AssignTubes/saga'
+
 import { QUERY_MY_USER_BARCODE } from 'components/TokenBarcode/actions';
 
 // get current user's status from the server, and ask again in 60 seconds
@@ -225,5 +227,6 @@ export default function* rootSaga() {
     fork(watchBasket),
     fork(watchPartList),
     fork(watchUserBasket),
+    fork(watchAssignTubes),
   ]);
 }
