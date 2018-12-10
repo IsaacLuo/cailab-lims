@@ -381,19 +381,31 @@ export default function handlePart(app:Express) {
 
   app.put('/api/part/:id/tube/:barcode', userCanUseScanner, async (req :Request, res: Response) => {
     const {id, barcode} = req.params;
-    const part = await Part.findOne({_id:id}).exec();
-    if (part.container === undefined) {
-      part.container = [];
+    try {
+      const part = await Part.findOne({_id:id}).exec();
+      if (part.containers === undefined) {
+        part.containers = [];
+      }
+      console.log(part);
+      if (!part.containers.find(v=>v.barcode === barcode)) {
+        console.debug('new barcode', barcode);
+        part.containers.push({
+          ctype: 'tube',
+          barcode,
+          assignedAt: new Date(),
+        });
+        // part.containers = [{
+        //   ctype: 'tube',
+        //   barcode,
+        //   assignedAt: new Date(),
+        // }]
+        await part.save();
+      }
+      res.json({id:part._id, containers: part.containers});
+    } catch(err) {
+      res.status(404).json({message:err.message});
+      console.log(err);
     }
-    if (!part.container.find(v=>v.barcode === barcode)) {
-      part.container.push({
-        type: 'tube',
-        barcode,
-        assignedAt: new Date(),
-      });
-      await part.save();
-    }
-    res.json({id:part._id, containers: part.containers});
   })
 }
 

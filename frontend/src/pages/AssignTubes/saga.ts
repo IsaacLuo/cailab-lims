@@ -1,10 +1,12 @@
 import {IAction, IStoreState, IBasketState, IPart} from 'types'
 // redux saga
 import { delay} from 'redux-saga';
-import {call, all, fork, put, take, select, takeLatest} from 'redux-saga/effects'
+import {call, all, fork, put, take, select, takeLatest, takeEvery} from 'redux-saga/effects'
 // redux actions
 import {
   GET_BASKET_FULL,
+  ASSIGN_TUBE_TO_PART,
+  NEW_BARCODE_ASSIGNED,
 } from './actions'
 import {
   FILL_PARTS_INTO_BASKET_LIST,
@@ -40,6 +42,17 @@ function* getBasketFull(action:IAction) {
   }
 }
 
+function* assignTubeToPart(action:IAction) {
+  const {partId, tubeId} = action.data;
+  try {
+    const res = yield call(axios.put, serverURL+`/api/part/${partId}/tube/${tubeId}`,{}, getAuthHeader());
+    yield put({type:NEW_BARCODE_ASSIGNED, data:{partId, tubeId}});
+  } catch (err) {
+    Notification.error('failed to assign tube barcode');
+  }
+}
+
 export default function* watchPartList() {
   yield takeLatest(GET_BASKET_FULL, getBasketFull);
+  yield takeEvery(ASSIGN_TUBE_TO_PART, assignTubeToPart);
 }

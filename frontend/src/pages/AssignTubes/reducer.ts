@@ -3,9 +3,7 @@ import {
   IPartListState,
 } from 'types'
 
-import {
-  // SET_CURRENT_BASKET,
-} from './actions'
+import { NEW_BARCODE_ASSIGNED } from './actions'
 
 const DEFAULT_STATE:IPartListState = {
   currentBasket: undefined,
@@ -13,6 +11,10 @@ const DEFAULT_STATE:IPartListState = {
 
 function partListReducer(state :IPartListState = DEFAULT_STATE, action: IAction) {
   switch(action.type){
+    case NEW_BARCODE_ASSIGNED:
+      return {
+        ...state
+      }
   }
   return state;
 }

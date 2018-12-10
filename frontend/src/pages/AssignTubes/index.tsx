@@ -22,7 +22,7 @@ import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 
-import { GET_BASKET_FULL } from './actions';
+import { GET_BASKET_FULL, ASSIGN_TUBE_TO_PART } from './actions';
 
 // react-router
 import {Redirect} from 'react-router'
@@ -73,12 +73,23 @@ interface IProps extends IReactRouterProps {
   getBasketList: ()=>void,
   getBasket: (basketId:string) => void,
   onChangeBasket: (basketId: string) => void,
+  assignTubeToPart: (partId:string, tubeId:string) => void,
 }
 
 interface IState {
   currentBasketIdx: number,
   currentBarcodeInputIdx: number,
 }
+
+const mapStateToProps = (state :IStoreState) => ({
+  basketList: state.basket.basketList,
+})
+
+const mapDispatchToProps = (dispatch :Dispatch) => ({
+  getBasketList:() => dispatch({type:GET_BASKET_LIST}),
+  getBasket: (basketId:string) => dispatch({type:GET_BASKET_FULL, data:basketId}),
+  assignTubeToPart: (partId:string, tubeId:string) => dispatch({type: ASSIGN_TUBE_TO_PART, data: {partId, tubeId}}),
+})
 
 class AssignTubes extends React.Component<IProps, IState> {
   private inputRefs = {}
@@ -138,8 +149,16 @@ class AssignTubes extends React.Component<IProps, IState> {
     minWidth: 100,
     render: (row, column, index) =>
       <div>
-        <div>{row.barcodes}</div>
-        <Input ref={x=>{this.inputRefs[index] = x}} onKeyUp={this.onBarcodeInputKeyUp}/>
+        <div>{row.containers && row.containers.map(v=><div key={v.barcode}>{v.barcode}</div>)}</div>
+      </div>
+  },
+  {
+    label: "new barcodes",
+    prop: "newBarcodes",
+    minWidth: 50,
+    render: (row, column, index) =>
+      <div>
+        <Input ref={x=>{this.inputRefs[index] = x}} onKeyUp={this.onBarcodeInputKeyUp.bind(this, row._id)}/>
       </div>
   },
 ];
@@ -160,8 +179,8 @@ class AssignTubes extends React.Component<IProps, IState> {
     const {currentBasketIdx, currentBarcodeInputIdx} = this.state;
     if (currentBasketIdx>=0 && this.props.basketList[currentBasketIdx]) {
       if (this.inputRefs[currentBarcodeInputIdx]) {
-        console.log(currentBarcodeInputIdx, this.inputRefs[currentBarcodeInputIdx]);
-      this.inputRefs[currentBarcodeInputIdx].focus();
+        // console.log(currentBarcodeInputIdx, this.inputRefs[currentBarcodeInputIdx]);
+        this.inputRefs[currentBarcodeInputIdx].focus();
       }
       
     }
@@ -213,29 +232,19 @@ class AssignTubes extends React.Component<IProps, IState> {
     
   }
 
-  private onBarcodeInputKeyUp = (key) => {
+  private onBarcodeInputKeyUp = (partId, key) => {
     if (key.keyCode === 13) {
       const {currentBarcodeInputIdx} = this.state;
       const currentInput = key.target;
+      const tubeId = currentInput.value;
+      this.props.assignTubeToPart(partId, tubeId);
       currentInput.value = '';
-      // const nextInput = this.inputRefs[currentBarcodeInputIdx+1];
-      // if(nextInput) {
-      //   nextInput.focus();
-      // }
       console.log(currentBarcodeInputIdx);
       this.setState({currentBarcodeInputIdx:currentBarcodeInputIdx+1});
     }
   }
 }
 
-const mapStateToProps = (state :IStoreState) => ({
-  basketList: state.basket.basketList,
-})
 
-const mapDispatchToProps = (dispatch :Dispatch) => ({
-  getBasketList:() => dispatch({type:GET_BASKET_LIST}),
-  getBasket: (basketId:string) => dispatch({type:GET_BASKET_FULL, data:basketId}),
-  // onChangeBasket: (basketName: string) => dispatch({type:, basketName}),
-})
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AssignTubes))
