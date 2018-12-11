@@ -5,6 +5,7 @@ import {call, all, fork, put, take, select, takeLatest, takeEvery} from 'redux-s
 // redux actions
 import {
   GET_BASKET_FULL,
+  SET_BASKET_CONTENT,
   ASSIGN_TUBE_TO_PART,
   NEW_BARCODE_ASSIGNED,
 } from './actions'
@@ -25,18 +26,8 @@ import getAuthHeader from 'authHeader'
 function* getBasketFull(action:IAction) {
   const basketId = action.data;
   try {
-    const res = yield call(axios.get, serverURL+`/api/picklist/${basketId}`, getAuthHeader());
-    yield put({type:FILL_PARTS_INTO_BASKET_LIST, data:res.data});
-    const parts:any[] = res.data.parts;
-    const partsInDetail:IPart[] = [];
-    for (const part of parts) {
-      const partId = part._id;
-      const resPart = yield call(axios.get, serverURL+`/api/part/${partId}`, getAuthHeader());
-      partsInDetail.push(resPart.data);
-    }
-    yield put({type:FILL_PARTS_INTO_BASKET_LIST, data:{
-      ...res.data, parts:partsInDetail,
-    }});
+    const res = yield call(axios.get, serverURL+`/api/picklist/${basketId}?full=true`, getAuthHeader());
+    yield put({type:SET_BASKET_CONTENT, data:res.data.parts});
   } catch (err) {
     Notification.error('failed read basket');
   }
@@ -45,8 +36,9 @@ function* getBasketFull(action:IAction) {
 function* assignTubeToPart(action:IAction) {
   const {partId, tubeId} = action.data;
   try {
+    yield put({type:NEW_BARCODE_ASSIGNED, data:{partId, tubeId, pending: true}});
     const res = yield call(axios.put, serverURL+`/api/part/${partId}/tube/${tubeId}`,{}, getAuthHeader());
-    yield put({type:NEW_BARCODE_ASSIGNED, data:{partId, tubeId}});
+    yield put({type:NEW_BARCODE_ASSIGNED, data:{partId, tubeId, pending: false}});
   } catch (err) {
     Notification.error('failed to assign tube barcode');
   }

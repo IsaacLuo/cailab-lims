@@ -68,3 +68,16 @@ a {
 div.cell {
   text-align:center;
 }
+
+.blinking {
+  animation:heart 1s ease infinite;
+}
+
+@keyframes heart {
+  0% {color:red;}
+  100%{color:black;}
+}
+
+.deleting {
+  text-decoration: line-through;
+}

@@ -10,5 +10,5 @@ export default combineReducers({
   user: userReducer,
   basket: basketReducer,
   partList: partListReducer,
-  assignTube: assignTubesReducer,
+  assignTubes: assignTubesReducer,
 });

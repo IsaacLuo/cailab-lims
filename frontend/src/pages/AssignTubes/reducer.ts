@@ -1,22 +1,63 @@
+/**
+ * @file Assign tubes reducer
+ */
 import {
   IAction,
-  IPartListState,
+  IAssignTubesState,
+  IPart,
 } from 'types'
 
-import { NEW_BARCODE_ASSIGNED } from './actions'
+import { 
+  NEW_BARCODE_ASSIGNED,
+  SET_BASKET_CONTENT,
+} from './actions'
 
-const DEFAULT_STATE:IPartListState = {
-  currentBasket: undefined,
+const DEFAULT_STATE:IAssignTubesState = {
+  basketContent: []
 }
 
-function partListReducer(state :IPartListState = DEFAULT_STATE, action: IAction) {
+function assignTubesReducer(state :IAssignTubesState = DEFAULT_STATE, action: IAction) {
   switch(action.type){
-    case NEW_BARCODE_ASSIGNED:
+    // after fetched picklist detail
+    case SET_BASKET_CONTENT:
       return {
-        ...state
+        ...state,
+        basketContent: action.data,
       }
+    case NEW_BARCODE_ASSIGNED:
+      const part = state.basketContent.find(v=>v._id === action.data.partId);
+      if (!part) {
+        return state;
+      }
+      if(part.containers) {
+        const existContainer = part.containers.find(v=>v.barcode === action.data.tubeId);
+        if (!existContainer) {
+          part.containers.push({
+            ctype: 'tube',
+            barcode: action.data.tubeId,
+            assignedAt: new Date(),
+            submitStatus: action.data.submitStatus,
+          })
+        } else if (existContainer.submitStatus !== action.data.submitStatus) {
+          existContainer.submitStatus = action.data.submitStatus;
+        } else {
+          return state;
+        }
+      } else {
+        part.containers = [{
+          ctype: 'tube',
+          barcode: action.data.tubeId,
+          assignedAt: new Date(),
+          submitStatus: action.data.submitStatus,
+        }];
+      }
+      return {
+        ...state,
+        basketContent: [...state.basketContent],
+      }
+    default:
+      return state;
   }
-  return state;
 }
 
-export default partListReducer;
+export default assignTubesReducer;

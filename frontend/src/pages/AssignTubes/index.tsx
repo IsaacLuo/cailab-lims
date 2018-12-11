@@ -10,6 +10,7 @@ import {
   IUserInfo,
   IColumn,
   IPartListRowData,
+  IPart,
 } from 'types'
 
 // react
@@ -22,7 +23,7 @@ import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 
-import { GET_BASKET_FULL, ASSIGN_TUBE_TO_PART } from './actions';
+import { GET_BASKET_FULL, ASSIGN_TUBE_TO_PART,RESIGN_TUBE } from './actions';
 
 // react-router
 import {Redirect} from 'react-router'
@@ -70,10 +71,12 @@ interface IPartsCount {
 
 interface IProps extends IReactRouterProps {
   basketList: IBasket[],
+  basketContent?: IPart[],
   getBasketList: ()=>void,
   getBasket: (basketId:string) => void,
   onChangeBasket: (basketId: string) => void,
   assignTubeToPart: (partId:string, tubeId:string) => void,
+  resignTube: (partId:string, tubeId: string) => void,
 }
 
 interface IState {
@@ -83,12 +86,14 @@ interface IState {
 
 const mapStateToProps = (state :IStoreState) => ({
   basketList: state.basket.basketList,
+  basketContent: state.assignTubes.basketContent,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   getBasketList:() => dispatch({type:GET_BASKET_LIST}),
   getBasket: (basketId:string) => dispatch({type:GET_BASKET_FULL, data:basketId}),
   assignTubeToPart: (partId:string, tubeId:string) => dispatch({type: ASSIGN_TUBE_TO_PART, data: {partId, tubeId}}),
+  resignTube: (partId:string, tubeId: string) => dispatch({type: RESIGN_TUBE, data: {tubeId}})
 })
 
 class AssignTubes extends React.Component<IProps, IState> {
@@ -149,7 +154,23 @@ class AssignTubes extends React.Component<IProps, IState> {
     minWidth: 100,
     render: (row, column, index) =>
       <div>
-        <div>{row.containers && row.containers.map(v=><div key={v.barcode}>{v.barcode}</div>)}</div>
+        <div>{row.containers && row.containers.map( v => {
+          let textClass = '';
+          switch(v.submitStatus) {
+            case 'submitting':
+              textClass = 'blinking';
+              break;
+            case 'deleting':
+              textClass = 'blinking deleting';
+              break;
+          }
+          return <div key={v.barcode} className = {textClass}>
+            {v.barcode}
+            {(Date.now() - v.assignedAt) < 120000 && 
+              <i className="el-icon-delete" onClick={this.resignTube.bind(this, row._id, v.barcode)}/>
+            }
+          </div>}
+        )}</div>
       </div>
   },
   {
@@ -158,7 +179,11 @@ class AssignTubes extends React.Component<IProps, IState> {
     minWidth: 50,
     render: (row, column, index) =>
       <div>
-        <Input ref={x=>{this.inputRefs[index] = x}} onKeyUp={this.onBarcodeInputKeyUp.bind(this, row._id)}/>
+        <Input
+          ref={x=>{this.inputRefs[index] = x}}
+          onKeyUp={this.onBarcodeInputKeyUp.bind(this, row._id)}
+          onFocus={this.onBarcodeInputFocus.bind(this, index)}
+        />
       </div>
   },
 ];
@@ -194,7 +219,7 @@ class AssignTubes extends React.Component<IProps, IState> {
       <Table
       style={{width: '100%'}}
       columns={this.columns}
-      data={this.props.basketList[currentBasketIdx].parts}
+      data={this.props.basketContent}
       stripe={true}
     /> :
     <div>no data</div>
@@ -242,6 +267,15 @@ class AssignTubes extends React.Component<IProps, IState> {
       console.log(currentBarcodeInputIdx);
       this.setState({currentBarcodeInputIdx:currentBarcodeInputIdx+1});
     }
+  }
+
+  private onBarcodeInputFocus = (refIndex: number) => {
+    console.debug('new ref index ', refIndex);
+    this.setState({currentBarcodeInputIdx:refIndex});
+  }
+
+  private resignTube = (partId: string, tubeId: string) => {
+    this.props.resignTube(partId, tubeId);
   }
 }
 

@@ -66,6 +66,9 @@ export interface IStoreState {
   // edit dialog information  
   editPartDialogPartId: string,
 
+  // assigne tubes
+  assignTubes: IAssignTubesState,
+
 }
 
 export interface IUserInfo {
@@ -75,6 +78,7 @@ export interface IUserInfo {
 }
 
 export interface IPart {
+  _id?:string,
   labName: string,
   labPrefix: string,
   labId: number,
@@ -117,10 +121,12 @@ export interface IPart {
     fileSize: number,
     fileId: string,
   }],
-  container?: {
-    type: string,
+  containers?: Array<{
+    ctype: string,
     barcode: string,
-  },
+    assignedAt: Date,
+    submitStatus?: 'pending' | 'verified' | 'failed' | 'deleting',
+  }>,
 }
 
 export interface IPartListRowData {
@@ -195,4 +201,8 @@ export interface IPartForm {
   vendor?: string,
   attachments?: IPartFormAttachment[],
   customData?: any,
+}
+
+export interface IAssignTubesState {
+  basketContent: IPart[],
 }

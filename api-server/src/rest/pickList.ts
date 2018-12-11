@@ -85,25 +85,33 @@ export default function handlePickList(app:Express) {
   /**
    * get content of a pickList
    * @param id the pickList id in mongodb,  if id is 0, use the default pickList
+   * @query full: if set, return full part details, else, return id and names.
    */
   app.get('/api/pickList/:id', userCanUseScanner, async (req :Request, res: Response) => {
     const pickListId = req.params.id;
+    const {full} = req.query;
     const user = await User.findOne({_id:req.currentUser.id});
-
-    if (pickListId === '0') {
-      try {
-        const pickList = await getDefaultPicklist(user);
-        res.json(pickList);
-      } catch (err) {
-        res.status(404).json({message:err.message});
+    
+    try {
+      let pickList;
+      if (pickListId === '0') {
+        pickList = await getDefaultPicklist(user);
+      } else {
+        pickList = await PersonalPickList.findOne({_id: pickListId}).exec();
       }
-    } else {
-      try {
-        const pickList = await PersonalPickList.findOne({_id: pickListId}).exec();
-        res.json(pickList);
-      } catch (err) {
-        res.status(404).json({message:err.message});
+      if(!pickList) {
+        throw new Error('');
       }
+      if (full) {
+        const parts = await Part.find({_id: pickList.parts.map(v=>v._id)}).exec();
+        const {_id, userId, createdAt} = pickList;
+        res.json({_id, userId, createdAt, parts});
+      } else {
+        res.json(pickList);
+      }
+      
+    } catch (err) {
+      res.status(404).json({message:err.message});
     }
   });
 
