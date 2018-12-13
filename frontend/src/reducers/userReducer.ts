@@ -1,3 +1,4 @@
+import { TOKEN_REFRESHED } from './../actions/userActions';
 import {
   IAction,
   IUserState,
@@ -15,6 +16,8 @@ const DEFAULT_STATE:IUserState = {
   fullName: 'guest',
   groups: [],
   barcode: '',
+  token: '',
+  tokenRefreshTime: new Date(0),
 }
 
 function userReducer(state :IUserState = DEFAULT_STATE, action: IAction) {
@@ -44,6 +47,14 @@ function userReducer(state :IUserState = DEFAULT_STATE, action: IAction) {
       return {
         ...state,
         barcode: action.data,
+      }
+    
+    case TOKEN_REFRESHED:
+      console.log(action.data);
+      return {
+        ...state,
+        token: action.data.token,
+        tokenRefreshTime: action.data.refreshTime,
       }
   }
   return state;

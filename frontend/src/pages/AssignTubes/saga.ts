@@ -8,6 +8,8 @@ import {
   SET_BASKET_CONTENT,
   ASSIGN_TUBE_TO_PART,
   NEW_BARCODE_ASSIGNED,
+  RESIGN_TUBE,
+  TUBE_RESIGNED,
 } from './actions'
 import {
   FILL_PARTS_INTO_BASKET_LIST,
@@ -36,9 +38,22 @@ function* getBasketFull(action:IAction) {
 function* assignTubeToPart(action:IAction) {
   const {partId, tubeId} = action.data;
   try {
-    yield put({type:NEW_BARCODE_ASSIGNED, data:{partId, tubeId, pending: true}});
+    yield put({type:NEW_BARCODE_ASSIGNED, data:{partId, tubeId, submitStatus: 'pending'}});
     const res = yield call(axios.put, serverURL+`/api/part/${partId}/tube/${tubeId}`,{}, getAuthHeader());
-    yield put({type:NEW_BARCODE_ASSIGNED, data:{partId, tubeId, pending: false}});
+    yield call(delay,1000);
+    yield put({type:NEW_BARCODE_ASSIGNED, data:{partId, tubeId, submitStatus: 'verified'}});
+  } catch (err) {
+    Notification.error('failed to assign tube barcode');
+  }
+}
+
+function* resignTube(action:IAction) {
+  const {tubeId} = action.data;
+  try {
+    yield put({type:TUBE_RESIGNED, data:{tubeId, submitStatus: 'deleting'}});
+    const res = yield call(axios.delete, serverURL+`/api/tube/${tubeId}`, getAuthHeader());
+    yield call(delay,1000);
+    yield put({type:TUBE_RESIGNED, data:{tubeId, submitStatus: 'deleted'}});
   } catch (err) {
     Notification.error('failed to assign tube barcode');
   }
@@ -47,4 +62,5 @@ function* assignTubeToPart(action:IAction) {
 export default function* watchPartList() {
   yield takeLatest(GET_BASKET_FULL, getBasketFull);
   yield takeEvery(ASSIGN_TUBE_TO_PART, assignTubeToPart);
+  yield takeEvery(RESIGN_TUBE, resignTube)
 }

@@ -394,11 +394,6 @@ export default function handlePart(app:Express) {
           barcode,
           assignedAt: new Date(),
         });
-        // part.containers = [{
-        //   ctype: 'tube',
-        //   barcode,
-        //   assignedAt: new Date(),
-        // }]
         await part.save();
       }
       res.json({id:part._id, containers: part.containers});

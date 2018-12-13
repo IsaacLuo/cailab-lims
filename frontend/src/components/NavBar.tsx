@@ -20,10 +20,25 @@ export interface INavBarProps {
   loggedIn: boolean,
   username: string,
   groups: string[],
+  token: string,
+  tokenRefreshTime: Date,
 
   setDialogVisible: (visible:boolean)=>void,
   clearLoginInformation: ()=>void,
 }
+
+const mapStateToProps = (state :IStoreState) => ({
+  loggedIn: state.user.loggedIn,
+  username: state.user.fullName,
+  groups: state.user.groups,
+  token: state.user.token,
+  tokenRefreshTime: state.user.tokenRefreshTime,
+})
+
+const mapDispatchToProps = (dispatch :Dispatch) => ({
+  setDialogVisible: visible => dispatch(ActionLoginDialogVisible(visible)),
+  clearLoginInformation: ()=> dispatch(ActionClearLoginInformation()),
+})
 
 class NavBar extends React.Component<INavBarProps, any> {
   constructor(props :INavBarProps) {
@@ -71,6 +86,8 @@ class NavBar extends React.Component<INavBarProps, any> {
         <Menu.Item index="login">log in.</Menu.Item>
         }
         </Menu>
+        <div>{this.props.token}</div>
+        <div>{this.props.tokenRefreshTime.toLocaleTimeString()}</div>
       </div>
     );
   }
@@ -89,15 +106,6 @@ class NavBar extends React.Component<INavBarProps, any> {
   }
 }
 
-const mapStateToProps = (state :IStoreState) => ({
-  loggedIn: state.user.loggedIn,
-  username: state.user.fullName,
-  groups: state.user.groups,
-})
 
-const mapDispatchToProps = (dispatch :Dispatch) => ({
-  setDialogVisible: visible => dispatch(ActionLoginDialogVisible(visible)),
-  clearLoginInformation: ()=> dispatch(ActionClearLoginInformation()),
-})
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(NavBar))

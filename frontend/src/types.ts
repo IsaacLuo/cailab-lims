@@ -30,6 +30,8 @@ export interface IUserState {
   profilePicture?: string,
   groups: string[],
   barcode: string,
+  token: string,
+  tokenRefreshTime: Date,
 }
 
 export interface IAppState {

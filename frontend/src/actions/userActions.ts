@@ -35,3 +35,5 @@ export function ActionClearLoginInformation() {
     type: CLEAR_LOGIN_INFORMATION,
   }
 }
+
+export const TOKEN_REFRESHED = 'TOKEN_REFRESHED';

@@ -13,6 +13,7 @@ import {
 import {
 ActionSetLoginInformation, 
 ActionClearLoginInformation,
+TOKEN_REFRESHED,
 } from 'actions/userActions'
 
 // other libs
@@ -31,6 +32,7 @@ import watchUserBasket from 'components/TokenBarcode/saga'
 import watchAssignTubes from 'pages/AssignTubes/saga'
 
 import { QUERY_MY_USER_BARCODE } from 'components/TokenBarcode/actions';
+import { getTokenIssuedAt } from 'tools';
 
 // get current user's status from the server, and ask again in 60 seconds
 export function* getMyStatus() {
@@ -42,8 +44,10 @@ export function* getMyStatus() {
       yield put(ActionClearLoginInformation());
     } else {
       if (token) {
+        const refreshTime = new Date();
         localStorage.setItem('token', token);
-        localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
+        localStorage.setItem('tokenTimeStamp', refreshTime.toLocaleString());
+        yield put({type: TOKEN_REFRESHED, data: {token, refreshTime}});
       }
       // save id, full name and groups to redux store.
       yield put(ActionSetLoginInformation(id, fullName, groups));
@@ -65,8 +69,20 @@ export function* initialize() {
       yield put(ActionClearLoginInformation());
     } else {
       if (token) {
+        const refreshTime = new Date();
         localStorage.setItem('token', token);
-        localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
+        localStorage.setItem('tokenTimeStamp', refreshTime.toLocaleString());
+        yield put({type: TOKEN_REFRESHED, data: {token, refreshTime}});
+      } else {
+        const cachedToken = localStorage.getItem('token');
+        if (cachedToken) {
+          try {
+            const refreshTime = getTokenIssuedAt(cachedToken);
+            yield put({type: TOKEN_REFRESHED, data: {token:cachedToken, refreshTime}});
+          } catch (err) {
+            yield put(ActionClearLoginInformation());
+          }
+        }
       }
       yield put(ActionSetLoginInformation(id, fullName, groups));
       yield put({type:QUERY_MY_USER_BARCODE});

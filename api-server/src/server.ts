@@ -21,6 +21,7 @@ import handlePartDeletion from './rest/sudoRequests/partDeletion'
 import handleAttachments from './rest/attachment';
 import hanleBroadCasts from './rest/broadcast';
 import handlePickList from './rest/pickList';
+import handleTube from './rest/tube';
 
 // ============================================================================
 if (process.env.NODE_ENV === undefined) {
@@ -46,6 +47,8 @@ handleAttachments(app, upload);
 hanleBroadCasts(app);
 
 handlePickList(app);
+
+handleTube(app);
 
 
 // for testing if the server is running
@@ -190,6 +193,7 @@ app.get('/api/currentUser', async (req :Request, res: Response) =>
   const now = Math.floor(Date.now()/1000);
   req.log.debug({exp, now});
   let payload :{id:string, fullName :string, groups: string[], token?:string, tokenExpireIn?:number} = {id, fullName, groups}
+  console.debug(now, exp, exp - now);
   if (now < exp && exp - now < 1200) {
     payload.token = jwt.sign({
       id,

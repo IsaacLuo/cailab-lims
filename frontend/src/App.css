@@ -70,7 +70,7 @@ div.cell {
 }
 
 .blinking {
-  animation:heart 1s ease infinite;
+  animation:heart 0.5s linear alternate infinite;
 }
 
 @keyframes heart {

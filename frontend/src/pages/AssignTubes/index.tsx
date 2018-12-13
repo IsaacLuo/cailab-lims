@@ -49,6 +49,7 @@ import styled from 'styled-components'
 import ErrorBoundary from 'components/ErrorBoundary'
 import EditPartDialog from 'components/EditPartDialog';
 import { GET_BASKET_LIST, GET_BASKET } from 'pages/BasketList/actions';
+import ClickableIcon from 'components/ClickableIcon';
 
 
 const MyClickableIcon = styled(Button)`
@@ -157,17 +158,18 @@ class AssignTubes extends React.Component<IProps, IState> {
         <div>{row.containers && row.containers.map( v => {
           let textClass = '';
           switch(v.submitStatus) {
-            case 'submitting':
+            case 'pending':
               textClass = 'blinking';
               break;
             case 'deleting':
               textClass = 'blinking deleting';
               break;
           }
+          const assignedAt = typeof(v.assignedAt) === 'string' ? new Date(v.assignedAt) : v.assignedAt;
           return <div key={v.barcode} className = {textClass}>
             {v.barcode}
-            {(Date.now() - v.assignedAt) < 120000 && 
-              <i className="el-icon-delete" onClick={this.resignTube.bind(this, row._id, v.barcode)}/>
+            {(Date.now() - assignedAt) < 1200000 && 
+              <ClickableIcon className="el-icon-delete" onClick={this.resignTube.bind(this, row._id, v.barcode)}/>
             }
           </div>}
         )}</div>
@@ -200,7 +202,7 @@ class AssignTubes extends React.Component<IProps, IState> {
     this.props.getBasketList();
   }
 
-  public componentDidUpdate() {
+  public componentDidmount() {
     const {currentBasketIdx, currentBarcodeInputIdx} = this.state;
     if (currentBasketIdx>=0 && this.props.basketList[currentBasketIdx]) {
       if (this.inputRefs[currentBarcodeInputIdx]) {
@@ -265,7 +267,8 @@ class AssignTubes extends React.Component<IProps, IState> {
       this.props.assignTubeToPart(partId, tubeId);
       currentInput.value = '';
       console.log(currentBarcodeInputIdx);
-      this.setState({currentBarcodeInputIdx:currentBarcodeInputIdx+1});
+      this.inputRefs[currentBarcodeInputIdx+1].focus();
+      // this.setState({currentBarcodeInputIdx:currentBarcodeInputIdx+1});
     }
   }
 

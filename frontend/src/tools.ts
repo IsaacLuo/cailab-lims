@@ -102,6 +102,11 @@ function toColStr(col:number) {
   return String.fromCharCode.apply(null, nums);
 }
 
+export function getTokenIssuedAt(jwtToken: string) {
+  const jwtBody = JSON.parse(atob(jwtToken.split('.')[1]));
+  return new Date(parseInt(jwtBody.iat,10)*1000);
+}
+
 export class PartFormReader {
   public static fromWorkBook(workbook: xlsx.WorkBook) {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -241,4 +246,6 @@ export class PartFormReader {
       return undefined;
     }
   }
+
+  
 }

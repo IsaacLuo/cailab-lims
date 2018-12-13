@@ -42,7 +42,7 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
     if (req.currentUser && req.currentUser.groups.indexOf('users')>=0) {
       next();
     } else {
-      req.log.warn(`guest is trying to access admin functions ${req.url}`);
+      req.log.warn(`guest is trying to access login functions ${req.url}`);
       res.status(401).json({message: 'require log in'})
     }
   }
@@ -63,7 +63,7 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
       // console.log(`${req.currentUser.fullName} is ready for scanning`);
       next();
     } else {
-      req.log.warn(`guest is trying to access admin functions ${req.url}`, req.currentUser);
+      req.log.warn(`guest is trying to access scanner functions ${req.url}`, req.currentUser);
       res.status(401).json({message: 'require log in'})
     }
   }

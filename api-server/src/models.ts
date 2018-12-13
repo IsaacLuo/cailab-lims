@@ -75,7 +75,7 @@ export const PartSchema = new Schema({
   containers: [{
     ctype: String,
     barcode: String,
-    // assignedAt: Date,
+    assignedAt: Date,
   }],
   dbV1:{                             // old id and user id data from the cailab-database-v1, useless in v2
     id: Number,
