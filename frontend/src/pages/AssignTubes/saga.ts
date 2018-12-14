@@ -10,6 +10,7 @@ import {
   NEW_BARCODE_ASSIGNED,
   RESIGN_TUBE,
   TUBE_RESIGNED,
+  CANCEL_NEW_BARCODE_ASSIGNED,
 } from './actions'
 import {
   FILL_PARTS_INTO_BASKET_LIST,
@@ -43,15 +44,21 @@ function* assignTubeToPart(action:IAction) {
     yield call(delay,1000);
     yield put({type:NEW_BARCODE_ASSIGNED, data:{partId, tubeId, submitStatus: 'verified'}});
   } catch (err) {
-    Notification.error('failed to assign tube barcode');
+    if (err.response.status === 409) {
+      Notification.error(err.response.data.message);
+      yield put({type:CANCEL_NEW_BARCODE_ASSIGNED, data:{partId, tubeId, submitStatus: 'canceled'}});
+    } else {
+      Notification.error('failed to assign tube barcode');
+    }
+    
   }
 }
 
 function* resignTube(action:IAction) {
-  const {tubeId} = action.data;
+  const {partId, tubeId} = action.data;
   try {
     yield put({type:TUBE_RESIGNED, data:{tubeId, submitStatus: 'deleting'}});
-    const res = yield call(axios.delete, serverURL+`/api/tube/${tubeId}`, getAuthHeader());
+    const res = yield call(axios.delete, serverURL+`/api/part/${partId}/tube/${tubeId}`, getAuthHeader());
     yield call(delay,1000);
     yield put({type:TUBE_RESIGNED, data:{tubeId, submitStatus: 'deleted'}});
   } catch (err) {

@@ -6,6 +6,7 @@ import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
 import { IPart, IAttachment, IPartForm } from '../types';
 import { json } from 'body-parser';
+import config from '../config';
 const ObjectId = mongoose.Types.ObjectId;
 
 export default function handlePart(app:Express) {
@@ -379,28 +380,81 @@ export default function handlePart(app:Express) {
     })
   });
 
+  /**
+   * assgin a tube to a part
+   */
   app.put('/api/part/:id/tube/:barcode', userCanUseScanner, async (req :Request, res: Response) => {
     const {id, barcode} = req.params;
     try {
-      const part = await Part.findOne({_id:id}).exec();
-      if (part.containers === undefined) {
-        part.containers = [];
+      const existPart = await Part.findOne({'containers.barcode': barcode}).exec();
+      if (existPart) {
+        if (existPart._id.toString() === id) {
+          // duplicated input, return 200
+          res.json({id, containers: existPart.containers});
+        } else {
+          // conflict tube, return 409
+          res.status(409).json({message:`conflict with ${existPart.personalName}`});
+        }
+      } else {
+        const part = await Part.findOne({_id:id}).exec();
+        if (part.containers === undefined) {
+          part.containers = [];
+        }
+        if (!part.containers.find(v=>v.barcode === barcode)) {
+          console.debug('new barcode', barcode);
+          part.containers.push({
+            ctype: 'tube',
+            barcode,
+            assignedAt: new Date(),
+            operatorId: req.currentUser.id
+          });
+          await part.save();
+          req.log.info(`${req.currentUser.fullName} assigned a new tube ${barcode} to part ${part.personalName} (${part._id})`);
+        }
+        res.json({id:part._id, containers: part.containers});
       }
-      console.log(part);
-      if (!part.containers.find(v=>v.barcode === barcode)) {
-        console.debug('new barcode', barcode);
-        part.containers.push({
-          ctype: 'tube',
-          barcode,
-          assignedAt: new Date(),
-        });
-        await part.save();
-      }
-      res.json({id:part._id, containers: part.containers});
     } catch(err) {
       res.status(404).json({message:err.message});
       console.log(err);
     }
   })
+
+  /** 
+   * resign a tube from a part
+   * different from DELETE /api/tube/:id, this API requires the part id. it will verify the part owner, and assigned time.
+   * the previledge is lower.
+   */
+  app.delete('/api/part/:id/tube/:barcode', userCanUseScanner, async (req :Request, res: Response) => {
+    const {id, barcode} = req.params;
+    try {
+      const part = await Part.findOne({
+        _id:id,
+        'containers.ctype':'tube',
+        'containers.barcode':barcode,
+        'containers.assignedAt': {$gt: new Date(Date.now() - config.maxTubeDeleteLimit) }}).exec();
+      if (part) {
+        part.containers = part.containers.filter(v=>v.barcode !== barcode);
+        await part.save();
+        req.log.info(`${req.currentUser.fullName} removed tube ${barcode} from part ${part.personalName} (${part._id})`);
+        res.json({id:part._id, containers: part.containers});
+      } else {
+        const part = await Part.findOne({
+          _id:id,
+          'containers.ctype':'tube',
+          'containers.barcode':barcode,
+        });
+        if (part) {
+          res.status(401);
+        } else {
+          res.status(404);
+        }
+        res.json({message:'unable to delete tube'})
+      }
+    } catch(err) {
+      res.status(404).json({message:err.message});
+      console.log(err);
+    }
+  })
+
 }
 

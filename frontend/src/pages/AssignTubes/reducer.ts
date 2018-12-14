@@ -10,6 +10,7 @@ import {
 
 import { 
   NEW_BARCODE_ASSIGNED,
+  CANCEL_NEW_BARCODE_ASSIGNED,
   SET_BASKET_CONTENT,
 } from './actions'
 
@@ -28,6 +29,7 @@ function assignTubesReducer(state :IAssignTubesState = DEFAULT_STATE, action: IA
       }
 
     case NEW_BARCODE_ASSIGNED:
+    {
       const part = state.basketContent.find(v=>v._id === action.data.partId);
       if (!part) {
         return state;
@@ -58,7 +60,21 @@ function assignTubesReducer(state :IAssignTubesState = DEFAULT_STATE, action: IA
         ...state,
         basketContent: [...state.basketContent],
       }
-
+    }
+    case CANCEL_NEW_BARCODE_ASSIGNED:
+    {
+      const part = state.basketContent.find(v=>v._id === action.data.partId);
+      if (!part) {
+        return state;
+      }
+      if(part.containers) {
+        part.containers = part.containers.filter(v=>v.barcode !== action.data.tubeId);
+      }
+      return {
+        ...state,
+        basketContent: [...state.basketContent],
+      }
+    }
     case TUBE_RESIGNED:
       if(action.data.submitStatus === 'deleting') {
         state.basketContent.forEach(vpart=> {

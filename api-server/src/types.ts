@@ -1,3 +1,10 @@
+export interface IGLobalConfig {
+  maxTubeDeleteLimit: number,
+  host: string,
+  port: number,
+  publicURL?: string,
+}
+
 export interface IAttachment {
     fileName: string,
     contentType: string,

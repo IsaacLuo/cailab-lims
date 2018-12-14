@@ -94,7 +94,7 @@ const mapDispatchToProps = (dispatch :Dispatch) => ({
   getBasketList:() => dispatch({type:GET_BASKET_LIST}),
   getBasket: (basketId:string) => dispatch({type:GET_BASKET_FULL, data:basketId}),
   assignTubeToPart: (partId:string, tubeId:string) => dispatch({type: ASSIGN_TUBE_TO_PART, data: {partId, tubeId}}),
-  resignTube: (partId:string, tubeId: string) => dispatch({type: RESIGN_TUBE, data: {tubeId}})
+  resignTube: (partId:string, tubeId: string) => dispatch({type: RESIGN_TUBE, data: {partId, tubeId}})
 })
 
 class AssignTubes extends React.Component<IProps, IState> {
@@ -168,6 +168,9 @@ class AssignTubes extends React.Component<IProps, IState> {
           const assignedAt = typeof(v.assignedAt) === 'string' ? new Date(v.assignedAt) : v.assignedAt;
           return <div key={v.barcode} className = {textClass}>
             {v.barcode}
+            {
+              v.submitStatus === 'verified' && '✔'
+            }
             {(Date.now() - assignedAt) < 1200000 && 
               <ClickableIcon className="el-icon-delete" onClick={this.resignTube.bind(this, row._id, v.barcode)}/>
             }

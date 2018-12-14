@@ -22,7 +22,8 @@
     "production": "cross-env NODE_ENV=production node build/src/server.js",
     "dev": "node ./node_modules/nodemon/bin/nodemon.js",
     "importDB": "ts-node src/script/importDB.ts",
-    "testScript": "ts-node src/script/test.ts"
+    "testScript": "ts-node src/script/test.ts",
+    "shell": "ts-node"
   },
   "devDependencies": {
     "nodemon": "^1.18.3",
