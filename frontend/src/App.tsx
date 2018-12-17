@@ -46,6 +46,7 @@ import DeletionRequestsList from 'pages/DeletionRequestsList';
 import Dashboard from 'pages/Dashboard';
 import BasketList from 'pages/BasketList';
 import AssignTubes from 'pages/AssignTubes';
+import SearchTubeBarcode from 'pages/SearchTubeBarcode';
 
 interface IProps {
   initializing: boolean,
@@ -95,6 +96,7 @@ class App extends React.Component<IProps, any> {
           <Route path='/parts/yeasts/upload' exact={true} render={this.renderYeastsUpload} />
 
           <Route path='/tasks/assignTubes' exact={true} component={AssignTubes} />
+          <Route path='/tasks/SearchTubeBarcode/' component={SearchTubeBarcode} />
 
           <Route path='/requests/partsDeletion' exact={true} component={DeletionRequestsList} />
           <Route path='/users/' component={Users} />

@@ -71,6 +71,9 @@ export interface IStoreState {
   // assigne tubes
   assignTubes: IAssignTubesState,
 
+  // searchTube
+  searchTubeBarcode: ISearchTubeBarcodeState,
+
 }
 
 export interface IUserInfo {
@@ -207,4 +210,9 @@ export interface IPartForm {
 
 export interface IAssignTubesState {
   basketContent: IPart[],
+}
+
+export interface ISearchTubeBarcodeState {
+  message: string,
+  part?: IPart,
 }

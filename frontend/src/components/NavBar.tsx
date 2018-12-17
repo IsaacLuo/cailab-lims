@@ -67,6 +67,7 @@ class NavBar extends React.Component<INavBarProps, any> {
         { groups.indexOf('users') >=0 &&
         <Menu.SubMenu index="3" title="Tasks">
           <Link to="/tasks/assignTubes/"><Menu.Item index="assignTubes">Assign Tubes</Menu.Item></Link>
+          <Link to="/tasks/searchTubeBarcode/"><Menu.Item index="searchTubeBarcode">Search Tubes</Menu.Item></Link>
         </Menu.SubMenu>
         }
         {loggedIn ?
@@ -86,7 +87,7 @@ class NavBar extends React.Component<INavBarProps, any> {
         <Menu.Item index="login">log in.</Menu.Item>
         }
         </Menu>
-        <div>{this.props.token}</div>
+        <div>{this.props.token.substr(this.props.token.length-10, 9)}</div>
         <div>{this.props.tokenRefreshTime.toLocaleTimeString()}</div>
       </div>
     );
