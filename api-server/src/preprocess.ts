@@ -35,6 +35,7 @@ export default function preprocess(app :Express) {
     loggerFile.info(`${req.ip}: ${req.method} ${req.path}`);
     req.log = loggerFile;
     res.set('Cache-Control', 'public, max-age=1');
+    res.set('Access-Control-Max-Age', '3600');
     next();
   });
 
