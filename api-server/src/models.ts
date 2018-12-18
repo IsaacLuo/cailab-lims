@@ -159,3 +159,18 @@ export const PersonalPickList = mongoose.model('PersonalPickList', {
   partsCount: Number,
   default: Boolean,
 });
+
+export const TubeRack = mongoose.model('TubeRack', {
+  ctype: String,
+  barcode: String,
+  tubes: [{
+    _id:Schema.Types.ObjectId,
+    location: String,
+    locationIndex: Number,
+    barcode: String,
+    contentId: Schema.Types.ObjectId,
+    contentName: String,
+  }],
+  partsCount: Number,
+  default: Boolean,
+});

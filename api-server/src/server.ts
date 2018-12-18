@@ -22,6 +22,7 @@ import handleAttachments from './rest/attachment';
 import hanleBroadCasts from './rest/broadcast';
 import handlePickList from './rest/pickList';
 import handleTube from './rest/tube';
+import handleTubeRack from './rest/tubeRack';
 
 // ============================================================================
 if (process.env.NODE_ENV === undefined) {
@@ -49,6 +50,8 @@ hanleBroadCasts(app);
 handlePickList(app);
 
 handleTube(app);
+
+handleTubeRack(app);
 
 
 // for testing if the server is running
