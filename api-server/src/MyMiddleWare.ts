@@ -67,3 +67,22 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
       res.status(401).json({message: 'require log in'})
     }
   }
+
+  export function fromFluidXScanner (req :Request, res :Response, next: NextFunction) {
+    if (req.headers['token'] === secret.rackScannerToken) {
+      req.currentUser = {
+        id:'Scanner',
+        fullName: 'Rack Scanner',
+        email: 'cailab.bio@gmail.com',
+        groups: ['scanner'],
+        iat: Math.floor(Date.now()),
+        exp: Math.floor(Date.now()) + 3600,
+        barcode: 'scanner',
+      }
+      next();
+    } else {
+      req.log.warn(`this function is for scanner only`, req.currentUser);
+      res.status(401).json({message: 'require scanner'})
+    }
+    
+  }

@@ -160,17 +160,16 @@ export const PersonalPickList = mongoose.model('PersonalPickList', {
   default: Boolean,
 });
 
-export const TubeRack = mongoose.model('TubeRack', {
-  ctype: String,
+
+export const Tube = mongoose.model('Tube', {
   barcode: String,
-  tubes: [{
-    _id:Schema.Types.ObjectId,
-    location: String,
-    locationIndex: Number,
-    barcode: String,
-    contentId: Schema.Types.ObjectId,
-    contentName: String,
-  }],
-  partsCount: Number,
-  default: Boolean,
+
+  rackBarcode: String,
+  wellName: String,
+  wellId: Number,
+
+  verifiedAt: Date,
+
+  part: PartSchema,
+
 });
