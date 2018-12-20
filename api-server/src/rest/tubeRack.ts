@@ -44,13 +44,21 @@ export default function handleTubeRack(app:Express) {
     const {full} = req.query;
     try {
       const tubes = await Tube.find({rackBarcode}).exec();
+      if (tubes.length === 0) {
+        throw new Error('unable to find the rack');
+      }
       if (full) {
         const t2 = tubes.map(v => 
-          Part.findOne({'containers.barcode': v.barcode}).exec().then(part => t2.part = part)
+          Part.findOne({'containers.barcode': v.barcode}).exec().then(part => {
+            if(part) {
+              v.part = part;
+              return new Promise((solve, reject)=>solve())
+            }
+            })
         );
-        Promise.all(t2).then(()=>res.json({tubes}));
+        Promise.all(t2).then(()=>res.json({tubes, full:true}));
       } else {
-        res.json(tubes);
+        res.json({tubes});
       }
     } catch (err) {
       res.status(404).send(err.message);

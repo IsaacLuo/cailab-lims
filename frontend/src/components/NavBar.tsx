@@ -68,6 +68,7 @@ class NavBar extends React.Component<INavBarProps, any> {
         <Menu.SubMenu index="3" title="Tasks">
           <Link to="/tasks/assignTubes/"><Menu.Item index="assignTubes">Assign Tubes</Menu.Item></Link>
           <Link to="/tasks/searchTubeBarcode/"><Menu.Item index="searchTubeBarcode">Search Tubes</Menu.Item></Link>
+          <Link to="/tasks/searchRackBarcode/"><Menu.Item index="searchRackBarcode">Search Racks</Menu.Item></Link>
         </Menu.SubMenu>
         }
         {loggedIn ?

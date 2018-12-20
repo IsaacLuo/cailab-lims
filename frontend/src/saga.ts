@@ -31,6 +31,8 @@ import watchPartList from 'pages/PartsList/saga'
 import watchUserBasket from 'components/TokenBarcode/saga'
 import watchAssignTubes from 'pages/AssignTubes/saga'
 import watchSearchTubeBarcode from 'pages/SearchTubeBarcode/saga'
+import watchSearchRackBarcode from 'pages/SearchRackBarcode/saga'
+import watchPart from 'pages/Part/saga'
 
 import { QUERY_MY_USER_BARCODE } from 'components/TokenBarcode/actions';
 import { getTokenIssuedAt } from 'tools';
@@ -246,5 +248,7 @@ export default function* rootSaga() {
     fork(watchUserBasket),
     fork(watchAssignTubes),
     fork(watchSearchTubeBarcode),
+    fork(watchSearchRackBarcode),
+    fork(watchPart),
   ]);
 }

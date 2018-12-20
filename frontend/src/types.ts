@@ -6,7 +6,6 @@ export interface IAction {
   data: any,
 }
 
-
 interface IPartsCount {
   bacteria: number,
   primers: number,
@@ -73,6 +72,12 @@ export interface IStoreState {
 
   // searchTube
   searchTubeBarcode: ISearchTubeBarcodeState,
+
+  // searchRack
+  searchRackBarcode: ISearchRackBarcodeState,
+
+  // part
+  part: IPartState,
 
 }
 
@@ -177,6 +182,11 @@ export interface IAttachment {
 export interface IReactRouterProps {
   history: History,
   location: Location,
+  match: {
+    params: any,
+    path: string,
+    url: string,
+  }
 }
 
 export interface IPartFormAttachment {
@@ -215,4 +225,22 @@ export interface IAssignTubesState {
 export interface ISearchTubeBarcodeState {
   message: string,
   part?: IPart,
+}
+
+export interface ITube {
+  _id?: string,
+  barcode: string,
+  wellId: number,
+  wellName: string,
+  part?: IPart,
+}
+
+export interface ISearchRackBarcodeState {
+  message: string,
+  tubes: ITube[],
+}
+
+export interface IPartState {
+  part?: IPart,
+  message: string,
 }
