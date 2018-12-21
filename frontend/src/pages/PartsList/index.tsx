@@ -558,6 +558,14 @@ class PartsList extends React.Component<IProps, IState> {
               {fileSizeHumanReadable(att.fileSize)}
             </a>
           </div>);
+          
+          const containerRows = data && data.containers && data.containers.map(container => 
+          <div key={container.barcode}>
+            <Link to={`/tasks/searchTubeBarcode/${container.barcode}`}>
+              {container.barcode}
+            </Link>
+          </div>);
+
           return <div className="partDetailPanel"style={{width:'100%'}}>
             <Table
               style={this.detailTableStyle}
@@ -590,6 +598,12 @@ class PartsList extends React.Component<IProps, IState> {
             (<div style={{marginTop:10, marginBottom: 5}}> 
               <div><b>attachments</b></div> 
               {attachmentRows}
+            </div>
+          )}
+          {data.containers&& data.containers.length > 0 &&
+            (<div style={{marginTop:10, marginBottom: 5}}> 
+              <div><b>containers</b></div> 
+              {containerRows}
             </div>
           )}
           </div>
@@ -749,6 +763,7 @@ class PartsList extends React.Component<IProps, IState> {
         updatedAt: new Date(item.updatedAt).toLocaleDateString(),
         createdAtRaw: item.createdAt,
         attachments: item.attachments,
+        containers: item.containers,
         
         parents: item.content.parents ? item.content.parents.join('; ') : '' ,
         genotype: item.content.genotype ? item.content.genotype.join('; ') : '' ,

@@ -244,3 +244,8 @@ export interface IPartState {
   part?: IPart,
   message: string,
 }
+
+export interface IExpandedPanel {
+  type: string,
+  expandPannel?: (data:any) => JSX.Element,
+}
