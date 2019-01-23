@@ -1,12 +1,8 @@
-import { ISearchRackBarcodeState } from './../../../frontend/src/types';
 import {Express, Response} from 'express'
-import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, Tube, RackScannerRecord} from '../models'
+import {Part, Tube, RackScannerRecord} from '../models'
 import {Request} from '../MyRequest'
 import {userMustLoggedIn,userCanUseScanner, fromFluidXScanner, userMustBeAdmin} from '../MyMiddleWare'
-import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
-import { IPart, IAttachment, IPartForm } from '../types';
-import { json } from 'body-parser';
 import { NextFunction } from 'connect';
 const ObjectId = mongoose.Types.ObjectId;
 
