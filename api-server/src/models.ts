@@ -173,3 +173,13 @@ export const Tube = mongoose.model('Tube', {
   part: PartSchema,
 
 });
+
+export const RackScannerRecord = mongoose.model('RackScannerRecord', {
+  createdAt: Date,
+  rackBarcode: String,
+  tubes: [{
+    wellName: String,
+    wellId: Number,
+    barcode: String,
+  }]
+});

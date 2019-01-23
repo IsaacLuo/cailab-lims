@@ -15,4 +15,5 @@ export interface IUserInfo {
   export interface Request extends express.Request {
     currentUser :IUserJWT,
     log: log4js.Logger,
+    [key:string]: any,
   }
