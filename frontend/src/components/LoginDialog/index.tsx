@@ -85,8 +85,8 @@ class LoginDialog extends React.Component<IProps, any> {
 
   private loginSuccessful = async (response :any) => {
     console.log('login successful');
-    console.log(response)
-    this.props.sendGoogleAuthInfoToServer(response.data);
+    // console.log(response)
+    this.props.sendGoogleAuthInfoToServer(response);
   }
 
   private loginFailed = (response :any) => {
