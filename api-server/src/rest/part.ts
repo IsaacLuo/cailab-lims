@@ -456,5 +456,26 @@ export default function handlePart(app:Express) {
     }
   })
 
+
+  app.get('/api/parts/search/:keyword', userMustLoggedIn, async (req: Request, res: Response) => {
+    const {keyword} = req.params;
+    let {skip, limit} = req.query;
+    console.debug(`search key = "${keyword}"`);
+    try {
+      if(!skip) skip = '0';
+      if(!limit) limit = '10';
+      skip = parseInt(skip);
+      limit = parseInt(limit);
+      if (limit > 100) limit = 100;
+
+      const count = await Part.count({$text:{$search:keyword}}).exec();
+      const parts = await Part.find({$text:{$search:keyword}}).skip(skip).limit(limit).exec();
+
+      res.json({keyword, count, skip, limit, parts});
+    } catch (err) {
+      res.status(404).json({message:err.message});
+      console.log(err);
+    }
+  });
 }
 

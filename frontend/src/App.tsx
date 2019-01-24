@@ -90,12 +90,15 @@ class App extends React.Component<IProps, any> {
           </header>
           <LoginDialog/>
           <Route path='/' exact={true} component={Dashboard} />
+
+          <Route path='/parts/all/' exact={true} render={this.renderAllPartsComponent} />
           <Route path='/parts/bacteria/' exact={true} render={this.renderBacteriaComponent} />
           <Route path='/parts/primers/' exact={true} render={this.renderPrimersComponent} />
           <Route path='/parts/yeasts/' exact={true} render={this.renderYeastsComponent} />
           <Route path='/parts/bacteria/upload' exact={true} render={this.renderBacteriaUpload} />
           <Route path='/parts/primers/upload' exact={true} render={this.renderPrimersUpload} />
           <Route path='/parts/yeasts/upload' exact={true} render={this.renderYeastsUpload} />
+
 
           <Route path='/tasks/assignTubes' exact={true} component={AssignTubes} />
           <Route path='/tasks/searchTubeBarcode/' exact={true} component={SearchTubeBarcode} />
@@ -113,9 +116,11 @@ class App extends React.Component<IProps, any> {
     }
   }
 
+  private renderAllPartsComponent = props => <PartsList sampleType="part"/>
   private renderBacteriaComponent = props => <PartsList sampleType="bacterium"/>
   private renderPrimersComponent = props => <PartsList sampleType="primer"/>
   private renderYeastsComponent = props => <PartsList sampleType="yeast"/>
+
   private renderBacteriaUpload = props => <UploadParts sampleType="bacterium" returnTo="/parts/bacteria"/>
   private renderPrimersUpload = props => <UploadParts sampleType="primer" returnTo="/parts/primers"/>
   private renderYeastsUpload = props => <UploadParts sampleType="yeast" returnTo="/parts/yeasts"/>

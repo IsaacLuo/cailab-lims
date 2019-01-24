@@ -100,7 +100,26 @@ interface IState {
   selectedIds: string[],
 }
 
-class PartsList extends React.Component<IProps, IState> {
+const mapStateToProps = (state :IStoreState) => ({
+  partsCount: state.partsCount,
+  allUsers: state.app.allUsers,
+  newPartDialogVisible: state.app.newPartDialogVisible,
+  loggedIn: state.user.loggedIn,
+  userId: state.user.userId,
+  editPartDialogVisible: state.app.editPartDialogVisible,
+  defaultBasket: state.partList.currentBasket,
+})
+
+const mapDispatchToProps = (dispatch :Dispatch) => ({
+  getUserList: ()=>dispatch({type:'GET_USER_LIST'}),
+  setNewPartDialogVisible: visible => dispatch(ActionSetNewPartDialogVisible(visible)),
+  setEditPartDialogVisible: (visible, partId) => dispatch(ActionSetEditPartDialogVisible(visible, partId)),
+  getParts: data => dispatch({type:'GET_PARTS', data}),
+  getBasket: () => dispatch({type:GET_DEFAULT_BASKET}),
+  addPartToBasket: data => dispatch ({type:'ADD_PARTS_TO_BASKET', data}),
+})
+
+class PartList extends React.Component<IProps, IState> {
 
   private detailTableStyle = {width:'100%'}
 
@@ -1004,23 +1023,6 @@ class PartsList extends React.Component<IProps, IState> {
 
 }
 
-const mapStateToProps = (state :IStoreState) => ({
-  partsCount: state.partsCount,
-  allUsers: state.app.allUsers,
-  newPartDialogVisible: state.app.newPartDialogVisible,
-  loggedIn: state.user.loggedIn,
-  userId: state.user.userId,
-  editPartDialogVisible: state.app.editPartDialogVisible,
-  defaultBasket: state.partList.currentBasket,
-})
 
-const mapDispatchToProps = (dispatch :Dispatch) => ({
-  getUserList: ()=>dispatch({type:'GET_USER_LIST'}),
-  setNewPartDialogVisible: visible => dispatch(ActionSetNewPartDialogVisible(visible)),
-  setEditPartDialogVisible: (visible, partId) => dispatch(ActionSetEditPartDialogVisible(visible, partId)),
-  getParts: data => dispatch({type:'GET_PARTS', data}),
-  getBasket: () => dispatch({type:GET_DEFAULT_BASKET}),
-  addPartToBasket: data => dispatch ({type:'ADD_PARTS_TO_BASKET', data}),
-})
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PartsList))
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PartList))

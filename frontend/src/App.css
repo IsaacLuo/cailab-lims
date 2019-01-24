@@ -81,3 +81,9 @@ div.cell {
 .deleting {
   text-decoration: line-through;
 }
+.centralizedPanel {
+  margin-left:100px;
+  margin-right:100px;
+  margin-top:1em;
+  margin-bottom:1em;
+}
