@@ -27,7 +27,9 @@ import getAuthHeader from './authHeader'
 
 // other saga
 import watchBasket from 'pages/BasketList/saga'
-import watchPartList from 'pages/PartsList/saga'
+import watchPartList from 'pages/PartList/saga'
+import watchPartList2 from 'pages/PartsList/saga'
+
 import watchUserBasket from 'components/TokenBarcode/saga'
 import watchAssignTubes from 'pages/AssignTubes/saga'
 import watchSearchTubeBarcode from 'pages/SearchTubeBarcode/saga'

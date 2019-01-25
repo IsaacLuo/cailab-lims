@@ -46,6 +46,16 @@ export interface IAppState {
 
 export interface IPartListState {
   currentBasket?: IBasket,
+  searchKeyword: string,
+  userFilter: string,
+  skip: number,
+  limit: number,
+  total: number,
+  sortMethod: {
+    order: 'asc'|'desc',
+    prop: string,
+  },
+  parts: IPart[],
 }
 
 export interface IBasketState {

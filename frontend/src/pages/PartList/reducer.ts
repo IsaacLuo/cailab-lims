@@ -9,6 +9,16 @@ import {
 
 const DEFAULT_STATE:IPartListState = {
   currentBasket: undefined,
+  searchKeyword: '',
+  userFilter: '',
+  skip: 0,
+  limit: 0,
+  total: 0,
+  sortMethod: {
+    order: 'desc',
+    prop: '_id',
+  },
+  parts: [],
 }
 
 function partListReducer(state :IPartListState = DEFAULT_STATE, action: IAction) {

@@ -7,11 +7,11 @@ import {
   SET_CURRENT_BASKET,
 } from './actions'
 
-const DEFAULT_STATE:IPartListState = {
+const DEFAULT_STATE:any = {
   currentBasket: undefined,
 }
 
-function partListReducer(state :IPartListState = DEFAULT_STATE, action: IAction) {
+function partListReducer(state :any = DEFAULT_STATE, action: IAction) {
   switch(action.type){
     case SET_CURRENT_BASKET:
       return {

@@ -49,6 +49,7 @@ import AssignTubes from 'pages/AssignTubes';
 import SearchTubeBarcode from 'pages/SearchTubeBarcode';
 import SearchRackBarcode from 'pages/SearchRackBarcode';
 import Part from 'pages/Part';
+import PartList from 'pages/PartList';
 
 interface IProps {
   initializing: boolean,
@@ -91,7 +92,7 @@ class App extends React.Component<IProps, any> {
           <LoginDialog/>
           <Route path='/' exact={true} component={Dashboard} />
 
-          <Route path='/parts/all/' exact={true} render={this.renderAllPartsComponent} />
+          <Route path='/parts/all/' exact={true} component={PartList} />
           <Route path='/parts/bacteria/' exact={true} render={this.renderBacteriaComponent} />
           <Route path='/parts/primers/' exact={true} render={this.renderPrimersComponent} />
           <Route path='/parts/yeasts/' exact={true} render={this.renderYeastsComponent} />
