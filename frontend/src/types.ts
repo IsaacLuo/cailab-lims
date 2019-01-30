@@ -46,6 +46,8 @@ export interface IAppState {
 
 export interface IPartListState {
   currentBasket?: IBasket,
+  loading: boolean,
+  sampleType: string,
   searchKeyword: string,
   userFilter: string,
   skip: number,

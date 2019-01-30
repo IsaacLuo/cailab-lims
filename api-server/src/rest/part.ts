@@ -318,7 +318,7 @@ export default function handlePart(app:Express) {
     if (user) {
       condition.ownerId = ObjectId(user);
     }
-    let parts = Part.find(condition)
+    let parts = Part.find(condition);
     if (sortBy) {
       let realSortBy = sortBy;
       if (sortBy === 'personalName') {
@@ -343,6 +343,9 @@ export default function handlePart(app:Express) {
     if (skip) parts = parts.skip(parseInt(skip))
     if (limit) parts = parts.limit(parseInt(limit))
 
+    // get count of all
+    let totalCount = await Part.count(condition).exec();
+
     // .select('labName')
     parts.exec((err, data)=>{
       if (err) {
@@ -354,7 +357,11 @@ export default function handlePart(app:Express) {
             sendBackXlsx(res,data);
           break;
           default:
-            res.json(data);
+            res.json({
+              filter: {type, skip, limit, user, sortBy, order: desc ? 'desc': 'asc'},
+              totalCount, 
+              parts: data,
+              });
         }
       }
     })

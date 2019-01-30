@@ -31,6 +31,9 @@ import {
   GET_PARTS,
   SET_SKIP,
   SET_LIMIT,
+  SET_SEARCH_KEYWORD,
+  SET_USER_FILTER,
+  SET_SORT_METHOD,
   } from './actions';
 
 // react-router
@@ -99,19 +102,23 @@ interface IProps extends IReactRouterProps {
     prop: string,
   },
   parts: IPart[],
+  loading: boolean,
   getUserList: () => void,
   setNewPartDialogVisible: (visible: boolean) => void,
   setEditPartDialogVisible: (visible: boolean, partId: string) => void,
   addPartToBasket: (ids: string[]) => void,
   getBasket: () => void,
   getParts: (data) => void,
+
+  setSearchKeyword: (val:string) => void,
+  setUserFilter: (val:string) => void,
   setSkip: (val:number) => void,
   setLimit: (val:number) => void,
+  setSort: (sortMethod: any) => void,
 }
 
 interface IState {
   columns: Array<IColumn|IExpandedPanel>,
-  loading: boolean,
   selectedIds: string[],
 }
 
@@ -131,6 +138,8 @@ const mapStateToProps = (state :IStoreState) => ({
   total: state.partList.total,
   sortMethod: state.partList.sortMethod,
   parts: state.partList.parts,
+
+  loading: state.partList.loading,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
@@ -140,8 +149,12 @@ const mapDispatchToProps = (dispatch :Dispatch) => ({
   getParts: (data) => dispatch({type:GET_PARTS, data}),
   getBasket: () => dispatch({type:GET_DEFAULT_BASKET}),
   addPartToBasket: data => dispatch ({type:'ADD_PARTS_TO_BASKET', data}),
+
+  setSearchKeyword: (val:string) => dispatch({type:SET_SEARCH_KEYWORD, data: val}),
+  setUserFilter: (val:string) => dispatch({type:SET_USER_FILTER, data: val}),
   setSkip: (val:number) => dispatch({type:SET_SKIP, data: val}),
   setLimit: (val:number) => dispatch({type:SET_LIMIT, data: val}),
+  setSort: (sortMethod: any) => dispatch({type:SET_SORT_METHOD, data:sortMethod }),
 })
 
 class PartList extends React.Component<IProps, IState> {
@@ -150,22 +163,53 @@ class PartList extends React.Component<IProps, IState> {
     super(props);
 
     // const {keyword, userFilter, skip, limit} = qs.parse(this.props.location.search, { ignoreQueryPrefix: true });
-    const {searchKeyword, userFilter, skip, limit, sortMethod} = this.props;
+    
 
     this.state = {
       columns: this.generateColumnTitle(),
-      loading: true,
       selectedIds: [],
     };
 
-    if (props.loggedIn) {
-      props.getUserList();
-      props.getParts({searchKeyword, userFilter, skip, limit, sortMethod});
-    }
+
   }
 
   public componentDidMount() {
-    this.props.getBasket();
+    if (this.props.loggedIn) {
+      console.debug('componentDidMount');
+      this.props.getBasket();
+      const qsValues = qs.parse(this.props.location.search, { ignoreQueryPrefix: true });
+      let {searchKeyword, userFilter, page, limit} = qsValues;
+      const {sort, order} = qsValues;
+
+      page = parseInt(page, 10);
+      if (isNaN(page)) {
+        page = 0;
+      }
+
+      limit = parseInt(limit, 10);
+      if (isNaN(limit)) {
+        limit = 10;
+      }
+
+      const skip = page * limit;
+
+      if (!searchKeyword) {
+        searchKeyword = ''
+      }
+
+      if (!userFilter) {
+        userFilter = ''
+      }
+
+      let sortMethod = this.props.sortMethod;
+
+      if (sort) {
+        sortMethod = {prop: sort, order: order==='asc' ? 'asc': 'desc'};
+      }
+      
+      this.props.getParts({searchKeyword, userFilter, skip, limit, sortMethod});
+
+    }
   }
 
   public componentWillReceiveProps(nextProps:IProps) {
@@ -175,6 +219,14 @@ class PartList extends React.Component<IProps, IState> {
       const {searchKeyword, userFilter, skip, limit, sortMethod} = this.props;
       this.props.getParts({searchKeyword, userFilter, skip, limit, sortMethod});
     }
+    if (nextProps.limit !== this.props.limit ||
+      nextProps.skip !== this.props.skip ||
+      nextProps.userFilter !== this.props.userFilter ||
+      nextProps.searchKeyword !== this.props.searchKeyword
+    ) {
+      // set new URL
+      this.pushHistory(nextProps);
+    }
   }
   
   public render() {
@@ -183,8 +235,7 @@ class PartList extends React.Component<IProps, IState> {
     const basketCount = defaultBasket ? defaultBasket.partsCount : undefined;
     
     // const {skip, limit, total, loading, userFilter} = this.state;
-    const {skip, limit, total, userFilter} = this.props;
-    const {loading} = this.state;
+    const {skip, limit, total, userFilter, loading} = this.props;
     if (!loggedIn) {
       console.log('not logged in, why?', this.props, this.state);
       return <Redirect to="/" />
@@ -220,32 +271,60 @@ class PartList extends React.Component<IProps, IState> {
             onSizeChange={this.onLimitChange}
             onCurrentChange={this.onPageChange}
           />
+          <Loading loading={loading} text={'loading'}>
+            <Table
+              style={{width: '100%'}}
+              columns={this.state.columns}
+              data={this.props.parts}
+              stripe={true}
+              onSortChange={this.onTableSortChange}
+              onSelectChange={this.onSelectChange}
+            />
+          </Loading>
+        <Pagination
+          layout="total, sizes, prev, pager, next, jumper"
+          total={total}
+          pageSize={limit}
+          currentPage={Math.floor(skip/limit)+1}
+          onSizeChange={this.onLimitChange}
+          onCurrentChange={this.onPageChange}
+        />
         </div>
       </ErrorBoundary>
             
     )
     
     
-    //     <Loading loading={loading} text={'loading'}>
-    //       <Table
-    //         style={{width: '100%'}}
-    //         columns={this.state.columns}
-    //         data={this.state.data}
-    //         stripe={true}
-    //         onSortChange={this.onTableSortChange}
-    //         onSelectChange={this.onSelectChange}
-    //       />
-    //     </Loading>
-    //     <Pagination
-    //       layout="total, sizes, prev, pager, next, jumper"
-    //       total={total}
-    //       pageSize={limit}
-    //       currentPage={Math.floor(skip/limit)+1}
-    //       onSizeChange={this.onLimitChange}
-    //       onCurrentChange={this.onPageChange}
-    //     />
+    
     
 
+  }
+
+  public pushHistory (props: IProps) {
+    const {searchKeyword, userFilter, skip, limit, sortMethod} = props;
+    let pathName = props.history.location.pathname;
+    pathName += '?';
+    const page = Math.floor(skip / limit);
+    const query = {
+      searchKeyword: searchKeyword === '' ? undefined : searchKeyword ,
+      userFilter: userFilter === '' ? undefined : userFilter,
+      page: page === 0 ? undefined : page,
+      limit: limit === 10 ? undefined : limit,
+      sort: sortMethod.prop === '_id' ? undefined : sortMethod.prop,
+      desc: sortMethod.order=== 'asc' ? 'asc' : undefined,
+    }
+    console.log(qs.stringify(query));
+    props.history.push(`${pathName}${qs.stringify(query)}`);
+    
+  }
+
+  protected format(obj: any): string {
+    const re = '';
+    if (Array.isArray(obj)) {
+      return obj.map(v=>v.toString()).join('; ')
+    } else {
+      return obj.toString();
+    }
   }
 
   protected onPageChange = (currentPage: number) => {
@@ -255,6 +334,7 @@ class PartList extends React.Component<IProps, IState> {
     //   this.replaceHistory();
     //   this.fetchPartsData();
     // })
+
     this.props.setSkip((currentPage-1) * this.props.limit);
   }
 
@@ -284,14 +364,14 @@ class PartList extends React.Component<IProps, IState> {
   //   });
   // }
 
-  // private onTableSortChange = (sortProp: {column:any, order:'ascending'|'descending', prop:string}) => {
-  //   const {order, prop} = sortProp;
-  //   this.setState({sortMethod: {order, prop}}, this.fetchPartsData);
-  // }
-  // private onSelectChange = (selection:any[]) => {
-  //   console.log(selection);
-  //   this.setState({selectedIds: selection.map(v => v._id)})
-  // }
+  protected onTableSortChange = (sortProp: {column:any, order:'ascending'|'descending', prop:string}) => {
+    const {order, prop} = sortProp;
+    // this.setState({sortMethod: {order, prop}}, this.fetchPartsData);
+  }
+  protected onSelectChange = (selection:any[]) => {
+    console.log(selection);
+    // this.setState({selectedIds: selection.map(v => v._id)})
+  }
 
   protected exportToXlsxCurrentPage = async () => {
     console.log('exportToXlsxCurrentPage');
@@ -737,6 +817,10 @@ class PartList extends React.Component<IProps, IState> {
       {
         type: 'expand',
         expandPannel: data => {
+          
+          console.debug('expandable table data = ', data);
+
+          // draw attachments
           const attachmentRows = data && data.attachments&& data.attachments.map(att => 
           <div key={att.fileId}>
             <a
@@ -771,14 +855,9 @@ class PartList extends React.Component<IProps, IState> {
                 },
               ]}
               data={[
-                {key: 'description', value: data.comment},
-                {key: 'parents', value: data.parents},
-                {key: 'genotype', value: data.genotype},
-                {key: 'plasmidType', value: data.plasmidType},
-                {key: 'markers', value: data.markers},
                 {key: 'createdAt', value: data.createdAt},
                 // customData
-                ...Object.keys(data.customData).map(key => ({key, value: data.customData[key]})),
+                ...Object.keys(data.content).map(key => ({key, value: this.format(data.content[key])})),
               ]}
             />
           {data.attachments&& data.attachments.length > 0 &&
@@ -825,18 +904,6 @@ class PartList extends React.Component<IProps, IState> {
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
           }}>{data.description} {data.comment}</div> 
-      },
-      {
-        label: "parents",
-        prop: "parents",
-        sortable: "custom",
-        width: 180,
-      },
-      {
-        label: "markers",
-        prop: "markers",
-        sortable: "custom",
-        width: 180,
       },
       {
         label: "date",

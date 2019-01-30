@@ -768,6 +768,12 @@ class PartsList extends React.Component<IProps, IState> {
         width:100,
       },
       {
+        label: "sample type",
+        prop: "sampleType",
+        sortable: "custom",
+        width:100,
+      },
+      {
         label: "comment",
         prop: "comment",
         sortable: "custom",
@@ -778,18 +784,6 @@ class PartsList extends React.Component<IProps, IState> {
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
           }}>{data.description} {data.comment}</div> 
-      },
-      {
-        label: "parents",
-        prop: "parents",
-        sortable: "custom",
-        width: 180,
-      },
-      {
-        label: "markers",
-        prop: "markers",
-        sortable: "custom",
-        width: 180,
       },
       {
         label: "date",

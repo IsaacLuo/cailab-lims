@@ -8,6 +8,10 @@ import {
   SET_CURRENT_BASKET,
   GET_PARTS,
   SET_SEARCH_PARTS_RESULT,
+  SET_SKIP,
+  SET_LIMIT,
+  SET_SEARCH_KEYWORD,
+  SET_SEARCH_FILTER,
 } from './actions'
 
 
@@ -50,8 +54,42 @@ function* getParts(action:IAction) {
     getAuthHeader());
     console.log(res.data);
     yield put({type:SET_SEARCH_PARTS_RESULT, data:{
-      parts: res.data,
+      parts: res.data.parts,
+      count: res.data.totalCount,
     }});
+
+    yield put({type:SET_SEARCH_FILTER, data: {
+      searchKeyword, sampleType, skip, limit, userFilter, sortMethod,
+    }});
+
+  } catch (err) {
+    console.error(err);
+    Notification.error('failed to get the default basket');
+    yield put({type:SET_SEARCH_PARTS_RESULT, data:{
+      parts: [],
+      count: 0,
+    }});
+  }
+}
+
+function* setSkip(action:IAction) {
+  try {
+    const {searchKeyword, sampleType, limit, userFilter, sortMethod} = yield select((state:IStoreState)=> state.partList);
+    const skip = action.data;
+    yield put({type:GET_PARTS, data: {searchKeyword, sampleType, limit, userFilter, sortMethod, skip}});
+
+  } catch (err) {
+    console.error(err);
+    Notification.error('failed to get the default basket');
+  }
+}
+
+function* setLimit(action:IAction) {
+  try {
+    const {searchKeyword, sampleType, limit, userFilter, sortMethod} = yield select((state:IStoreState)=> state.partList);
+    const skip = action.data;
+    yield put({type:GET_PARTS, data: {searchKeyword, sampleType, limit, userFilter, sortMethod, skip}});
+
   } catch (err) {
     console.error(err);
     Notification.error('failed to get the default basket');
@@ -61,4 +99,6 @@ function* getParts(action:IAction) {
 export default function* watchPartList() {
   yield takeLatest(GET_DEFAULT_BASKET, getDefaultBasket);
   yield takeLatest(GET_PARTS, getParts);
+  yield takeLatest(SET_SKIP, setSkip);
+  yield takeLatest(SET_LIMIT, setLimit);
 }
