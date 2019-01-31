@@ -1,7 +1,7 @@
 /**
  * PartList Actions
  */
-const appendix = '_PART_LIST'
+const appendix = ' @ PART_LIST'
 export const GET_DEFAULT_BASKET = 'GET_DEFAULT_BASKET' + appendix;
 export const SET_CURRENT_BASKET = 'SET_CURRENT_BASKET' + appendix;
 
@@ -19,3 +19,4 @@ export const SET_LIMIT = 'SET_LIMIT' + appendix;
 export const SET_SORT_METHOD = 'SET_SORT_METHOD' + appendix;
 
 export const SET_LOADING = 'SET_LOADING' + appendix;
+export const EXPORT_TO_XLSX = 'EXPORT_TO_XLSX' + appendix;

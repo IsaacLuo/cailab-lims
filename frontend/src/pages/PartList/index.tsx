@@ -34,6 +34,7 @@ import {
   SET_SEARCH_KEYWORD,
   SET_USER_FILTER,
   SET_SORT_METHOD,
+  EXPORT_TO_XLSX,
   } from './actions';
 
 // react-router
@@ -59,7 +60,6 @@ import {
 import styled from 'styled-components'
 import ErrorBoundary from 'components/ErrorBoundary'
 import EditPartDialog from 'components/EditPartDialog';
-import { getParts } from 'saga';
 
 
 const MyClickableIcon = styled(Button)`
@@ -115,6 +115,7 @@ interface IProps extends IReactRouterProps {
   setSkip: (val:number) => void,
   setLimit: (val:number) => void,
   setSort: (sortMethod: any) => void,
+  exportToXlsx: (skip?: number, limit?:number) => void,
 }
 
 interface IState {
@@ -155,22 +156,18 @@ const mapDispatchToProps = (dispatch :Dispatch) => ({
   setSkip: (val:number) => dispatch({type:SET_SKIP, data: val}),
   setLimit: (val:number) => dispatch({type:SET_LIMIT, data: val}),
   setSort: (sortMethod: any) => dispatch({type:SET_SORT_METHOD, data:sortMethod }),
+  exportToXlsx: (skip?: number, limit?: number) => dispatch({type:EXPORT_TO_XLSX, data:{skip, limit}}),
 })
 
 class PartList extends React.Component<IProps, IState> {
 
   constructor(props) {
     super(props);
-
-    // const {keyword, userFilter, skip, limit} = qs.parse(this.props.location.search, { ignoreQueryPrefix: true });
-    
-
     this.state = {
       columns: this.generateColumnTitle(),
       selectedIds: [],
     };
-
-
+    this.props.getUserList();
   }
 
   public componentDidMount() {
@@ -232,10 +229,14 @@ class PartList extends React.Component<IProps, IState> {
   public render() {
     const {loggedIn, allUsers, editPartDialogVisible, defaultBasket} = this.props;
     // return <div>{JSON.stringify(this.props)}</div>
+    
     const basketCount = defaultBasket ? defaultBasket.partsCount : undefined;
     
     // const {skip, limit, total, loading, userFilter} = this.state;
     const {skip, limit, total, userFilter, loading} = this.props;
+
+    document.title = `Cailab Lims - Part List`;
+
     if (!loggedIn) {
       console.log('not logged in, why?', this.props, this.state);
       return <Redirect to="/" />
@@ -293,11 +294,6 @@ class PartList extends React.Component<IProps, IState> {
       </ErrorBoundary>
             
     )
-    
-    
-    
-    
-
   }
 
   public pushHistory (props: IProps) {
@@ -314,7 +310,7 @@ class PartList extends React.Component<IProps, IState> {
       desc: sortMethod.order=== 'asc' ? 'asc' : undefined,
     }
     console.log(qs.stringify(query));
-    props.history.push(`${pathName}${qs.stringify(query)}`);
+    props.history.replace(`${pathName}${qs.stringify(query)}`);
     
   }
 
@@ -328,41 +324,12 @@ class PartList extends React.Component<IProps, IState> {
   }
 
   protected onPageChange = (currentPage: number) => {
-    // this.setState({
-    //   skip: (currentPage-1) * this.state.limit,
-    // }, () => {
-    //   this.replaceHistory();
-    //   this.fetchPartsData();
-    // })
-
     this.props.setSkip((currentPage-1) * this.props.limit);
   }
 
   protected onLimitChange = (limit: number) => {
-    this.props.setLimit(limit);
-    // this.setState({
-    //   limit,
-    // }, () => {
-    //   this.replaceHistory();
-    //   this.fetchPartsData();
-    // })   
+    this.props.setLimit(limit); 
   }
-
-  // private replaceHistory() {
-  //   const {userFilter, skip, limit} = this.state;
-  //   this.props.history.replace({search: qs.stringify({
-  //     userFilter,
-  //     skip,
-  //     limit,
-  //   })});
-  // }
-
-  // private onFilterUserChange = (value: string) => {
-  //   this.setState({userFilter: value, skip:0}, ()=>{
-  //     this.replaceHistory();
-  //     this.fetchPartsData();
-  //   });
-  // }
 
   protected onTableSortChange = (sortProp: {column:any, order:'ascending'|'descending', prop:string}) => {
     const {order, prop} = sortProp;
@@ -375,49 +342,13 @@ class PartList extends React.Component<IProps, IState> {
 
   protected exportToXlsxCurrentPage = async () => {
     console.log('exportToXlsxCurrentPage');
-    // const {skip, limit } = this.state;
-    // this.exportToXlsx(skip, limit);
+    const {skip, limit } = this.props;
+    this.props.exportToXlsx(skip, limit);
   }
   protected exportToXlsxAllPages = async () => {
     console.log('exportToXlsxAllPages')
-    // this.exportToXlsx(undefined, undefined);
+    this.props.exportToXlsx(undefined, undefined);
   }
-
-  // private exportToXlsx = async (skip?:number, limit?:number) => {
-  //   const sampleType = this.getSampleType();
-  //   const {userFilter, sortMethod} = this.state;
-
-  //   const params = (skip!==undefined && limit!==undefined) ? qs.stringify({
-  //     type: sampleType,
-  //     skip,
-  //     limit,
-  //     user: userFilter,
-  //     sortBy: sortMethod.prop,
-  //     desc: sortMethod.order === 'descending' ? true : false,
-  //     format: 'xlsx',
-  //   }) : qs.stringify({
-  //     type: sampleType,
-  //     user: userFilter,
-  //     sortBy: sortMethod.prop,
-  //     desc: sortMethod.order === 'descending' ? true : false,
-  //     format: 'xlsx',
-  //   })
-
-  //   const res = await axios({
-  //     url: serverURL+'/api/parts?'+params,
-  //     method: 'GET',
-  //     responseType: 'blob', // important
-  //     ...getAuthHeader(),
-  //   });
-
-  //   const url = window.URL.createObjectURL(new Blob([res.data]));
-  //   const link = document.createElement('a');
-  //   link.href = url;
-  //   link.setAttribute('download', 'export.xlsx');
-  //   document.body.appendChild(link);
-  //   link.click();
-  //   link.remove();
-  // }
 
   protected addPartsToBasket = async () => {
     this.props.addPartToBasket(this.state.selectedIds);
@@ -939,9 +870,10 @@ class PartList extends React.Component<IProps, IState> {
     return undefined;
   }
 
-  protected onFilterUserChange = () => {
+  protected onFilterUserChange = (value: string) => {
     
     console.log('onFilterUserChange');
+    this.props.setUserFilter(value);
     //     this.setState({userFilter: value, skip:0}, ()=>{
     //   this.replaceHistory();
     //   this.fetchPartsData();

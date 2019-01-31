@@ -9,7 +9,8 @@ import {
   SET_LOADING,
   SET_SKIP,
   SET_LIMIT,
-  SET_SEARCH_FILTER
+  SET_SEARCH_FILTER,
+  SET_USER_FILTER
 } from './actions'
 
 const DEFAULT_STATE:IPartListState = {
@@ -52,6 +53,12 @@ function partListReducer(state :IPartListState = DEFAULT_STATE, action: IAction)
       return {
         ...state,
         ...action.data,
+      }
+
+    case SET_USER_FILTER:
+      return {
+        ...state,
+        userFilter: action.data,
       }
 
     case SET_SKIP:

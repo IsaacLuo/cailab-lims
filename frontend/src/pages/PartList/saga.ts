@@ -12,6 +12,8 @@ import {
   SET_LIMIT,
   SET_SEARCH_KEYWORD,
   SET_SEARCH_FILTER,
+  SET_USER_FILTER,
+  EXPORT_TO_XLSX,
 } from './actions'
 
 
@@ -86,9 +88,9 @@ function* setSkip(action:IAction) {
 
 function* setLimit(action:IAction) {
   try {
-    const {searchKeyword, sampleType, limit, userFilter, sortMethod} = yield select((state:IStoreState)=> state.partList);
-    const skip = action.data;
-    yield put({type:GET_PARTS, data: {searchKeyword, sampleType, limit, userFilter, sortMethod, skip}});
+    const {searchKeyword, sampleType, skip, userFilter, sortMethod} = yield select((state:IStoreState)=> state.partList);
+    const limit = action.data;
+    yield put({type:GET_PARTS, data: {searchKeyword, sampleType, limit, userFilter, sortMethod, skip: (skip < limit ? 0: skip)}});
 
   } catch (err) {
     console.error(err);
@@ -96,9 +98,58 @@ function* setLimit(action:IAction) {
   }
 }
 
+function* setUserFilter(action:IAction) {
+  try {
+    const {searchKeyword, sampleType, limit, skip, userFilter, sortMethod} = yield select((state:IStoreState)=> state.partList);
+    yield put({type:GET_PARTS, data: {searchKeyword, sampleType, limit, userFilter: action.data, sortMethod, skip:0}});
+
+  } catch (err) {
+    console.error(err);
+    Notification.error('failed to get the default basket');
+  }
+}
+
+function* exportToXlsx(action:IAction) {
+  const {searchKeyword, sampleType, userFilter, sortMethod} = yield select((state:IStoreState)=> state.partList);
+  const {limit, skip} = action.data;
+  const params = (skip!==undefined && limit!==undefined) ? qs.stringify({
+    type: sampleType,
+    skip,
+    limit,
+    user: userFilter,
+    sortBy: sortMethod.prop,
+    desc: sortMethod.order === 'desc' ? true : false,
+    format: 'xlsx',
+  }) : qs.stringify({
+    type: sampleType,
+    user: userFilter,
+    sortBy: sortMethod.prop,
+    desc: sortMethod.order === 'desc' ? true : false,
+    format: 'xlsx',
+  })
+
+  const res = yield call(
+    axios.get,
+    serverURL+'/api/parts?'+params,
+    {
+      responseType: 'blob', // important
+      ...getAuthHeader(),
+    });
+
+  const url = window.URL.createObjectURL(new Blob([res.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'export.xlsx');
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
 export default function* watchPartList() {
   yield takeLatest(GET_DEFAULT_BASKET, getDefaultBasket);
   yield takeLatest(GET_PARTS, getParts);
   yield takeLatest(SET_SKIP, setSkip);
   yield takeLatest(SET_LIMIT, setLimit);
+  yield takeLatest(SET_USER_FILTER, setUserFilter);
+  yield takeLatest(EXPORT_TO_XLSX, exportToXlsx);
 }
