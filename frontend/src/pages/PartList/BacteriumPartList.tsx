@@ -160,13 +160,13 @@ const mapDispatchToProps = (dispatch :Dispatch) => ({
   exportToXlsx: (skip?: number, limit?: number) => dispatch({type:EXPORT_TO_XLSX, data:{skip, limit}}),
 })
 
-class YeastPartList extends PartList {
+class BacteriumPartList extends PartList {
   constructor(props) {
     super(props);
   }
 
   protected getTitle () {
-    return 'yeasts'
+    return 'bacteria'
   }
   
   protected generateColumnTitle() :Array<IColumn|IExpandedPanel> {
@@ -195,14 +195,8 @@ class YeastPartList extends PartList {
         width:200,
       },
       {
-        label: "parents",
-        prop: "parents",
-        sortable: "custom",
-        width: 180,
-      },
-      {
-        label: "markers",
-        prop: "markers",
+        label: "host strain",
+        prop: "hostStrain",
         sortable: "custom",
         width: 180,
       },
@@ -644,4 +638,4 @@ class YeastPartList extends PartList {
 
 
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(YeastPartList))
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(BacteriumPartList))

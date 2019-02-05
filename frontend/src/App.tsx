@@ -50,6 +50,9 @@ import SearchTubeBarcode from 'pages/SearchTubeBarcode';
 import SearchRackBarcode from 'pages/SearchRackBarcode';
 import Part from 'pages/Part';
 import PartList from 'pages/PartList';
+import BateriumPartList from 'pages/PartList/BacteriumPartList.tsx'
+import PrimerPartList from 'pages/PartList/PrimerPartList';
+import YeastPartList from 'pages/PartList/YeastPartList';
 
 interface IProps {
   initializing: boolean,
@@ -93,9 +96,12 @@ class App extends React.Component<IProps, any> {
           <Route path='/' exact={true} component={Dashboard} />
 
           <Route path='/parts/all/' exact={true} component={PartList} />
-          <Route path='/parts/bacteria/' exact={true} render={this.renderBacteriaComponent} />
-          <Route path='/parts/primers/' exact={true} render={this.renderPrimersComponent} />
-          <Route path='/parts/yeasts/' exact={true} render={this.renderYeastsComponent} />
+          <Route path='/parts/bacteria/' exact={true} component={BateriumPartList} />
+          <Route path='/parts/primers/' exact={true} component={PrimerPartList} />
+          <Route path='/parts/yeasts/' exact={true} component={YeastPartList} />
+          {/* <Route path='/parts/bacteria/' exact={true} render={this.renderBacteriaComponent} /> */}
+          {/* <Route path='/parts/primers/' exact={true} render={this.renderPrimersComponent} /> */}
+          {/* <Route path='/parts/yeasts/' exact={true} render={this.renderYeastsComponent} /> */}
           <Route path='/parts/bacteria/upload' exact={true} render={this.renderBacteriaUpload} />
           <Route path='/parts/primers/upload' exact={true} render={this.renderPrimersUpload} />
           <Route path='/parts/yeasts/upload' exact={true} render={this.renderYeastsUpload} />

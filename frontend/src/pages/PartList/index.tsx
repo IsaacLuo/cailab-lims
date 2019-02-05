@@ -159,7 +159,7 @@ const mapDispatchToProps = (dispatch :Dispatch) => ({
   exportToXlsx: (skip?: number, limit?: number) => dispatch({type:EXPORT_TO_XLSX, data:{skip, limit}}),
 })
 
-class PartList extends React.Component<IProps, IState> {
+export class PartList extends React.Component<IProps, IState> {
 
   constructor(props) {
     super(props);
@@ -318,6 +318,8 @@ class PartList extends React.Component<IProps, IState> {
     const re = '';
     if (Array.isArray(obj)) {
       return obj.map(v=>v.toString()).join('; ')
+    } else if (/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/.test(obj.toString())) {
+      return (new Date(obj)).toLocaleDateString()
     } else {
       return obj.toString();
     }
@@ -739,36 +741,27 @@ class PartList extends React.Component<IProps, IState> {
   //     ];
   // }
 
-  protected generateColumnTitle () :Array<IColumn|IExpandedPanel>{
-    const {userId} = this.props;
-    return [
-      {
-        type: 'selection',
-      },
-      {
+    protected generateExpandTablePanel() {
+    return {
         type: 'expand',
         expandPannel: data => {
-          
-          console.debug('expandable table data = ', data);
+          const attachmentRows = data && data.attachments && data.attachments.map(att => 
+            <div key={att.fileId}>
+              <a
+                onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
+              >
+                {att.fileName},
+                {fileSizeHumanReadable(att.fileSize)}
+              </a>
+            </div>);
 
-          // draw attachments
-          const attachmentRows = data && data.attachments&& data.attachments.map(att => 
-          <div key={att.fileId}>
-            <a
-              onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
-            >
-              {att.fileName},
-              {fileSizeHumanReadable(att.fileSize)}
-            </a>
-          </div>);
-          
-          const containerRows = data && data.containers && data.containers.map(container => 
-          <div key={container.barcode}>
-            <Link to={`/tasks/searchTubeBarcode/${container.barcode}`}>
-              {container.barcode}
-            </Link>
-          </div>);
-
+          let otherData:any[] = [], customData:any[] = [];
+          if (data.content) {
+            otherData = Object.keys(data.content).filter(key => ['customData'].indexOf(key) < 0).map(key => ({key, value: this.format(data.content[key])}));
+            if (data.content.customData) {
+              customData = Object.keys(data.content.customData).map(key => ({key, value: this.format(data.content.customData[key])}));
+            }
+          }
           return <div className="partDetailPanel"style={{width:'100%'}}>
             <FullWidthTable
               rowStyle={this.rowStyle}
@@ -786,26 +779,35 @@ class PartList extends React.Component<IProps, IState> {
                 },
               ]}
               data={[
-                {key: 'createdAt', value: data.createdAt},
-                // customData
-                ...Object.keys(data.content).map(key => ({key, value: this.format(data.content[key])})),
+                {key: 'comment', value: data.comment},
+                {key: 'creator', value: data.ownerName},
+                {key: 'created at', value: new Date(data.createdAt).toLocaleDateString()},
+                {key: 'updated at', value: new Date(data.createdAt).toLocaleDateString()},
+                // other data
+                ...otherData,
+                // custom data
+                ...customData,
               ]}
             />
-          {data.attachments&& data.attachments.length > 0 &&
+          {data.attachments && data.attachments.length > 0 &&
             (<div style={{marginTop:10, marginBottom: 5}}> 
               <div><b>attachments</b></div> 
               {attachmentRows}
             </div>
           )}
-          {data.containers&& data.containers.length > 0 &&
-            (<div style={{marginTop:10, marginBottom: 5}}> 
-              <div><b>containers</b></div> 
-              {containerRows}
-            </div>
-          )}
+          {/* {JSON.stringify(data)} */}
           </div>
         },
+      }
+  }
+
+  protected generateColumnTitle () :Array<IColumn|IExpandedPanel>{
+    const {userId} = this.props;
+    return [
+      {
+        type: 'selection',
       },
+      this.generateExpandTablePanel(),
       {
         label: "lab name",
         prop: "labName",
@@ -841,6 +843,7 @@ class PartList extends React.Component<IProps, IState> {
         prop: "date",
         sortable: "custom",
         width: 180,
+        render: (data) => (new Date(data.createdAt).toLocaleDateString())
       },
       {
         label: "...",
@@ -1021,7 +1024,7 @@ class PartList extends React.Component<IProps, IState> {
   // }
 
   // when clicking on the attachment link, download the attachment
-  private onClickAttachment = async (fileId: string, fileName: string, e:React.MouseEvent<HTMLElement>) => {
+  protected onClickAttachment = async (fileId: string, fileName: string, e:React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     const res = await axios({
       url: serverURL+`/api/attachment/${fileId}`,
@@ -1037,11 +1040,11 @@ class PartList extends React.Component<IProps, IState> {
     link.click();
   }
 
-  private onClickEditPart = async (data:any) => {
+  protected onClickEditPart = async (data:any) => {
     this.props.setEditPartDialogVisible(true, data._id);
   }
 
-  private onClickDeletePart = async (data:any) => {
+  protected onClickDeletePart = async (data:any) => {
     const id = data._id;
     const createdAt = new Date(data.createdAtRaw);
     const cancelMessage = () => Message({type: 'info', message: 'canceled'})
@@ -1063,10 +1066,8 @@ class PartList extends React.Component<IProps, IState> {
     }
   }
 
-  private rowStyle = ()=>({border:0, textAlign:'left'})
+  protected rowStyle = ()=>({border:0, textAlign:'left'})
 
 }
-
-
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PartList))
