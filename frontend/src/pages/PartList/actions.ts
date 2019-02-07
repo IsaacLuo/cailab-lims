@@ -20,3 +20,6 @@ export const SET_SORT_METHOD = 'SET_SORT_METHOD' + appendix;
 
 export const SET_LOADING = 'SET_LOADING' + appendix;
 export const EXPORT_TO_XLSX = 'EXPORT_TO_XLSX' + appendix;
+
+export const DELETE_PART = 'DELETE_PART' + appendix;
+export const DELETE_PART_REQUEST = 'DELETE_PART_REQUEST' + appendix;

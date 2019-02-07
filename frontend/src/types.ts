@@ -40,6 +40,8 @@ export interface IAppState {
   loginDialogVisible: boolean,
   newPartDialogVisible: boolean,
   editPartDialogVisible: boolean,
+  // edit dialog information  
+  editPartDialogPartId: string,
   // all user names, used in user filter combo box
   allUsers: IUserInfo[],
 }
@@ -75,9 +77,6 @@ export interface IStoreState {
 
   // parts information
   partsCount: IPartsCount,
-
-  // edit dialog information  
-  editPartDialogPartId: string,
 
   // assigne tubes
   assignTubes: IAssignTubesState,

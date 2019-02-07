@@ -19,6 +19,7 @@ const DEFAULT_STATE:IAppState = {
   loginDialogVisible: false,
   newPartDialogVisible: false,
   editPartDialogVisible: false,
+  editPartDialogPartId: '',
   allUsers: [],
 }
 

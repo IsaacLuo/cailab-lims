@@ -97,6 +97,15 @@ interface IState {
 }
 
 
+const mapStateToProps = (state :IStoreState) => ({
+  dialogVisible: state.app.editPartDialogVisible,
+  partId: state.app.editPartDialogPartId,
+})
+
+const mapDispatchToProps = (dispatch :Dispatch) => ({
+  hideDialog: () => dispatch(ActionSetEditPartDialogVisible(false)),
+})
+
 
 class EditPartDialog extends React.Component<IProps, IState> {
 
@@ -332,13 +341,6 @@ class EditPartDialog extends React.Component<IProps, IState> {
   }
 }
 
-const mapStateToProps = (state :IStoreState) => ({
-  dialogVisible: state.app.editPartDialogVisible,
-  partId: state.editPartDialogPartId,
-})
 
-const mapDispatchToProps = (dispatch :Dispatch) => ({
-  hideDialog: () => dispatch(ActionSetEditPartDialogVisible(false)),
-})
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(EditPartDialog))
