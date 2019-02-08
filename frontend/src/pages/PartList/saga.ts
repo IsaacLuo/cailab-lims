@@ -14,6 +14,7 @@ import {
   SET_SEARCH_FILTER,
   SET_USER_FILTER,
   EXPORT_TO_XLSX,
+  DELETE_PART_REQUEST,
 } from './actions'
 
 
@@ -26,6 +27,11 @@ import {Notification} from 'element-react'
 import {serverURL} from 'config'
 import getAuthHeader from 'authHeader'
 
+// components
+import {
+  Message,
+} from 'element-react'
+
 function* getDefaultBasket(action:IAction) {
   try {
     const res = yield call(axios.get, serverURL+`/api/picklist/0`, getAuthHeader());
@@ -37,13 +43,18 @@ function* getDefaultBasket(action:IAction) {
   }
 }
 
+let lastGetPartsAction:IAction = {type:GET_PARTS, data: undefined};
 function* getParts(action:IAction) {
   try {
     console.log("get_part");
     // const res = yield call(axios.get, serverURL+`/api/picklist/0`, getAuthHeader());
     // console.debug('my current basket', res.data);
     // yield put({type: SET_CURRENT_BASKET, data: res.data});
+    if(action.data === undefined) {
+      action = lastGetPartsAction;
+    }
     const {searchKeyword, sampleType, skip, limit, userFilter, sortMethod} = action.data;
+    lastGetPartsAction = action;
     const res = yield call(axios.get, serverURL+'/api/parts?'+qs.stringify({
       search: searchKeyword,
       type: sampleType,
@@ -145,6 +156,26 @@ function* exportToXlsx(action:IAction) {
   link.remove();
 }
 
+function* sendDeletePartRequest(action:IAction) {
+  const id = action.data;
+  try {
+    const res = yield call(
+      axios.put, 
+      serverURL+`/api/sudoRequests/partDeletion/${id}`,
+      {},
+      getAuthHeader(),
+    );
+    // yield put({type:GET_PARTS});
+    Message.success('request posted');
+  } catch (err) {
+    if (err.response) {
+      Message.error(`ERROR ${err.response.status} ${err.response.data.message}`);
+    } else {
+      Message.error('unable to post request');
+    }
+  }
+}
+
 export default function* watchPartList() {
   yield takeLatest(GET_DEFAULT_BASKET, getDefaultBasket);
   yield takeLatest(GET_PARTS, getParts);
@@ -152,4 +183,5 @@ export default function* watchPartList() {
   yield takeLatest(SET_LIMIT, setLimit);
   yield takeLatest(SET_USER_FILTER, setUserFilter);
   yield takeLatest(EXPORT_TO_XLSX, exportToXlsx);
+  yield takeLatest(DELETE_PART_REQUEST, sendDeletePartRequest);
 }
