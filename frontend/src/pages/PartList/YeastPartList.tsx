@@ -193,6 +193,12 @@ class YeastPartList extends PartList {
         prop: "tags",
         sortable: "custom",
         width:200,
+        render: (data) =>
+          <div style={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>{this.format(data.tags)}</div> 
       },
       {
         label: "parents",
@@ -205,6 +211,12 @@ class YeastPartList extends PartList {
         prop: "markers",
         sortable: "custom",
         width: 180,
+        render: (data) =>
+          <div style={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>{this.format(data.tags)}</div> 
       },
       {
         label: "comment",

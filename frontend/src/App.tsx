@@ -73,7 +73,7 @@ class App extends React.Component<IProps, any> {
     console.log('app mount');
     this.intervalHandle = setInterval(()=>{
       this.props.dispatchGetMyStatus();
-    }, 60000);
+    }, 600000);
   }
 
   public componentWillUnmount() {

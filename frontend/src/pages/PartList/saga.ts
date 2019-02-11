@@ -15,6 +15,7 @@ import {
   SET_USER_FILTER,
   EXPORT_TO_XLSX,
   DELETE_PART_REQUEST,
+  DELETE_PART,
 } from './actions'
 
 
@@ -176,6 +177,25 @@ function* sendDeletePartRequest(action:IAction) {
   }
 }
 
+function* deletePart(action:IAction) {
+  const id = action.data;
+  try {
+    const res = yield call(
+      axios.delete, 
+      serverURL + `/api/part/${id}`,
+      getAuthHeader(),
+    );
+    Message.success('deleted');
+    yield put({type:GET_PARTS});
+  } catch (err) {
+    if (err.response) {
+      Message.error(`ERROR ${err.response.status} ${err.response.data.message}`);
+    } else {
+      Message.error('unable to delete');
+    }
+  }
+}
+
 export default function* watchPartList() {
   yield takeLatest(GET_DEFAULT_BASKET, getDefaultBasket);
   yield takeLatest(GET_PARTS, getParts);
@@ -184,4 +204,5 @@ export default function* watchPartList() {
   yield takeLatest(SET_USER_FILTER, setUserFilter);
   yield takeLatest(EXPORT_TO_XLSX, exportToXlsx);
   yield takeLatest(DELETE_PART_REQUEST, sendDeletePartRequest);
+  yield takeLatest(DELETE_PART, deletePart);
 }

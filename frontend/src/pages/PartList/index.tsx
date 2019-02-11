@@ -62,6 +62,7 @@ import {
 import styled from 'styled-components'
 import ErrorBoundary from 'components/ErrorBoundary'
 import EditPartDialog from 'components/EditPartDialog';
+import { format } from 'path';
 
 
 const MyClickableIcon = styled(Button)`
@@ -247,11 +248,13 @@ export class PartList extends React.Component<IProps, IState> {
       console.log('not logged in, why?', this.props, this.state);
       return <Redirect to="/" />
     }
+
+    const uploadURL = this.getUploadURL();
+
     return (
       <ErrorBoundary>
         {editPartDialogVisible && <EditPartDialog/>}
         <div style={{width:'100%'}}>
-          {/* {JSON.stringify(this.props)} */}
           <h1>{this.getTitle()}</h1>
           <div>
             <span>user filter </span>
@@ -265,7 +268,12 @@ export class PartList extends React.Component<IProps, IState> {
               }
             </Select>
             {/* <Button onClick = {this.props.setNewPartDialogVisible.bind(this, true)}>new part</Button> */}
-            { this.getUploadLink() }
+
+            {/* { this.getUploadLink() } */}
+          {uploadURL && <Link to={uploadURL} style={{marginLeft:10,marginRight:10}}>
+              <Button type="primary">import</Button>
+            </Link>
+          }
             <Button onClick = {this.exportToXlsxCurrentPage}>export page</Button>
             <Button onClick = {this.exportToXlsxAllPages}>export all</Button>
             <Button icon="plus" onClick = {this.addPartsToBasket} >add to basket {basketCount?`(${basketCount})`:''}</Button>
@@ -318,6 +326,10 @@ export class PartList extends React.Component<IProps, IState> {
     console.log(qs.stringify(query));
     props.history.replace(`${pathName}${qs.stringify(query)}`);
     
+  }
+
+  protected getUploadURL(): string|undefined {
+    return undefined;
   }
 
   protected format(obj: any): string {
@@ -446,6 +458,12 @@ export class PartList extends React.Component<IProps, IState> {
         prop: "tags",
         sortable: "custom",
         width:100,
+        render: (data, column, index) =>
+          <div style={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>{this.format(data)}</div> 
       },
       {
         label: "comment",
@@ -488,10 +506,6 @@ export class PartList extends React.Component<IProps, IState> {
 
   protected getTitle() {
     return 'Parts';
-  }
-
-  protected getUploadLink () {
-    return undefined;
   }
 
   protected onFilterUserChange = (value: string) => {
