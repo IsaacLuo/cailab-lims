@@ -196,6 +196,12 @@ function* deletePart(action:IAction) {
   }
 }
 
+function* setSearchKeyword(action: IAction) {
+  const searchKeyword = action.data;
+  const {sampleType, limit, skip, userFilter, sortMethod} = yield select((state:IStoreState)=> state.partList);
+  yield put({type:GET_PARTS, data:{searchKeyword, sampleType, limit, skip, userFilter, sortMethod}});
+}
+
 export default function* watchPartList() {
   yield takeLatest(GET_DEFAULT_BASKET, getDefaultBasket);
   yield takeLatest(GET_PARTS, getParts);
@@ -205,4 +211,5 @@ export default function* watchPartList() {
   yield takeLatest(EXPORT_TO_XLSX, exportToXlsx);
   yield takeLatest(DELETE_PART_REQUEST, sendDeletePartRequest);
   yield takeLatest(DELETE_PART, deletePart);
+  yield takeLatest(SET_SEARCH_KEYWORD, setSearchKeyword);
 }

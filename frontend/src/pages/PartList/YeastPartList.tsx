@@ -168,6 +168,10 @@ class YeastPartList extends PartList {
   protected getTitle () {
     return 'yeasts'
   }
+
+  protected getSampleType () {
+    return 'yeast'
+  }
   
   protected generateColumnTitle() :Array<IColumn|IExpandedPanel> {
     const {userId} = this.props;

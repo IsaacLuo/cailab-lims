@@ -92,6 +92,10 @@ class BacteriumPartList extends PartList {
   protected getTitle () {
     return 'bacteria'
   }
+
+  protected getSampleType () {
+    return 'bacterium'
+  }
   
   protected generateColumnTitle() :Array<IColumn|IExpandedPanel> {
     const {userId} = this.props;
@@ -117,7 +121,7 @@ class BacteriumPartList extends PartList {
         prop: "tags",
         sortable: "custom",
         width:200,
-        render: (data, column, index) =>
+        render: (data) =>
           <div style={{
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -147,6 +151,12 @@ class BacteriumPartList extends PartList {
         prop: "markers",
         sortable: "custom",
         width: 120,
+        render: (data) =>
+          <div style={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>{this.format(data.tags)}</div> 
       },
       {
         label: "date",

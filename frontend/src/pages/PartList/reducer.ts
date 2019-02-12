@@ -10,7 +10,8 @@ import {
   SET_SKIP,
   SET_LIMIT,
   SET_SEARCH_FILTER,
-  SET_USER_FILTER
+  SET_USER_FILTER,
+  SET_SEARCH_KEYWORD
 } from './actions'
 
 const DEFAULT_STATE:IPartListState = {
@@ -70,6 +71,11 @@ function partListReducer(state :IPartListState = DEFAULT_STATE, action: IAction)
       return {
         ...state,
         limit: action.data,
+      }
+    case SET_SEARCH_KEYWORD:
+      return {
+        ...state,
+        searchKeyword: action.data
       }
   }
   return state;

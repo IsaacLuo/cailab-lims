@@ -310,8 +310,11 @@ export default function handlePart(app:Express) {
   });
 
   app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
-    let {type, skip, limit, user, sortBy, desc, format} = req.query;
+    let {search, type, skip, limit, user, sortBy, desc, format} = req.query;
     let condition :any = {};
+    if (search) {
+      condition.$text = {$search:search};
+    }
     if (type) {
       condition.sampleType = type;
     }

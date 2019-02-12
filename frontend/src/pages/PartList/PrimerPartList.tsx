@@ -168,6 +168,10 @@ class PrimerPartList extends PartList {
   protected getTitle () {
     return 'primers'
   }
+
+  protected getSampleType () {
+    return 'primer'
+  }
 }
 
 

@@ -63,6 +63,7 @@ import styled from 'styled-components'
 import ErrorBoundary from 'components/ErrorBoundary'
 import EditPartDialog from 'components/EditPartDialog';
 import { format } from 'path';
+import PartsSearchBar from 'components/PartsSearchBar';
 
 
 const MyClickableIcon = styled(Button)`
@@ -73,6 +74,24 @@ const MyClickableIcon = styled(Button)`
 
 const FullWidthTable = styled(Table)`
   width: 100%;
+`
+
+const FlexPanel = styled.div`
+  display:flex;
+  flex-direction:column;
+  align-items: center;
+`
+
+const FlexRow = styled.div`
+  display:flex;
+  align-items: center;
+  margin-top:5px;
+  margin-bottom:5px;
+  justify-content: space-between;
+`
+
+const Title = styled.span`
+  margin-right:5px;
 `
 
 interface IExpandedPanel {
@@ -185,6 +204,8 @@ export class PartList extends React.Component<IProps, IState> {
       let {searchKeyword, userFilter, page, limit} = qsValues;
       const {sort, order} = qsValues;
 
+      const sampleType = this.getSampleType();
+
       page = parseInt(page, 10);
       if (isNaN(page)) {
         page = 0;
@@ -211,7 +232,7 @@ export class PartList extends React.Component<IProps, IState> {
         sortMethod = {prop: sort, order: order==='asc' ? 'asc': 'desc'};
       }
       
-      this.props.getParts({searchKeyword, userFilter, skip, limit, sortMethod});
+      this.props.getParts({sampleType, searchKeyword, userFilter, skip, limit, sortMethod});
 
     }
   }
@@ -254,10 +275,16 @@ export class PartList extends React.Component<IProps, IState> {
     return (
       <ErrorBoundary>
         {editPartDialogVisible && <EditPartDialog/>}
-        <div style={{width:'100%'}}>
+        <FlexPanel>
           <h1>{this.getTitle()}</h1>
-          <div>
-            <span>user filter </span>
+          <div style={{marginLeft:100,marginRight:100, minWidth:'50%'}}>
+            <FlexRow>
+              <Title>Search</Title>
+              <PartsSearchBar onSearch={this.props.setSearchKeyword}/>
+            </FlexRow>
+          </div>
+          <FlexRow>
+            <Title>user filter </Title>
             <Select
               value = {userFilter}
               clearable = {true}
@@ -267,9 +294,6 @@ export class PartList extends React.Component<IProps, IState> {
                 allUsers.map(user => <Select.Option key={user.id} label={user.name} value={user.id} />)
               }
             </Select>
-            {/* <Button onClick = {this.props.setNewPartDialogVisible.bind(this, true)}>new part</Button> */}
-
-            {/* { this.getUploadLink() } */}
           {uploadURL && <Link to={uploadURL} style={{marginLeft:10,marginRight:10}}>
               <Button type="primary">import</Button>
             </Link>
@@ -277,7 +301,8 @@ export class PartList extends React.Component<IProps, IState> {
             <Button onClick = {this.exportToXlsxCurrentPage}>export page</Button>
             <Button onClick = {this.exportToXlsxAllPages}>export all</Button>
             <Button icon="plus" onClick = {this.addPartsToBasket} >add to basket {basketCount?`(${basketCount})`:''}</Button>
-          </div>
+          </FlexRow>
+    
           <Pagination
             layout="total, sizes, prev, pager, next, jumper"
             total={total}
@@ -286,6 +311,7 @@ export class PartList extends React.Component<IProps, IState> {
             onSizeChange={this.onLimitChange}
             onCurrentChange={this.onPageChange}
           />
+          <div style={{width:'100%'}}>
           <Loading loading={loading} text={'loading'}>
             <Table
               style={{width: '100%'}}
@@ -296,6 +322,7 @@ export class PartList extends React.Component<IProps, IState> {
               onSelectChange={this.onSelectChange}
             />
           </Loading>
+          </div>
         <Pagination
           layout="total, sizes, prev, pager, next, jumper"
           total={total}
@@ -304,7 +331,7 @@ export class PartList extends React.Component<IProps, IState> {
           onSizeChange={this.onLimitChange}
           onCurrentChange={this.onPageChange}
         />
-        </div>
+        </FlexPanel>
       </ErrorBoundary>
             
     )
@@ -326,6 +353,10 @@ export class PartList extends React.Component<IProps, IState> {
     console.log(qs.stringify(query));
     props.history.replace(`${pathName}${qs.stringify(query)}`);
     
+  }
+
+  protected getSampleType (): string|undefined {
+    return undefined;
   }
 
   protected getUploadURL(): string|undefined {
@@ -463,7 +494,7 @@ export class PartList extends React.Component<IProps, IState> {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
-          }}>{this.format(data)}</div> 
+          }}>{this.format(data.tags)}</div> 
       },
       {
         label: "comment",

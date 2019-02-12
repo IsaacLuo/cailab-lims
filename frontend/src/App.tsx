@@ -40,7 +40,6 @@ import { connect } from 'react-redux'
 import Users from 'components/Users'
 import NavBar from 'components/NavBar'
 import LoginDialog from './components/LoginDialog'
-import PartsList from 'pages/PartsList';
 import UploadParts from 'pages/UploadParts';
 import DeletionRequestsList from 'pages/DeletionRequestsList';
 import Dashboard from 'pages/Dashboard';
@@ -99,9 +98,7 @@ class App extends React.Component<IProps, any> {
           <Route path='/parts/bacteria/' exact={true} component={BateriumPartList} />
           <Route path='/parts/primers/' exact={true} component={PrimerPartList} />
           <Route path='/parts/yeasts/' exact={true} component={YeastPartList} />
-          {/* <Route path='/parts/bacteria/' exact={true} render={this.renderBacteriaComponent} /> */}
-          {/* <Route path='/parts/primers/' exact={true} render={this.renderPrimersComponent} /> */}
-          {/* <Route path='/parts/yeasts/' exact={true} render={this.renderYeastsComponent} /> */}
+          
           <Route path='/parts/bacteria/upload' exact={true} render={this.renderBacteriaUpload} />
           <Route path='/parts/primers/upload' exact={true} render={this.renderPrimersUpload} />
           <Route path='/parts/yeasts/upload' exact={true} render={this.renderYeastsUpload} />
@@ -122,11 +119,6 @@ class App extends React.Component<IProps, any> {
       );
     }
   }
-
-  private renderAllPartsComponent = props => <PartsList sampleType="part"/>
-  private renderBacteriaComponent = props => <PartsList sampleType="bacterium"/>
-  private renderPrimersComponent = props => <PartsList sampleType="primer"/>
-  private renderYeastsComponent = props => <PartsList sampleType="yeast"/>
 
   private renderBacteriaUpload = props => <UploadParts sampleType="bacterium" returnTo="/parts/bacteria"/>
   private renderPrimersUpload = props => <UploadParts sampleType="primer" returnTo="/parts/primers"/>

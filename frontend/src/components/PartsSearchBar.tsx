@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Input } from 'element-react';
 
 interface IProps {
-  text: string,
+  text?: string,
   onSearch?: (searchKey: string) => void,
 }
 interface IState {
@@ -13,13 +13,13 @@ class PartsSearchBar extends React.Component<IProps, IState> {
   constructor (props:IProps) {
     super(props);
     this.state = {
-      searchKey: props.text,
+      searchKey: props.text || '',
     }
   }
 
   public componentWillReceiveProps(np: IProps) {
     if(np.text !== this.props.text) {
-      this.setState({searchKey: np.text});
+      this.setState({searchKey: np.text || ''});
     }
   }
 

@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 // components
 import StatisticPanel from 'components/StatisticPanel';
 import { Input } from 'element-react';
-import { SEARCH_PART } from 'pages/PartsList/actions';
+import { SEARCH_PART } from 'pages/PartList/actions';
 
 
 interface IProps extends IReactRouterProps {
@@ -75,7 +75,7 @@ class Dashboard extends React.Component<IProps, IState> {
   private onSearchInputKeyUp = event => {
     if (event.keyCode === 13) {
       // this.props.dispatchSearchPart(this.state.searchKey);
-      this.props.history.push(`/parts/search/${this.state.searchKey}`);
+      this.props.history.push(`/parts/all/?search=${this.state.searchKey}`);
     }
   };
 
