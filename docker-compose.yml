@@ -2,7 +2,7 @@ version: '3.0'
 services:
   api:
     build: ./api-server
-    ports:
+    # ports:
       # - "11080:8000"
     working_dir: /app
     command: ['yarn', 'run', 'production']
@@ -14,7 +14,7 @@ services:
 
   frontend:
     build: ./frontend
-    ports:
+    # ports:
       # - "11180:80"
     links:
       - api
