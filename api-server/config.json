@@ -9,6 +9,6 @@
     "production": {
         "host": "0.0.0.0",
         "publicURL": "https://api.lims-dev.cailab.org",
-        "port": 443 
+        "port": 8000 
     }
 }

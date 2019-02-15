@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 
 import secret from '../secret.json'
-import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, LogLogin, LogOperation} from './models'
+import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, LogLogin, LogOperation, Container} from './models'
 import multer from 'multer'
 
 import {Request} from './MyRequest'
@@ -19,7 +19,7 @@ import preprocess from './preprocess'
 import handlePart from './rest/part'
 import handlePartDeletion from './rest/sudoRequests/partDeletion'
 import handleAttachments from './rest/attachment';
-import hanleBroadCasts from './rest/broadcast';
+import hanleBroadcasts from './rest/broadcast';
 import handlePickList from './rest/pickList';
 import handleTube from './rest/tube';
 import handleTubeRack from './rest/tubeRack';
@@ -45,7 +45,7 @@ handlePartDeletion(app);
 // CRD attachments of parts
 handleAttachments(app, upload);
 
-hanleBroadCasts(app);
+hanleBroadcasts(app);
 
 handlePickList(app);
 
@@ -54,8 +54,18 @@ handleTube(app);
 handleTubeRack(app);
 
 
+
+
+
 // for testing if the server is running
 app.get('/test/',(req :Request, res: Response) => {
+  
+
+  // do some one time job
+  Part.find({containers:{$exists:true}}).exec().then((part)=>{
+    part.containers = undefined;
+    part.save();
+  });
   res.json({foo:'get'})
 })
 

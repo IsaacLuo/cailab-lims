@@ -4,7 +4,7 @@
  * POST   /api/broadcast
  */
 import {Express, Response} from 'express'
-import {BroadCast} from '../models'
+import {Broadcast} from '../models'
 import {Request} from '../MyRequest'
 import {userMustLoggedIn, userMustBeAdmin} from '../MyMiddleWare'
 import mongoose from 'mongoose'
@@ -16,7 +16,7 @@ const ObjectId = mongoose.Types.ObjectId;
  * @param app, the express instance, passed by the main express function.
  * @param upload, the multer object, to analyse multipart/formdata body.
  */
-export default function hanleBroadCasts(app:Express) {
+export default function hanleBroadcasts(app:Express) {
 /**
  * to download the newest broadcast
  * responses:
@@ -25,9 +25,9 @@ export default function hanleBroadCasts(app:Express) {
  */
   app.get('/api/broadcast', userMustLoggedIn, async (req :Request, res: Response) => {
     try {
-      const broadCast = await BroadCast.findOne().sort({ _id: -1 }).exec();
-      if (broadCast) {
-        res.json(broadCast);
+      const broadcast = await Broadcast.findOne().sort({ _id: -1 }).exec();
+      if (broadcast) {
+        res.json(broadcast);
       } else {
         res.status(200).json({message:''});
       }
@@ -46,7 +46,7 @@ export default function hanleBroadCasts(app:Express) {
   app.post('/api/broadcast', userMustBeAdmin, async (req :Request, res: Response) => {
     try {
       const message = req.body.message;
-      await BroadCast.create({message});
+      await Broadcast.create({message});
       res.json({message:'OK'});
     } catch (err) {
       console.log(err);
