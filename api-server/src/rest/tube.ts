@@ -1,5 +1,5 @@
 import {Express, Response} from 'express'
-import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation} from '../models'
+import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, Container} from '../models'
 import {Request} from '../MyRequest'
 import {userMustLoggedIn,userCanUseScanner, userMustBeAdmin} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
@@ -9,6 +9,20 @@ import { json } from 'body-parser';
 const ObjectId = mongoose.Types.ObjectId;
 
 export default function handleTube(app:Express) {
+
+  /**
+   * get a tube
+   */
+  app.get('/api/tubes/', userCanUseScanner, async (req :Request, res: Response) => {
+    try {
+      let containers = await Container.find({ctype:'tube'}).exec();
+      let totalCount = await Container.countDocuments({ctype:'tube'}).exec();
+      res.json({containers, totalCount});
+    } catch (err) {
+      res.status(404).send(err.message);
+    }
+  });
+
   /**
    * get a tube
    */

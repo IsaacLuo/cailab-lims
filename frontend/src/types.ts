@@ -90,6 +90,9 @@ export interface IStoreState {
   // part
   part: IPartState,
 
+  // containers
+  container: IContainerState,
+
 }
 
 export interface IUserInfo {
@@ -256,7 +259,25 @@ export interface IPartState {
   message: string,
 }
 
+export interface IContainerState {
+  containers: IContainer[],
+  skip: number,
+  limit: number,
+  total: number,
+  loading: boolean,
+}
+
 export interface IExpandedPanel {
   type: string,
   expandPannel?: (data:any) => JSX.Element,
+}
+
+export interface IContainer {
+  _id?: string,
+  ctype: string,
+  barcode: string,
+  assignedAt: Date,
+  parentContainer?: string,
+  locationBarcode?: string,
+  currentStatus: string,
 }

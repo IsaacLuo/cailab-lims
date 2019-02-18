@@ -7,6 +7,7 @@ import assignTubesReducer from 'pages/AssignTubes/reducer';
 import searchTubeBarcodeReducer from 'pages/SearchTubeBarcode/reducer';
 import searchRackBarcodeReducer from 'pages/SearchRackBarcode/reducer';
 import partReducer from 'pages/Part/reducer';
+import containerReducer from 'pages/ContainerList/reducer';
 
 export default combineReducers({
   app: appReducer,
@@ -17,4 +18,5 @@ export default combineReducers({
   searchTubeBarcode: searchTubeBarcodeReducer,
   searchRackBarcode: searchRackBarcodeReducer,
   part: partReducer,
+  container: containerReducer,
 });

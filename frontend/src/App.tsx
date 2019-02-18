@@ -52,6 +52,7 @@ import PartList from 'pages/PartList';
 import BateriumPartList from 'pages/PartList/BacteriumPartList.tsx'
 import PrimerPartList from 'pages/PartList/PrimerPartList';
 import YeastPartList from 'pages/PartList/YeastPartList';
+import ContainerList from 'pages/ContainerList';
 
 interface IProps {
   initializing: boolean,
@@ -115,6 +116,9 @@ class App extends React.Component<IProps, any> {
           <Route path='/requests/partsDeletion' exact={true} component={DeletionRequestsList} />
           <Route path='/users/' component={Users} />
           <Route path='/myBasket/' component={BasketList} />
+
+          <Route path='/containers/' exact={true} component={ContainerList} />
+
         </div>
       );
     }
