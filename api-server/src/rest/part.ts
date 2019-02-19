@@ -1,5 +1,6 @@
+import { SET_CURRENT_BASKET } from './../../../frontend/src/pages/BasketList/actions';
 import {Express, Response} from 'express'
-import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation} from '../models'
+import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, Container} from '../models'
 import {Request} from '../MyRequest'
 import {userMustLoggedIn,userCanUseScanner} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
@@ -396,28 +397,39 @@ export default function handlePart(app:Express) {
   app.put('/api/part/:id/tube/:barcode', userCanUseScanner, async (req :Request, res: Response) => {
     const {id, barcode} = req.params;
     try {
-      const existPart = await Part.findOne({'containers.barcode': barcode}).exec();
-      if (existPart) {
-        if (existPart._id.toString() === id) {
-          // duplicated input, return 200
-          res.json({id, containers: existPart.containers});
+      const part = await Part.findOne({_id:id}).exec();
+      if(!part) {
+        res.status(404).json({message:`unable to find part ${id}`});
+        return;
+      }
+      // try to find a tube with given barcode
+      let container = await Container.findOne({barcode}).exec();
+      if(container && container.currentStatus !== 'empty') {
+        if (container.part && container.part.toString() === id) {
+          // because the id is the same, return 200
+          res.json({id, container});
         } else {
-          // conflict tube, return 409
-          res.status(409).json({message:`conflict with ${existPart.personalName}`});
+          // found a tube, but it is not empty, and the content is not the target part
+          res.status(409).json({message:`the target tube is already in use`});
         }
       } else {
-        const part = await Part.findOne({_id:id}).exec();
+        if (!container) {
+          container = new Container({
+            ctype:'tube',
+            barcode,
+            assignedAt: new Date(),
+            operator: req.currentUser.id,
+            currentStatus: 'empty',
+          });
+        }
         if (part.containers === undefined) {
           part.containers = [];
         }
         if (!part.containers.find(v=>v.barcode === barcode)) {
           console.debug('new barcode', barcode);
-          part.containers.push({
-            ctype: 'tube',
-            barcode,
-            assignedAt: new Date(),
-            operatorId: req.currentUser.id
-          });
+          container.part = part;
+          await container.save();
+          part.containers.push(container);
           await part.save();
           req.log.info(`${req.currentUser.fullName} assigned a new tube ${barcode} to part ${part.personalName} (${part._id})`);
         }

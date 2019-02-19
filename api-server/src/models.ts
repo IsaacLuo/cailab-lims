@@ -32,11 +32,15 @@ export const ContainerSchema = new Schema({
     ctype: String,
     barcode: String,
     assignedAt: Date,
-    operatorId: Schema.Types.ObjectId,
+    operator: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
     parentContainer: Schema.Types.ObjectId,
     locationBarcode: String,
     currentStatus: String,
 });
+export const Container = mongoose.model('Container', ContainerSchema);
 
 export const PartSchema = new Schema({
   labName: String,                      // combined "labPrefix" and "labId", e.g. 'YCe1234', redundant information
@@ -82,7 +86,10 @@ export const PartSchema = new Schema({
     fileSize: Number,                // redundant information
     fileId: Schema.Types.ObjectId,   // id in the FileData modal
   }],
-  containers: [ContainerSchema],
+  containers: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Container',
+  }],
   dbV1:{                             // old id and user id data from the cailab-database-v1, useless in v2
     id: Number,
     userId: Number,
@@ -191,7 +198,7 @@ export const RackScannerRecord = mongoose.model('RackScannerRecord', {
 
 
 
-export const Container = mongoose.model('Container', ContainerSchema);
+
 
 export const LocationHistorySchema = new Schema({
   containerBarcode: String,
