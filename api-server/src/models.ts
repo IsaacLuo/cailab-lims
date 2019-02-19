@@ -28,6 +28,16 @@ export const UserSchema = new Schema({
 
 export const User = mongoose.model('User', UserSchema);
 
+export const ContainerSchema = new Schema({
+    ctype: String,
+    barcode: String,
+    assignedAt: Date,
+    operatorId: Schema.Types.ObjectId,
+    parentContainer: Schema.Types.ObjectId,
+    locationBarcode: String,
+    currentStatus: String,
+});
+
 export const PartSchema = new Schema({
   labName: String,                      // combined "labPrefix" and "labId", e.g. 'YCe1234', redundant information
   labPrefix: String,                    // the first part of labName, e.g. 'YCe'. e means E.coli
@@ -72,16 +82,7 @@ export const PartSchema = new Schema({
     fileSize: Number,                // redundant information
     fileId: Schema.Types.ObjectId,   // id in the FileData modal
   }],
-  containers: [{
-    ctype: String,
-    barcode: String,
-    assignedAt: Date,
-    operatorId: Schema.Types.ObjectId,
-    parentContainer: Schema.Types.ObjectId,
-    locationBarcode: String,
-    currentStatus: String,
-  }],
-  containerIds: [Schema.Types.ObjectId],
+  containers: [ContainerSchema],
   dbV1:{                             // old id and user id data from the cailab-database-v1, useless in v2
     id: Number,
     userId: Number,
@@ -188,15 +189,7 @@ export const RackScannerRecord = mongoose.model('RackScannerRecord', {
   }]
 });
 
-export const ContainerSchema = new Schema({
-    ctype: String,
-    barcode: String,
-    assignedAt: Date,
-    operatorId: Schema.Types.ObjectId,
-    parentContainer: Schema.Types.ObjectId,
-    locationBarcode: String,
-    currentStatus: String,
-});
+
 
 export const Container = mongoose.model('Container', ContainerSchema);
 

@@ -270,7 +270,9 @@ class AssignTubes extends React.Component<IProps, IState> {
       this.props.assignTubeToPart(partId, tubeId);
       currentInput.value = '';
       console.log(currentBarcodeInputIdx);
-      this.inputRefs[currentBarcodeInputIdx+1].focus();
+      if(this.inputRefs[currentBarcodeInputIdx+1]) {
+        this.inputRefs[currentBarcodeInputIdx+1].focus();
+      }
       // this.setState({currentBarcodeInputIdx:currentBarcodeInputIdx+1});
     }
   }

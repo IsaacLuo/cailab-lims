@@ -388,7 +388,7 @@ export class PartList extends React.Component<IProps, IState> {
   }
   protected onSelectChange = (selection:any[]) => {
     console.log(selection);
-    // this.setState({selectedIds: selection.map(v => v._id)})
+    this.setState({selectedIds: selection.map(v => v._id)})
   }
 
   protected exportToXlsxCurrentPage = async () => {
@@ -453,14 +453,18 @@ export class PartList extends React.Component<IProps, IState> {
                 ...customData,
               ]}
             />
-          {data.attachments && data.attachments.length > 0 &&
-            (<div style={{marginTop:10, marginBottom: 5}}> 
-              <div><b>attachments</b></div> 
-              {attachmentRows}
+            {data.containerIds && data.containerIds.length > 0 && <div>
+              <div> containers </div>
+              {data.containerIds}
+            </div>}
+            {data.attachments && data.attachments.length > 0 &&
+              (<div style={{marginTop:10, marginBottom: 5}}> 
+                <div><b>attachments</b></div> 
+                {attachmentRows}
+              </div>
+            )}
+            {/* {JSON.stringify(data)} */}
             </div>
-          )}
-          {/* {JSON.stringify(data)} */}
-          </div>
         },
       }
   }

@@ -20,7 +20,7 @@ import qs from 'qs'
 
 // redux
 import { Dispatch } from 'redux'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import {
   GET_CONTAINER_LIST,
@@ -45,7 +45,6 @@ import {
 } from 'element-react'
 import styled from 'styled-components'
 import ErrorBoundary from 'components/ErrorBoundary'
-import { getParts } from 'saga';
 
 
 const MyClickableIcon = styled(Button)`
@@ -150,7 +149,6 @@ class ContainerList extends React.Component<IProps, IState> {
         label: "type",
         prop: "ctype",
         align: "right",
-        width: 200,
       },
       {
         label: "barcode",
@@ -162,20 +160,22 @@ class ContainerList extends React.Component<IProps, IState> {
         render: (data) => <div>{this.format(data.assignedAt)}</div>
       },
       {
-        label: "operatorId",
-        prop: "operatorId",
-      },
-      {
-        label: "parentContainer",
-        prop: "parentContainer",
+        label: "currentStatus",
+        prop: "currentStatus",
       },
       {
         label: "locationBarcode",
         prop: "locationBarcode",
       },
       {
-        label: "currentStatus",
-        prop: "currentStatus",
+        label: "parentContainer",
+        prop: "parentContainer",
+      },
+      {
+        label: "samples",
+        render: (data) => <div>
+          <Link to={`/parts/all/test`}>link</Link>
+        </div>
       },
     ]
 
