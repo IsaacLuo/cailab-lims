@@ -1,5 +1,5 @@
 import {Express, Response} from 'express'
-import {User, Part, UserSchema, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, PersonalPickList} from '../models'
+import {User, Part, UserSchema, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, PersonalPickList, Container} from '../models'
 import {Request} from '../MyRequest'
 import {userMustLoggedIn, userCanUseScanner} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
@@ -103,12 +103,16 @@ export default function handlePickList(app:Express) {
         throw new Error('');
       }
       if (full) {
-        const parts = await Part.find({_id: pickList.parts.map(v=>v._id)}).exec();
-        const {_id, userId, createdAt} = pickList;
-        res.json({_id, userId, createdAt, parts});
-      } else {
+        pickList = await PersonalPickList
+          .findOne({_id: pickList._id})
+          .exec();
+        await PersonalPickList.populate(pickList, {path:'parts'})
+        await Promise.all(pickList.parts.map(
+          v => Part.populate(v, {path:'containers', select:'barcode', model:Container})
+        ))
         res.json(pickList);
       }
+      
       
     } catch (err) {
       res.status(404).json({message:err.message});
@@ -122,7 +126,7 @@ export default function handlePickList(app:Express) {
     const userId = req.currentUser.id;
     
     try {
-      const pickLists = await PersonalPickList.find({userId:ObjectId(userId)}, '_id createdAt updatedAt partsCount name').exec();
+      const pickLists = await PersonalPickList.find({owner:ObjectId(userId)}, '_id createdAt updatedAt partsCount name').exec();
       // if the user does not have a picklist, generate a default one.
       const user = await User.findOne({_id:userId}).exec();
       console.log(user);
@@ -200,7 +204,7 @@ export default function handlePickList(app:Express) {
     try {
       const user = await User.findOne({_id:userId});
       //verify
-      const pickList = await PersonalPickList.findOne({_id:newPickListId, userId}).exec();
+      const pickList = await PersonalPickList.findOne({_id:newPickListId, owner:userId}).exec();
       if (!pickList) {
         res.status(404).json({message:'pickList doesn\'t match'});
       } else {
@@ -256,7 +260,7 @@ export default function handlePickList(app:Express) {
     if (!pickList) {
       pickList = new PersonalPickList({
         name: pickListName,
-        userId,
+        owner: userId,
         createdAt: now,
         updatedAt: now,
         parts: [],

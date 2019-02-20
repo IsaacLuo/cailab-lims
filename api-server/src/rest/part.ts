@@ -457,7 +457,7 @@ export default function handlePart(app:Express) {
       if (part) {
         part.containers = part.containers.filter(v=>v.barcode !== barcode);
         await part.save();
-        req.log.info(`${req.currentUser.fullName} removed tube ${barcode} from part ${part.personalName} (${part._id})`);
+        req.log.info(`${req.currentUser.fullName} r emoved tube ${barcode} from part ${part.personalName} (${part._id})`);
         res.json({id:part._id, containers: part.containers});
       } else {
         const part = await Part.findOne({

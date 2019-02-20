@@ -158,19 +158,23 @@ export const Broadcast = mongoose.model('Broadcast', {
   message: String,
 });
 
-export const PersonalPickList = mongoose.model('PersonalPickList', {
+export const PersonalPickListSchema = new Schema({
   name: String,
-  userId: Schema.Types.ObjectId,
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
   createdAt: Date,
   updatedAt: Date,
   parts: [{
-    _id:Schema.Types.ObjectId,
-    labName: String,
-    personalName: String,
+    type: Schema.Types.ObjectId,
+    ref: 'Part',
   }],
   partsCount: Number,
   default: Boolean,
 });
+
+export const PersonalPickList = mongoose.model('PersonalPickList', PersonalPickListSchema, 'PersonalPickLists');
 
 
 export const Tube = mongoose.model('Tube', {
