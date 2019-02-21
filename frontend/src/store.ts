@@ -8,7 +8,7 @@ import createSagaMiddleware from 'redux-saga'
 const sagaMiddleware = createSagaMiddleware();
 let middleWare:any;
 if (process.env.NODE_ENV === 'development') {
-  const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ;
+  const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || (f=>f);
   middleWare = composeEnhancers(applyMiddleware(sagaMiddleware));
 } else {
   middleWare = applyMiddleware(sagaMiddleware);

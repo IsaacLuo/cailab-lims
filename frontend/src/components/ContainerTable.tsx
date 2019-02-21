@@ -42,6 +42,7 @@ export default class ContainerTable extends React.Component<IProps, IState> {
     return containers ? <Table
       columns = {this.columns}
       data = {containers}
+      emptyText = {'no containers'}
     /> : <div>no containers</div>
   }
 }

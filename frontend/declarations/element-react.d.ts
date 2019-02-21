@@ -630,6 +630,7 @@ declare module "element-react" {
       border?: boolean
       fit?: boolean
       rowClassName?(row?, index?): void
+      emptyText?: string,
       style?: Object
       rowStyle?: any
       showHeader?: boolean
