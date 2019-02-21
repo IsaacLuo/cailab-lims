@@ -109,12 +109,18 @@ class BacteriumPartList extends PartList {
         prop: "labName",
         sortable: "custom",
         width:100,
+        render: (data) => <div>
+          <Link to={`/part/${data._id}`}>{data.labName}</Link>
+        </div>,
       },
       {
         label: "personal name",
         prop: "personalName",
         sortable: "custom",
         width:100,
+        render: (data) => <div>
+          <Link to={`/part/${data._id}`}>{data.personalName}</Link>
+        </div>,
       },
       {
         label: "other names",

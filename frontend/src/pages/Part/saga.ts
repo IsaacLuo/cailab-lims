@@ -21,7 +21,7 @@ import getAuthHeader from 'authHeader'
 function* getPart(action:IAction) {
   const {id} = action.data;
   try {
-    const res = yield call(axios.get, serverURL+`/api/part/${id}`, getAuthHeader());
+    const res = yield call(axios.get, serverURL+`/api/part/${id}?containers=true`, getAuthHeader());
     yield put({type:SET_MESSAGE, data: ''});
     yield put({type:SET_PART, data:res.data});
   } catch (err) {

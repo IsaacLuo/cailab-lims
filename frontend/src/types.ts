@@ -145,12 +145,7 @@ export interface IPart {
     fileSize: number,
     fileId: string,
   }],
-  containers?: Array<{
-    ctype: string,
-    barcode: string,
-    assignedAt: Date,
-    submitStatus?: 'pending' | 'verified' | 'failed' | 'deleting',
-  }>,
+  containers?: IContainer[],
 }
 
 export interface IPartListRowData {
@@ -280,4 +275,5 @@ export interface IContainer {
   parentContainer?: string,
   locationBarcode?: string,
   currentStatus: string,
+  submitStatus?: 'pending' | 'verified' | 'failed' | 'deleting',
 }

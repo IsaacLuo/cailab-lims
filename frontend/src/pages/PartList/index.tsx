@@ -453,9 +453,9 @@ export class PartList extends React.Component<IProps, IState> {
                 ...customData,
               ]}
             />
-            {data.containerIds && data.containerIds.length > 0 && <div>
-              <div> containers </div>
-              {data.containerIds}
+            {data.containers && data.containers.length > 0 && <div>
+              <div><b> containers </b></div>
+              {data.containers.map((v,i)=><div key={i}>{v.barcode} {v.currentStatus}</div>)}
             </div>}
             {data.attachments && data.attachments.length > 0 &&
               (<div style={{marginTop:10, marginBottom: 5}}> 
@@ -481,12 +481,18 @@ export class PartList extends React.Component<IProps, IState> {
         prop: "labName",
         sortable: "custom",
         width:100,
+        render: (data) => <div>
+          <Link to={`/part/${data._id}`}>{data.labName}</Link>
+        </div>,
       },
       {
         label: "personal name",
         prop: "personalName",
         sortable: "custom",
         width:150,
+        render: (data) => <div>
+          <Link to={`/part/${data._id}`}>{data.personalName}</Link>
+        </div>,
       },
       {
         label: "other names",

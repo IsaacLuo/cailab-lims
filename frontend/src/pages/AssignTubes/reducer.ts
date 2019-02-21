@@ -42,6 +42,7 @@ function assignTubesReducer(state :IAssignTubesState = DEFAULT_STATE, action: IA
             barcode: action.data.tubeId,
             assignedAt: new Date(),
             submitStatus: action.data.submitStatus,
+            currentStatus: action.data.currentStatus,
           })
         } else if (existContainer.submitStatus !== action.data.submitStatus) {
           existContainer.submitStatus = action.data.submitStatus;
@@ -54,6 +55,7 @@ function assignTubesReducer(state :IAssignTubesState = DEFAULT_STATE, action: IA
           barcode: action.data.tubeId,
           assignedAt: new Date(),
           submitStatus: action.data.submitStatus,
+          currentStatus: action.data.currentStatus,
         }];
       }
       return {

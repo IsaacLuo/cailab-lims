@@ -36,6 +36,10 @@ export const ContainerSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
+    part: {
+      type: Schema.Types.ObjectId,
+      ref: 'Part',
+    },
     parentContainer: Schema.Types.ObjectId,
     locationBarcode: String,
     currentStatus: String,

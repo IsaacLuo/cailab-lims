@@ -52,7 +52,9 @@ import ClickableIcon from 'components/ClickableIcon';
 import { GET_PART } from './actions';
 import CentralPanel from 'components/CentralPanel';
 import PartTable from 'components/PartTable';
+import ContainerTable from 'components/ContainerTable';
 import { getParts } from 'saga';
+import PartAttachments from 'components/PartAttachments';
 
 const MainPanel = styled.div`
   width:90%;
@@ -94,7 +96,12 @@ class Part extends React.Component<IProps, IState> {
       {part ?
       <div>
         <h1>{part.labName} : {part.personalName}</h1>
+        <h2>basic information</h2>
         <PartTable part={part}/>
+        <h3>containers</h3>
+        <ContainerTable containers={part.containers} />
+        <h3>attachments</h3>
+        <PartAttachments part={part}/>
       </div>
       :
       <h1>invalid part</h1>

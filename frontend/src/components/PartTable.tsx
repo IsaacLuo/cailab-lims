@@ -35,8 +35,17 @@ export default class PartTable extends React.Component<IProps, IState> {
       )
       if (part.content) {
         for (const key in part.content) {
-          if (part.content[key]) {
-            tableData.push({key, value: Array.isArray(part.content[key]) ? part.content[key].join('; ') : part.content[key]});
+          if (key !== 'customData' && part.content[key]) {
+            const value = Array.isArray(part.content[key]) ? part.content[key].join('; ') : part.content[key].toString();
+            tableData.push({key, value});
+          }
+        }
+        if (part.content.customData) {
+          for (const key in part.content.customData) {
+            if (part.content.customData[key]) {
+              const value = part.content.customData[key].toString();
+              tableData.push({key, value});
+            }
           }
         }
       }

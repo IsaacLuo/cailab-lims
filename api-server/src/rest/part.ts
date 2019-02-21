@@ -149,8 +149,13 @@ export default function handlePart(app:Express) {
   
   app.get('/api/part/:id', userCanUseScanner, async (req :Request, res: Response) => {
     const {id} = req.params;
+    const {containers} = req.query;
     try {
-      let part = await Part.findOne({_id:id}).exec();
+      let searchRequest = Part.findOne({_id:id});
+      if(containers) {
+        searchRequest = searchRequest.populate('containers');
+      }
+      let part = await searchRequest.exec();
       res.json(part);
     } catch (err) {
       res.status(404).send(err.message);
@@ -351,7 +356,9 @@ export default function handlePart(app:Express) {
     let totalCount = await Part.count(condition).exec();
 
     // .select('labName')
-    parts.exec((err, data)=>{
+    parts
+    .populate('containers')
+    .exec((err, data)=>{
       if (err) {
         req.log.error(err);
         res.status(500).json({message:err.message});
@@ -428,6 +435,7 @@ export default function handlePart(app:Express) {
         if (!part.containers.find(v=>v.barcode === barcode)) {
           console.debug('new barcode', barcode);
           container.part = part;
+          container.currentStatus = 'filled';
           await container.save();
           part.containers.push(container);
           await part.save();

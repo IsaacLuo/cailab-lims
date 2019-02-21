@@ -104,7 +104,6 @@ class App extends React.Component<IProps, any> {
           <Route path='/parts/primers/upload' exact={true} render={this.renderPrimersUpload} />
           <Route path='/parts/yeasts/upload' exact={true} render={this.renderYeastsUpload} />
 
-
           <Route path='/tasks/assignTubes' exact={true} component={AssignTubes} />
           <Route path='/tasks/searchTubeBarcode/' exact={true} component={SearchTubeBarcode} />
           <Route path='/tasks/searchTubeBarcode/:barcode' component={SearchTubeBarcode} />
