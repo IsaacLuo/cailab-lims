@@ -8,6 +8,7 @@ import {call, all, fork, put, take, select, takeLatest, takeEvery} from 'redux-s
 // redux actions
 import {
   SEND_GOOGLE_AUTH_INFO_TO_SERVER,
+  SEND_NORMAL_LOGIN_INFO_TO_SERVER,
 } from './actions'
 
 // other libs
@@ -45,7 +46,23 @@ function* sendGoogleAuthInfoToServer (action:IAction) {
   }
 }
 
+function* sendNormalLoginInfoToServer (action:IAction) {
+  const {username, password} = action.data;
+  try {
+    const res = yield call(axios.post,
+      serverURL + '/api/session/',
+      {
+        username,
+        password,
+      }
+    );
+  } catch (err) {
+    Message.error({message:err.toLocaleString()});
+  }
+}
+
 export default function* () {
   yield takeLatest(SEND_GOOGLE_AUTH_INFO_TO_SERVER, sendGoogleAuthInfoToServer);
+  yield takeLatest(SEND_NORMAL_LOGIN_INFO_TO_SERVER, sendNormalLoginInfoToServer);
   
 }

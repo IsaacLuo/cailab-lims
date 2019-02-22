@@ -24,6 +24,8 @@ import handlePickList from './rest/pickList';
 import handleTube from './rest/tube';
 import handleTubeRack from './rest/tubeRack';
 import handleContainers from './rest/container';
+import handleSession from './rest/session';
+import handleUsers from './rest/user';
 
 // ============================================================================
 if (process.env.NODE_ENV === undefined) {
@@ -55,6 +57,10 @@ handleTube(app);
 handleTubeRack(app);
 
 handleContainers(app);
+
+handleSession(app);
+
+handleUsers(app);
 
 
 

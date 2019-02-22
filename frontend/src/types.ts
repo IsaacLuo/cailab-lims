@@ -72,6 +72,7 @@ export interface IStoreState {
 
   app: IAppState,
   user: IUserState,
+  loginDialog: ILoginDialogState,
   partList: IPartListState,
   basket: IBasketState,
 
@@ -260,6 +261,10 @@ export interface IContainerState {
   limit: number,
   total: number,
   loading: boolean,
+}
+
+export interface ILoginDialogState {
+  busy: boolean,
 }
 
 export interface IExpandedPanel {

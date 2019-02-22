@@ -10,7 +10,7 @@ export const UserSchema = new Schema({
     signInCount: Number,
   },
   email: String,
-  authType: String, // 'logal' or 'google'
+  authType: String, // 'local' or 'google'
   passwordHash: String, // empty if user signed up using google account
   passwordSalt: String, // empty if user signed up using google account
   name: String, // user's full name
