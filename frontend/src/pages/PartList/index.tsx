@@ -37,7 +37,12 @@ import {
   EXPORT_TO_XLSX,
   DELETE_PART,
   DELETE_PART_REQUEST,
+  ADD_PARTS_TO_BASKET,
   } from './actions';
+
+import {
+  GET_BASKET_LIST,
+} from '../BasketList/actions';
 
 // react-router
 import {Redirect} from 'react-router'
@@ -88,6 +93,12 @@ const FlexRow = styled.div`
   margin-top:5px;
   margin-bottom:5px;
   justify-content: space-between;
+  & > div {
+    margin-left: 10px;
+  }
+  & > button {
+    margin-left: 10px;
+  }
 `
 
 const Title = styled.span`
@@ -125,10 +136,16 @@ export interface IProps extends IReactRouterProps {
   },
   parts: IPart[],
   loading: boolean,
+
+  // the basket list should shown in the dropdown select
+  basketList: IBasket[],
+  // the default basket id
+  defaultBasketId: string,
+
   getUserList: () => void,
   setNewPartDialogVisible: (visible: boolean) => void,
   setEditPartDialogVisible: (visible: boolean, partId: string) => void,
-  addPartToBasket: (ids: string[]) => void,
+  addPartToBasket: (partIds: string[], basketId:string) => void,
   getBasket: () => void,
   getParts: (data) => void,
 
@@ -140,11 +157,13 @@ export interface IProps extends IReactRouterProps {
   exportToXlsx: (skip?: number, limit?:number) => void,
   dispatchDeletePart: (id: string) => void,
   dispatchDeletePartRequest: (id: string) => void,
+  dispatchGetBasketList: () => void,
 }
 
 export interface IState {
   columns: Array<IColumn|IExpandedPanel>,
   selectedIds: string[],
+  currentBasketId: string,
 }
 
 export const mapStateToProps = (state :IStoreState) => ({
@@ -154,6 +173,9 @@ export const mapStateToProps = (state :IStoreState) => ({
   loggedIn: state.user.loggedIn,
   userId: state.user.userId,
   editPartDialogVisible: state.app.editPartDialogVisible,
+
+  basketList: state.basket.basketList,
+  defaultBasketId: state.basket.defaultBasketId,
 
   defaultBasket: state.partList.currentBasket,
   searchKeyword: state.partList.searchKeyword,
@@ -173,9 +195,10 @@ export const mapDispatchToProps = (dispatch :Dispatch) => ({
   setEditPartDialogVisible: (visible, partId) => dispatch(ActionSetEditPartDialogVisible(visible, partId)),
   getParts: (data) => dispatch({type:GET_PARTS, data}),
   getBasket: () => dispatch({type:GET_DEFAULT_BASKET}),
-  addPartToBasket: data => dispatch ({type:'ADD_PARTS_TO_BASKET', data}),
+  addPartToBasket: (partIds: string[], basketId:string) => dispatch ({type: ADD_PARTS_TO_BASKET, data:{partIds, basketId}}),
   dispatchDeletePart: data => dispatch({type:DELETE_PART, data}),
   dispatchDeletePartRequest: data => dispatch({type:DELETE_PART_REQUEST, data}),
+  dispatchGetBasketList: () => dispatch({type: GET_BASKET_LIST}),
 
   setSearchKeyword: (val:string) => dispatch({type:SET_SEARCH_KEYWORD, data: val}),
   setUserFilter: (val:string) => dispatch({type:SET_USER_FILTER, data: val}),
@@ -192,6 +215,7 @@ export class PartList extends React.Component<IProps, IState> {
     this.state = {
       columns: this.generateColumnTitle(),
       selectedIds: [],
+      currentBasketId: props.defaultBasketId,
     };
     this.props.getUserList();
   }
@@ -233,7 +257,7 @@ export class PartList extends React.Component<IProps, IState> {
       }
       
       this.props.getParts({sampleType, searchKeyword, userFilter, skip, limit, sortMethod});
-
+      this.props.dispatchGetBasketList();
     }
   }
 
@@ -252,6 +276,14 @@ export class PartList extends React.Component<IProps, IState> {
       // set new URL
       this.pushHistory(nextProps);
     }
+    if (nextProps.defaultBasketId !== this.props.defaultBasketId) {
+      this.setState({currentBasketId: nextProps.defaultBasketId})
+    } else {
+      // update "selected" label in select by setting the value to empty and back, there might be a better way but I don't know.
+      const currentBasketId = this.state.currentBasketId;
+      this.setState({currentBasketId: ''}, ()=>{ this.setState({currentBasketId})});
+    }
+    
   }
   
   public render() {
@@ -261,7 +293,7 @@ export class PartList extends React.Component<IProps, IState> {
     const basketCount = defaultBasket ? defaultBasket.partsCount : undefined;
     
     // const {skip, limit, total, loading, userFilter} = this.state;
-    const {skip, limit, total, userFilter, loading} = this.props;
+    const {basketList, skip, limit, total, userFilter, loading} = this.props;
 
     document.title = `Cailab Lims - Part List`;
 
@@ -271,6 +303,10 @@ export class PartList extends React.Component<IProps, IState> {
     }
 
     const uploadURL = this.getUploadURL();
+
+    const basketListDropDownItems = basketList.map(v=>
+      <Select.Option key={v._id} label={`${v.name} (${v.partsCount})`} value={v._id} />
+    );
 
     return (
       <ErrorBoundary>
@@ -285,6 +321,7 @@ export class PartList extends React.Component<IProps, IState> {
           </div>
           <FlexRow>
             <Title>user filter </Title>
+
             <Select
               value = {userFilter}
               clearable = {true}
@@ -294,13 +331,18 @@ export class PartList extends React.Component<IProps, IState> {
                 allUsers.map(user => <Select.Option key={user.id} label={user.name} value={user.id} />)
               }
             </Select>
-          {uploadURL && <Link to={uploadURL} style={{marginLeft:10,marginRight:10}}>
-              <Button type="primary">import</Button>
-            </Link>
-          }
+
+            {uploadURL && <Link to={uploadURL} style={{marginLeft:10,marginRight:10}}>
+                <Button type="primary">import</Button>
+              </Link>
+            }
+
             <Button onClick = {this.exportToXlsxCurrentPage}>export page</Button>
             <Button onClick = {this.exportToXlsxAllPages}>export all</Button>
-            <Button icon="plus" onClick = {this.addPartsToBasket} >add to basket {basketCount?`(${basketCount})`:''}</Button>
+            <Select value={this.state.currentBasketId} placeholder="choose basket">
+              { basketListDropDownItems }
+            </Select>
+            <Button icon="plus" onClick = {this.addPartsToBasket} >add to basket</Button>
           </FlexRow>
     
           <Pagination
@@ -402,7 +444,7 @@ export class PartList extends React.Component<IProps, IState> {
   }
 
   protected addPartsToBasket = async () => {
-    this.props.addPartToBasket(this.state.selectedIds);
+    this.props.addPartToBasket(this.state.selectedIds, this.state.currentBasketId);
   }
 
     protected generateExpandTablePanel() {

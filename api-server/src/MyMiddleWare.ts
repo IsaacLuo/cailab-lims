@@ -8,13 +8,13 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
       next();
     } else if (req.headers['test-token'] === secret.test.token) {
       req.currentUser = {
-        id:'5bbc83c69d995c65943a57d1',
+        id:'5c73c64bee5b022584ff9414',
         fullName: 'test man',
         email: 'yishaluo@gmail.com',
         groups: ['users'],
         iat: Math.floor(Date.now()),
         exp: Math.floor(Date.now()) + 3600,
-        barcode: '5bbc83c69d995c65943a57d1',
+        barcode: '5c73c64bee5b022584ff9414',
       }
       next();
     } else {
@@ -30,13 +30,13 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
   export function userMustLoggedIn (req :Request, res :Response, next: NextFunction) {
     if (req.headers['test-token'] === secret.test.token) {
       req.currentUser = {
-        id:'5bbc83c69d995c65943a57d1',
+        id:'5c73c64bee5b022584ff9414',
         fullName: 'test man',
         email: 'yishaluo@gmail.com',
         groups: ['users'],
         iat: Math.floor(Date.now()),
         exp: Math.floor(Date.now()) + 3600,
-        barcode: '5bbc83c69d995c65943a57d1',
+        barcode: '5c73c64bee5b022584ff9414',
       }
     }
     if (req.currentUser && req.currentUser.groups.indexOf('users')>=0) {
@@ -50,13 +50,13 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
   export function userCanUseScanner (req :Request, res :Response, next: NextFunction) {
     if (req.headers['test-token'] === secret.test.token) {
       req.currentUser = {
-        id:'5bbc83c69d995c65943a57d1',
+        id:'5c73c64bee5b022584ff9414',
         fullName: 'test man',
         email: 'yishaluo@gmail.com',
         groups: ['scanner'],
         iat: Math.floor(Date.now()),
         exp: Math.floor(Date.now()) + 3600,
-        barcode: '5bbc83c69d995c65943a57d1',
+        barcode: '5c73c64bee5b022584ff9414',
       }
     }
     if (req.currentUser && (req.currentUser.groups.indexOf('scanner')>=0 || req.currentUser.groups.indexOf('users')>=0)) {

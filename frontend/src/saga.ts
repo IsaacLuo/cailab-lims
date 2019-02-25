@@ -223,22 +223,10 @@ export function* getParts(action: IAction) {
   }
 }
 
-function* addPartsToBasket(action:IAction) {
-  const ids = action.data;
-  try {
-    const res = yield call(axios.post, serverURL+'/api/picklist/0/items/', ids, getAuthHeader());
-    yield put({type:'SET_CURRENT_BASKET', data:res.data});
-  } catch (err) {
-    Notification.error('failed to add parts into basket');
-  }
-}
-
-
 
 export function* watchParts() {
   yield takeLatest('GET_PARTS_COUNT', getPartsCount);
   yield takeLatest('GET_PARTS', getParts);
-  yield takeLatest('ADD_PARTS_TO_BASKET', addPartsToBasket);
 }
 
 

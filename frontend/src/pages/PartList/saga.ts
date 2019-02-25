@@ -1,3 +1,4 @@
+import { GET_BASKET_LIST } from './../BasketList/actions';
 import {IAction, IStoreState, IBasketState} from 'types'
 // redux saga
 import { delay} from 'redux-saga';
@@ -16,6 +17,7 @@ import {
   EXPORT_TO_XLSX,
   DELETE_PART_REQUEST,
   DELETE_PART,
+  ADD_PARTS_TO_BASKET,
 } from './actions'
 
 
@@ -202,6 +204,22 @@ function* setSearchKeyword(action: IAction) {
   yield put({type:GET_PARTS, data:{searchKeyword, sampleType, limit, skip, userFilter, sortMethod}});
 }
 
+function* addPartsToBasket(action:IAction) {
+  const {partIds, basketId} = action.data;
+
+  try {
+    const res = yield call(axios.post, serverURL+`/api/picklist/${basketId}/items/`, partIds, getAuthHeader());
+    // update basket
+    yield put({type:SET_CURRENT_BASKET, data:res.data});
+    // update basket list
+    yield put({type:GET_BASKET_LIST});
+
+  } catch (err) {
+    Notification.error(`failed to add parts into basket ${err}`);
+  }
+}
+
+
 export default function* watchPartList() {
   yield takeLatest(GET_DEFAULT_BASKET, getDefaultBasket);
   yield takeLatest(GET_PARTS, getParts);
@@ -212,4 +230,5 @@ export default function* watchPartList() {
   yield takeLatest(DELETE_PART_REQUEST, sendDeletePartRequest);
   yield takeLatest(DELETE_PART, deletePart);
   yield takeLatest(SET_SEARCH_KEYWORD, setSearchKeyword);
+  yield takeLatest(ADD_PARTS_TO_BASKET, addPartsToBasket);
 }

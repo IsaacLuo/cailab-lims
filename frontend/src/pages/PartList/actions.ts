@@ -23,3 +23,5 @@ export const EXPORT_TO_XLSX = 'EXPORT_TO_XLSX' + appendix;
 
 export const DELETE_PART = 'DELETE_PART' + appendix;
 export const DELETE_PART_REQUEST = 'DELETE_PART_REQUEST' + appendix;
+
+export const ADD_PARTS_TO_BASKET = 'ADD_PARTS_TO_BASKET' + appendix;

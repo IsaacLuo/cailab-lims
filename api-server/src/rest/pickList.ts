@@ -55,6 +55,8 @@ export default function handlePickList(app:Express) {
     const pickListId = req.params.id;
     let pickList;
     const user = await User.findOne({_id:userId});
+
+    console.log(`add ids ${JSON.stringify(req.body)} to ${pickListId}`);
     
     const now = new Date();
     if (pickListId === '0') {
@@ -69,7 +71,7 @@ export default function handlePickList(app:Express) {
     pickList.updatedAt = now;
     let parts;
     try {
-      parts = await Part.find({_id: {$in: req.body}}, '_id  labName personalName').exec();
+      parts = await Part.find({_id: {$in: req.body}}, '_id labName personalName').exec();
     } catch (err) {
       res.status(406).json({message:'wrong part ids'});
       return;
@@ -137,7 +139,7 @@ export default function handlePickList(app:Express) {
 
       if (!user.defaultPickListId || !pickLists.find(v=>v._id.equals(user.defaultPickListId))) {
         user.defaultPickListId = pickLists[0]._id;
-        user.save();
+        await user.save();
       }
       res.json({defaultPickListId:user.defaultPickListId, pickLists});
     } catch (err) {
