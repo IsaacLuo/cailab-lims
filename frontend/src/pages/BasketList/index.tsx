@@ -48,6 +48,24 @@ interface IState {
   expandRowKeys: any[],
 }
 
+const mapStateToProps = (state :IStoreState) => ({
+  basketList: state.basket.basketList,
+  defaultBasketId: state.basket.defaultBasketId,
+  currentBasket: state.basket.currentBasket,
+})
+
+const mapDispatchToProps = (dispatch :Dispatch) => ({
+  addBasket: ()=>dispatch({type:ADD_BASKET}),
+  deleteAPart: (partId :string, basketId :string) => dispatch({type:DELETE_PART_FROM_BASKET, data:{partId, basketId}}),
+  deleteBasket: (id:string) => dispatch({type:DELETE_BASKET, data: id}),
+  getBasket: (basketId:string) => dispatch({type:GET_BASKET, data:basketId}),
+  getBasketList:() => dispatch({type:GET_BASKET_LIST}),
+  submitDefaultBasketId:(basketId:string) => dispatch({type:SUBMIT_DEFAULT_BASKET_ID, data:basketId}),
+  setABasketName:(basketId:string, basketName :string) => dispatch(ActionSetABasketName(basketId, basketName)),
+  submitABasketName:(basketId:string, basketName :string) => dispatch({type:SUBMIT_A_BASKET_NAME, data:{basketId, basketName}}),
+})
+
+
 class BasketList extends React.Component<IProps, IState> {
   constructor(props :IProps) {
     super(props);
@@ -69,7 +87,9 @@ class BasketList extends React.Component<IProps, IState> {
   }
 
   public render() {
-    const {basketList} = {...this.props}
+    // const {basketList} = {...this.props}
+    // don't know why I need a deep copy here, otherwise the table won't refresh.
+    const basketList = JSON.parse(JSON.stringify(this.props.basketList));
     const length:number = basketList? basketList.length: 0
     const expr:string = length > 1? 'baskets':'basket'
 
@@ -172,7 +192,7 @@ class BasketList extends React.Component<IProps, IState> {
           <Table 
             style={{margin:'auto'}}
             columns = {tableColumns}
-            data = {this.props.basketList}
+            data = {basketList}
             rowKey = {this.getRowId}
             expandRowKeys = {this.state.expandRowKeys}
             onExpand = {this.expandRow}
@@ -234,6 +254,7 @@ class BasketList extends React.Component<IProps, IState> {
   }
 
   private expandRow = (row, expanded) => {
+    console.debug('expanded row', row, expanded);
     if (expanded) {
       const basketId = row._id
       const {expandRowKeys} = this.state
@@ -242,10 +263,12 @@ class BasketList extends React.Component<IProps, IState> {
       this.setState({expandRowKeys})
 
       const basket = this.props.basketList.find(v => v._id === basketId)
-      if (basket !== undefined && basket.partsCount !== basket.parts.length) {
-        console.log('getBasket')
-        this.props.getBasket(basketId)
-      }
+      console.debug('getting basket', basketId);
+      this.props.getBasket(basketId)
+      // if (basket !== undefined && basket.partsCount !== basket.parts.length) {
+      //   console.log('getBasket')
+       
+      // }
     } else {
       const {expandRowKeys} = this.state
       expandRowKeys.pop()
@@ -263,21 +286,5 @@ class BasketList extends React.Component<IProps, IState> {
 
 }
 
-const mapStateToProps = (state :IStoreState) => ({
-  basketList: state.basket.basketList,
-  defaultBasketId: state.basket.defaultBasketId,
-  currentBasket: state.basket.currentBasket,
-})
-
-const mapDispatchToProps = (dispatch :Dispatch) => ({
-  addBasket: ()=>dispatch({type:ADD_BASKET}),
-  deleteAPart: (partId :string, basketId :string) => dispatch({type:DELETE_PART_FROM_BASKET, data:{partId, basketId}}),
-  deleteBasket: (id:string) => dispatch({type:DELETE_BASKET, data: id}),
-  getBasket: (basketId:string) => dispatch({type:GET_BASKET, data:basketId}),
-  getBasketList:() => dispatch({type:GET_BASKET_LIST}),
-  submitDefaultBasketId:(basketId:string) => dispatch({type:SUBMIT_DEFAULT_BASKET_ID, data:basketId}),
-  setABasketName:(basketId:string, basketName :string) => dispatch(ActionSetABasketName(basketId, basketName)),
-  submitABasketName:(basketId:string, basketName :string) => dispatch({type:SUBMIT_A_BASKET_NAME, data:{basketId, basketName}}),
-})
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(BasketList))

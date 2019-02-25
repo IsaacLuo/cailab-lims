@@ -115,6 +115,13 @@ export default function handlePickList(app:Express) {
           v => Part.populate(v, {path:'containers', select:'barcode', model:Container})
         ))
         res.json(pickList);
+      } else {
+        pickList = await PersonalPickList
+          .findOne({_id: pickList._id})
+          .exec();
+        await PersonalPickList.populate(pickList, {path:'parts', select:'personalName'})
+        res.json(pickList);
+
       }
       
       
@@ -174,6 +181,7 @@ export default function handlePickList(app:Express) {
       pickList.updatedAt = new Date();
       pickList.partsCount = pickList.parts.length;
       await pickList.save();
+      await PersonalPickList.populate(pickList, {path:'parts', select:'personalName'});
       res.json(pickList);
     } catch (err) {
       res.status(404).json({message:err.message});
@@ -238,7 +246,7 @@ export default function handlePickList(app:Express) {
     try {
       const user = await User.findOne({_id:userId});
       // verify
-      const pickList = await PersonalPickList.findOne({_id:pickListId, userId});
+      const pickList = await PersonalPickList.findOne({_id:pickListId, owner:userId});
       if (!pickList) {
         res.status(404).json({message:'pickList doesn\'t match'});
       } else {

@@ -28,7 +28,9 @@ class TokenBarcode extends React.Component<IProps, IState> {
     this.state = {
       qrCode: '',
     }
-    this.generateQR(props.barcode).then(qrCode => this.setState({qrCode}));
+    if(props.barcode) {
+      this.generateQR(props.barcode).then(qrCode => this.setState({qrCode}));
+    }
     this.props.queryUserBarcode();
   }
 
