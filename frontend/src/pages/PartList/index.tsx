@@ -339,7 +339,11 @@ export class PartList extends React.Component<IProps, IState> {
 
             <Button onClick = {this.exportToXlsxCurrentPage}>export page</Button>
             <Button onClick = {this.exportToXlsxAllPages}>export all</Button>
-            <Select value={this.state.currentBasketId} placeholder="choose basket">
+            <Select
+              value={this.state.currentBasketId}
+              placeholder="choose basket"
+              onChange = {this.onChangeCurrentBasketId}
+            >
               { basketListDropDownItems }
             </Select>
             <Button icon="plus" onClick = {this.addPartsToBasket} >add to basket</Button>
@@ -682,6 +686,11 @@ export class PartList extends React.Component<IProps, IState> {
         this.props.dispatchDeletePartRequest(id);
       }).catch(cancelMessage);
     }
+  }
+
+  protected onChangeCurrentBasketId = (newId: string) => {
+    console.debug('selected new ID = ', newId)
+    this.setState({currentBasketId: newId});
   }
 
   protected rowStyle = ()=>({border:0, textAlign:'left'})
