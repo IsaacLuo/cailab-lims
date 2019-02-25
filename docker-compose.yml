@@ -9,8 +9,7 @@ services:
     restart: always
     volumes:
       - /srv/cailab-database-v2/logs:/app/logs
-    networks:
-      - my-net
+    network_mode: bridge
 
   frontend:
     build: ./frontend
@@ -20,10 +19,5 @@ services:
       - api
     depends_on:
       - api
-    networks:
-      - my-net
+    network_mode: bridge
     command: ['nginx', '-g', 'daemon off;']
-
-networks:
-  my-net:
-    external: true

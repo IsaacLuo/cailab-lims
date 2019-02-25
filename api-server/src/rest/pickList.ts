@@ -29,12 +29,14 @@ async function getDefaultPicklist(user:any) {
     if (err.message === 'no default pickList') {
       console.warn('user does not have default pickList');
       let pickList = await PersonalPickList.findOne().sort('-createdAt').exec();
+      const now = new Date();
       if(!pickList) {
         pickList = new PersonalPickList({
-        userId: user._id,
-        createdAt: new Date(),
-        parts: [],
         name: 'default',
+        owner: user._id,
+        createdAt: now,
+        updatedAt: now,
+        parts: [],
         partsCount: 0,
         });
         await pickList.save();
