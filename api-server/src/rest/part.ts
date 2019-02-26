@@ -416,9 +416,10 @@ export default function handlePart(app:Express) {
           res.json({id, container});
         } else {
           // found a tube, but it is not empty, and the content is not the target part
-          res.status(409).json({message:`the target tube is already in use`});
+          res.status(409).json({message:`the target tube is already in use`, container});
         }
       } else {
+        console.log('create new tube')
         if (!container) {
           container = new Container({
             ctype:'tube',
@@ -429,17 +430,19 @@ export default function handlePart(app:Express) {
           });
         }
         if (part.containers === undefined) {
+          console.log('init first container');
           part.containers = [];
-        }
-        if (!part.containers.find(v=>v.barcode === barcode)) {
-          console.debug('new barcode', barcode);
-          container.part = part;
-          container.currentStatus = 'filled';
-          await container.save();
-          part.containers.push(container);
           await part.save();
-          req.log.info(`${req.currentUser.fullName} assigned a new tube ${barcode} to part ${part.personalName} (${part._id})`);
         }
+
+        console.debug('new barcode', barcode);
+        container.part = part;
+        container.currentStatus = 'filled';
+        await container.save();
+        part.containers.push(container._id);
+        await part.save();
+        req.log.info(`${req.currentUser.fullName} assigned a new tube ${barcode} to part ${part.personalName} (${part._id})`);
+        
         res.json({id:part._id, containers: part.containers});
       }
     } catch(err) {
@@ -456,29 +459,34 @@ export default function handlePart(app:Express) {
   app.delete('/api/part/:id/tube/:barcode', userCanUseScanner, async (req :Request, res: Response) => {
     const {id, barcode} = req.params;
     try {
+      const container = await Container.findOne({barcode, part:id}).exec();
+      if(container) {
+        const part = await Part.findOne({_id:id}).exec();
+        if (part) {
+          part.containers = part.containers.filter(_id => !_id.equals(container._id));
+          console.log(part.containers);
+          await part.save();
+          
+          container.part = undefined;
+          container.currentStatus = 'empty';
+          await container.save();
+
+          req.log.info(`${req.currentUser.fullName} removed tube ${barcode} from part ${part.personalName} (${part._id})`);
+          res.json({id:part._id, containers: part.containers});
+          return;
+        }
+      }
+
       const part = await Part.findOne({
         _id:id,
-        'containers.ctype':'tube',
-        'containers.barcode':barcode,
-        'containers.assignedAt': {$gt: new Date(Date.now() - config.maxTubeDeleteLimit) }}).exec();
+      });
       if (part) {
-        part.containers = part.containers.filter(v=>v.barcode !== barcode);
-        await part.save();
-        req.log.info(`${req.currentUser.fullName} r emoved tube ${barcode} from part ${part.personalName} (${part._id})`);
-        res.json({id:part._id, containers: part.containers});
+        res.status(401);
       } else {
-        const part = await Part.findOne({
-          _id:id,
-          'containers.ctype':'tube',
-          'containers.barcode':barcode,
-        });
-        if (part) {
-          res.status(401);
-        } else {
-          res.status(404);
-        }
-        res.json({message:'unable to delete tube'})
+        res.status(404);
       }
+      res.json({message:'unable to delete tube'});
+
     } catch(err) {
       res.status(404).json({message:err.message});
       console.log(err);
