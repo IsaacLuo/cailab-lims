@@ -29,9 +29,11 @@ export const UserSchema = new Schema({
 export const User = mongoose.model('User', UserSchema);
 
 export const ContainerSchema = new Schema({
-    ctype: String,
+    ctype: String,  //'tube'|'well'
     barcode: String,
+    createdAt: Date,
     assignedAt: Date,
+    
     operator: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -40,11 +42,63 @@ export const ContainerSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'Part',
     },
-    parentContainer: Schema.Types.ObjectId,
-    locationBarcode: String,
+
+    parentContainer: {
+      type: Schema.Types.ObjectId,
+      ref: 'ContainerGroup',
+    },
+
+    wellId: Number,
+    wellName: String,
+
+    location: {
+      type: Schema.Types.ObjectId,
+      ref: 'Location',
+    },
+    verifiedAt: Date,
+
+    locationHistory: [{
+      location: {
+        type: Schema.Types.ObjectId,
+        ref: 'Location',
+      },
+      verifiedAt: Date,
+    }],
+
     currentStatus: String,
 });
 export const Container = mongoose.model('Container', ContainerSchema);
+
+export const ContainerGroupSchema = new Schema({
+  ctype: String, //'plate'|'rack'
+  barcode: String,
+  createdAt: Date,
+  verifiedAt: Date,
+  wells: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Container',
+  }],
+
+  location: {
+    type: Schema.Types.ObjectId,
+    ref: 'Location',
+  },
+
+  locationHistory: [{
+    location: {
+      type: Schema.Types.ObjectId,
+      ref: 'Location',
+    },
+    verifiedAt: Date,
+  }],
+});
+export const ContainerGroup = mongoose.model('ContainerGroup', ContainerGroupSchema, 'ContainerGroups');
+
+
+export const Location = new Schema({
+  barcode: String,
+  description: String,
+});
 
 export const PartSchema = new Schema({
   labName: String,                      // combined "labPrefix" and "labId", e.g. 'YCe1234', redundant information

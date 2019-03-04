@@ -1,3 +1,4 @@
+import { Container, ContainerGroup } from './../models';
 import {Express, Response} from 'express'
 import {Part, Tube, RackScannerRecord} from '../models'
 import {Request} from '../MyRequest'
@@ -13,18 +14,35 @@ export default function handleTubeRack(app:Express) {
   app.put('/api/tubeRack/:rackBarcode', fromFluidXScanner, async (req :Request, res: Response) => {
     const {rackBarcode} = req.params;
     try {
+      const now = new Date();
+      // get rack container
+      let rack = await ContainerGroup.findOne({
+        ctype: 'rack',
+        barcode: rackBarcode,
+      });
+      if (!rack) {
+        rack = new ContainerGroup({
+          ctype: 'rack',
+          createdAt: now,
+          barcode: rackBarcode,
+        });
+        await rack.save();
+      }
+
       // save tubes
-      const promises = req.body.tubes.map(v=> Tube.update(
+      const promises = req.body.tubes.map(v=> Container.update(
         {
+          ctype: 'tube',
           barcode: v.barcode,
         }, {
-          rackBarcode: rackBarcode,
+          parentContainer: rack,
           wellName: v.location,
           wellId: v.locationIndex,
-          verifiedAt: new Date(),
+          verifiedAt: now,
         }, {
           upsert:true,
         }));
+
       // save a scanning record
       const record = new RackScannerRecord();
       record.createdAt = new Date();
@@ -37,9 +55,15 @@ export default function handleTubeRack(app:Express) {
 
       promises.push(record.save());
 
-      Promise.all(promises)
-      .then(()=>res.json({message:'OK'}))
-      .catch((err) => res.status(406).send(err.message));
+      await Promise.all(promises);
+
+      res.json({message:'OK'});
+
+      // update Rack
+      rack.verifiedAt = now;
+      rack.wells = (await Container.find({ctype:'tube'}).exec());
+      rack.save();
+
     } catch (err) {
       res.status(406).send(err.message);
     }
@@ -53,22 +77,12 @@ export default function handleTubeRack(app:Express) {
   async function getTubeRack(req :Request, res: Response) {
     try {
       const {rackBarcode, full} = req.customData;
-      const tubes = await Tube.find({rackBarcode}).exec();
-      if (tubes.length === 0) {
-        throw new Error('unable to find the rack');
-      }
+      const rack = await ContainerGroup.findOne({barcode: rackBarcode}).populate('wells');
+
       if (full) {
-        const t2 = tubes.map(v => 
-          Part.findOne({'containers.barcode': v.barcode}).exec().then(part => {
-            if(part) {
-              v.part = part;
-              return new Promise((solve, reject)=>solve())
-            }
-            })
-        );
-        Promise.all(t2).then(()=>res.json({tubes, full:true}));
+        
       } else {
-        res.json({tubes});
+        
       }
     } catch (err) {
       res.status(404).send(err.message);
