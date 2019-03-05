@@ -1,4 +1,4 @@
-import { Container, ContainerGroup } from './../models';
+import { Container, ContainerGroup, LogOperation } from './../models';
 import {Express, Response} from 'express'
 import {Part, Tube, RackScannerRecord} from '../models'
 import {Request} from '../MyRequest'
@@ -13,6 +13,7 @@ export default function handleTubeRack(app:Express) {
    */
   app.put('/api/tubeRack/:rackBarcode', fromFluidXScanner, async (req :Request, res: Response) => {
     const {rackBarcode} = req.params;
+    const tubeBarcodes = req.body.tubes.map(v=>v.barcode);
     try {
       const now = new Date();
       // get rack container
@@ -30,7 +31,7 @@ export default function handleTubeRack(app:Express) {
       }
 
       // save tubes
-      const promises = req.body.tubes.map(v=> Container.update(
+      const promises = req.body.tubes.map(v=> Container.updateMany(
         {
           ctype: 'tube',
           barcode: v.barcode,
@@ -42,6 +43,8 @@ export default function handleTubeRack(app:Express) {
         }, {
           upsert:true,
         }));
+
+      console.log(`updating ${promises.length} tubes`);
 
       // save a scanning record
       const record = new RackScannerRecord();
@@ -57,14 +60,14 @@ export default function handleTubeRack(app:Express) {
 
       await Promise.all(promises);
 
-      res.json({message:'OK'});
-
-      // update Rack
-      rack.verifiedAt = now;
-      rack.wells = (await Container.find({ctype:'tube'}).exec());
+      // rack is on scanner
+      rack.currentStatus = `checked out by ${req.currentUser.fullName}`
       rack.save();
 
+      res.json({message:'OK'});
+
     } catch (err) {
+      console.error(err);
       res.status(406).send(err.message);
     }
   });
@@ -77,12 +80,18 @@ export default function handleTubeRack(app:Express) {
   async function getTubeRack(req :Request, res: Response) {
     try {
       const {rackBarcode, full} = req.customData;
-      const rack = await ContainerGroup.findOne({barcode: rackBarcode}).populate('wells');
+      const rack = await ContainerGroup.findOne({barcode: rackBarcode}).exec();
 
       if (full) {
-        
+        const tubes = await Container.find({parentContainer: rack._id}).populate('part').exec();
+        const re = JSON.parse(JSON.stringify(rack));
+        re.tubes = tubes;
+        res.json(re);
       } else {
-        
+        const tubes = await Container.find({parentContainer: rack._id}).exec();
+        const re = JSON.parse(JSON.stringify(rack));
+        re.tubes = tubes;
+        res.json(re);
       }
     } catch (err) {
       res.status(404).send(err.message);

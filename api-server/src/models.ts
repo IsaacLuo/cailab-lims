@@ -74,10 +74,7 @@ export const ContainerGroupSchema = new Schema({
   barcode: String,
   createdAt: Date,
   verifiedAt: Date,
-  wells: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Container',
-  }],
+  currentStatus: String,
 
   location: {
     type: Schema.Types.ObjectId,
@@ -92,7 +89,7 @@ export const ContainerGroupSchema = new Schema({
     verifiedAt: Date,
   }],
 });
-export const ContainerGroup = mongoose.model('ContainerGroup', ContainerGroupSchema, 'ContainerGroups');
+export const ContainerGroup = mongoose.model('ContainerGroup', ContainerGroupSchema, 'containerGroups');
 
 
 export const Location = new Schema({
@@ -170,7 +167,7 @@ export const FileData = mongoose.model('FileData', FileDataSchema);
 export const PartsIdCounter = mongoose.model('PartsIdCounter', {
   name: String,
   count: Number,
-});
+},'partIdCounters');
 
 export const LogLogin = mongoose.model('LogLogin', {
   operatorId: Schema.Types.ObjectId,
@@ -178,31 +175,36 @@ export const LogLogin = mongoose.model('LogLogin', {
   type: String,
   sourceIP: String,
   timeStamp: Date,
-});
+},'logLogins');
 
 /**
  * level: the important level of operations
  *  - 0: debugging information
  *  - 1: listing or getting data
- *  - 2: exporting data
+ *  - 2: exporting data, moveing racks
  *  - 3: adding more data into the database
  *  - 4: modifying data, deleting data,
  *  - 5: change previleges, change user information, and other admin operations
  */
 export const LogOperation = mongoose.model('LogOperation', {
-  operatorId: Schema.Types.ObjectId,
+  operator: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+
   operatorName: String,
   type: String,
-  level: Number,        
+  level: Number,
   sourceIP: String,
   timeStamp: Date,
+  comment: String,
   data: Schema.Types.Mixed,
-});
+},'logOperations');
 
 export const PartHistory = mongoose.model('PartHistory', {
   partId: Schema.Types.ObjectId,
   histories: [Schema.Types.Mixed],
-});
+},'partHistories');
 
 export const PartDeletionRequest = mongoose.model('PartDeletionRequest', {
   senderId: Schema.Types.ObjectId,
@@ -210,7 +212,7 @@ export const PartDeletionRequest = mongoose.model('PartDeletionRequest', {
   partId: Schema.Types.ObjectId,
   requestedCount: Number,
   requestedAt: [Date],
-});
+}, 'partDeletionRequests');
 
 export const Broadcast = mongoose.model('Broadcast', {
   message: String,
@@ -232,7 +234,7 @@ export const PersonalPickListSchema = new Schema({
   default: Boolean,
 });
 
-export const PersonalPickList = mongoose.model('PersonalPickList', PersonalPickListSchema, 'PersonalPickLists');
+export const PersonalPickList = mongoose.model('PersonalPickList', PersonalPickListSchema, 'personalPickLists');
 
 
 export const Tube = mongoose.model('Tube', {
@@ -256,7 +258,7 @@ export const RackScannerRecord = mongoose.model('RackScannerRecord', {
     wellId: Number,
     barcode: String,
   }]
-});
+},'rackScannerRecords');
 
 
 
@@ -267,4 +269,4 @@ export const LocationHistorySchema = new Schema({
   locationBarcode: String,
 })
 
-export const LocationHistory = mongoose.model('LocationHistory', ContainerSchema, 'location_histories');
+export const LocationHistory = mongoose.model('LocationHistory', ContainerSchema, 'locationHistories');

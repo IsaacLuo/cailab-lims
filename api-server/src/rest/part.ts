@@ -130,7 +130,7 @@ export default function handlePart(app:Express) {
       await part.save();
       // =============log================
       LogOperation.create({
-        operatorId: req.currentUser.id,
+        operator: req.currentUser.id,
         operatorName: req.currentUser.fullName,
         type: 'create part',
         level: 3,
@@ -248,7 +248,7 @@ export default function handlePart(app:Express) {
         res.json({message:'OK'});
         // =============log================
         LogOperation.create({
-          operatorId: req.currentUser.id,
+          operator: req.currentUser.id,
           operatorName: req.currentUser.fullName,
           type: 'update part',
           level: 4,
@@ -298,7 +298,7 @@ export default function handlePart(app:Express) {
 
         // =============log================
         LogOperation.create({
-          operatorId: req.currentUser.id,
+          operator: req.currentUser.id,
           operatorName: req.currentUser.fullName,
           type: 'delete part',
           level: 4,

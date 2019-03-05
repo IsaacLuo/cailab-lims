@@ -46,7 +46,7 @@ app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Requ
         res.json(deletionRequest);
         // =============log================
         LogOperation.create({
-          operatorId: req.currentUser.id,
+          operator: req.currentUser.id,
           operatorName: req.currentUser.fullName,
           type: 'create deletion request',
           level: 4,
@@ -66,7 +66,7 @@ app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Requ
         res.json(createResult);
         // =============log================
         LogOperation.create({
-          operatorId: req.currentUser.id,
+          operator: req.currentUser.id,
           operatorName: req.currentUser.fullName,
           type: 'create deletion request',
           level: 4,
@@ -94,7 +94,7 @@ app.delete('/api/sudoRequests/partDeletion/:id', userMustBeAdmin, async (req :Re
     res.json(parts);
     // =============log================
     LogOperation.create({
-      operatorId: req.currentUser.id,
+      operator: req.currentUser.id,
       operatorName: req.currentUser.fullName,
       type: 'cancel deletion request',
       level: 4,

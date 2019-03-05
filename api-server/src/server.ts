@@ -343,7 +343,7 @@ app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res:
       await user.save();
       // log
       LogOperation.create({
-        operatorId: req.currentUser.id,
+        operator: req.currentUser.id,
         operatorName: req.currentUser.fullName,
         type: 'change privilege',
         level: 5,

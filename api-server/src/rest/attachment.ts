@@ -74,7 +74,7 @@ export default function handleAttachments(app:Express, upload:multer.Instance) {
       res.json({message:'OK', id:fileData._id});
       // =============log================
       LogOperation.create({
-        operatorId: req.currentUser.id,
+        operator: req.currentUser.id,
         operatorName: req.currentUser.fullName,
         type: 'create attachment',
         level: 3,
@@ -117,7 +117,7 @@ export default function handleAttachments(app:Express, upload:multer.Instance) {
         res.json({message:'OK', result});
         // =============log================
         LogOperation.create({
-          operatorId: req.currentUser.id,
+          operator: req.currentUser.id,
           operatorName: req.currentUser.fullName,
           type: 'delete attachment',
           level: 4,
