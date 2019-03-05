@@ -92,10 +92,12 @@ export const ContainerGroupSchema = new Schema({
 export const ContainerGroup = mongoose.model('ContainerGroup', ContainerGroupSchema, 'containerGroups');
 
 
-export const Location = new Schema({
+export const LocationSchema = new Schema({
   barcode: String,
   description: String,
 });
+
+export const Location = mongoose.model('Location', LocationSchema);
 
 export const PartSchema = new Schema({
   labName: String,                      // combined "labPrefix" and "labId", e.g. 'YCe1234', redundant information

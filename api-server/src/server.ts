@@ -26,6 +26,7 @@ import handleTubeRack from './rest/tubeRack';
 import handleContainers from './rest/container';
 import handleSession from './rest/session';
 import handleUsers from './rest/user';
+import handleLocation from './rest/location';
 
 // ============================================================================
 if (process.env.NODE_ENV === undefined) {
@@ -62,6 +63,7 @@ handleSession(app);
 
 handleUsers(app);
 
+handleLocation(app);
 
 
 // for testing if the server is running
@@ -150,6 +152,7 @@ app.post('/api/googleAuth/', async (req :Request, res: Response) => {
 app.post('/api/scannerSessions/', async (req :Request, res: Response) => {
   try {
     const {barcode} = req.body;
+    console.debug('barcode=',barcode);
     if(!barcode) {
       throw new Error('barcode is required');
     }
