@@ -13,7 +13,7 @@ import {
 } from './actions'
 
 const DEFAULT_STATE:ISearchTubeBarcodeState = {
-  part: undefined,
+  tube: undefined,
   message: '',
 }
 
@@ -24,7 +24,7 @@ function assignTubesReducer(state :ISearchTubeBarcodeState = DEFAULT_STATE, acti
     case SET_PART:
       return {
         ...state,
-        part: action.data,
+        tube: action.data,
       }
     case SET_MESSAGE:
       return {

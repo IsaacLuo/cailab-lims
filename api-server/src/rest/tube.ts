@@ -28,10 +28,11 @@ export default function handleTube(app:Express) {
    */
   app.get('/api/tube/:barcode/content', userCanUseScanner, async (req :Request, res: Response) => {
     const {barcode} = req.params;
+    console.debug(barcode);
     try {
-      let part = await Part.findOne({'containers.ctype':'tube', 'containers.barcode':barcode}).exec();
-      if (!part) throw new Error('tube not found');
-      res.json(part);
+      let tube = await Container.findOne({barcode,}).populate('part').exec();
+      if (!tube) throw new Error('tube not found');
+      res.json(tube);
     } catch (err) {
       res.status(404).send(err.message);
     }

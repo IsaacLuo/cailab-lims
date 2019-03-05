@@ -11,6 +11,7 @@ import {
   IColumn,
   IPartListRowData,
   IPart,
+  ITube,
 } from 'types'
 
 // react
@@ -51,13 +52,14 @@ import ClickableIcon from 'components/ClickableIcon';
 import { GET_PART } from './actions';
 import CentralPanel from 'components/CentralPanel';
 import PartTable from 'components/PartTable';
+import ObjectTable from 'components/ObjectTable';
 
 const MessagePanel = styled.div`
   min-height: 2em;
 `
 
 interface IProps extends IReactRouterProps {
-  part?:IPart,
+  tube?:ITube,
   message: string,
   searchPart: (id:string) => void,
 }
@@ -68,7 +70,7 @@ interface IState {
 
 const mapStateToProps = (state :IStoreState) => ({
   message: state.searchTubeBarcode.message,
-  part: state.searchTubeBarcode.part,
+  tube: state.searchTubeBarcode.tube,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
@@ -100,20 +102,27 @@ class SearchTubeBarcode extends React.Component<IProps, IState> {
   }
 
   public render() {
-    const {part} = this.props;
-        
+    const {tube} = this.props;
+    let part;
+    if (tube) {
+      part = tube.part;
+    }
+
     return <CentralPanel>
-      <div style={{width:'80%'}}>
-        <h1>Search Tube Barcode</h1>
-        <Input
-          value = {this.state.barcode}
-          onChange = {this.onChangeBarcode}
-          onKeyUp = {this.onInputKeyUp}
-        />
-        <MessagePanel>{this.props.message}</MessagePanel>
-        {part && <PartTable part={part} />}
-      </div>
-    </CentralPanel>
+        <div style={{width:'80%'}}>
+          <h1>Search Tube Barcode</h1>
+          <Input
+            value = {this.state.barcode}
+            onChange = {this.onChangeBarcode}
+            onKeyUp = {this.onInputKeyUp}
+          />
+          <MessagePanel>{this.props.message}</MessagePanel>
+          <h2>tube</h2>
+          {tube && <ObjectTable object={tube} keys={['barcode', 'assignedAt', 'currentStatus', 'wellName']} />}
+          <h2>part</h2>
+          {part && <PartTable part={part} />}
+        </div>
+      </CentralPanel>
   }
 
   private onChangeBarcode = (barcode) => {

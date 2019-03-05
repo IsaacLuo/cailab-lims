@@ -234,7 +234,8 @@ export interface IAssignTubesState {
 
 export interface ISearchTubeBarcodeState {
   message: string,
-  part?: IPart,
+  // part?: IPart,
+  tube?: ITube,
 }
 
 export interface ITube {
