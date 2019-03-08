@@ -1,7 +1,7 @@
 import {Express, Response} from 'express'
 import {User, Part, UserSchema, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, PersonalPickList, Container} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn, userCanUseScanner} from '../MyMiddleWare'
+import {userMustLoggedIn, userCanUseScanner, or, beUser, beScanner} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
 import { IPart, IAttachment, IPartForm } from '../types';
@@ -283,6 +283,73 @@ export default function handlePickList(app:Express) {
     } else {
       res.status(406).json({message:'wrong part ids'});
       return;
+    }
+  });
+
+  /**
+   * get tubes location of parts in a plickList
+   */
+
+  app.get('/api/pickList/:id/partLocations', or(beUser, beScanner), async (req :Request, res: Response) => {
+    try {
+      // const userId = req.currentUser.id;
+      const pickListId = req.params.id;
+      // const user = await User.findOne({_id:userId});
+      // verify
+      const pickList = await PersonalPickList.findOne({_id:pickListId}).exec();
+
+      if (!pickList) {
+        res.status(404).json({message:'unable to find picklist'});
+        return;
+      }
+      const partIds = pickList.parts.map(v=>v._id);
+      const parts = await Part
+        .find({_id:partIds}, 'personalName containers')
+        .populate({
+          path: 'containers',
+          select: 'ctype assignedAt parentContainer location wellName currentStatus barcode',
+          populate : {
+            path: 'parentContainer',
+            select: 'ctype barcode location currentStatus',
+            populate: {
+              path: 'location',
+            }
+          }
+        })
+        .exec();
+      res.json({parts, partIds,});
+    } catch (err) {
+      res.status(404).json({message:err.message});
+    }
+  });
+
+    app.get('/api/pickList/:id/partBarcodes', or(beUser, beScanner), async (req :Request, res: Response) => {
+    try {
+      // const userId = req.currentUser.id;
+      const pickListId = req.params.id;
+      // const user = await User.findOne({_id:userId});
+      // verify
+      const pickList = await PersonalPickList.findOne({_id:pickListId}).exec();
+
+      if (!pickList) {
+        res.status(404).json({message:'unable to find picklist'});
+        return;
+      }
+      const partIds = pickList.parts.map(v=>v._id);
+      const parts = await Part
+        .find({_id:partIds}, 'personalName containers')
+        .populate({
+          path: 'containers',
+          select: 'ctype assignedAt parentContainer wellName currentStatus barcode',
+          populate : {
+            path: 'parentContainer',
+            select: 'ctype barcode currentStatus',
+          }
+        })
+        .exec();
+      res.json({parts, partIds,});
+    } catch (err) {
+      res.status(404).json({message:err.message});
     }
   });
 

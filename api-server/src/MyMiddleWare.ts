@@ -2,6 +2,48 @@ import {Response, NextFunction} from 'express'
 import {Request} from './MyRequest'
 import secret from '../secret.json'
 
+
+export function beUser(req) {
+  if (req.headers['test-token'] === secret.test.token) {
+    req.currentUser = {
+      id:'5c73c64bee5b022584ff9414',
+      fullName: 'test man',
+      email: 'yishaluo@gmail.com',
+      groups: ['users'],
+      iat: Math.floor(Date.now()),
+      exp: Math.floor(Date.now()) + 3600,
+      barcode: '5c73c64bee5b022584ff9414',
+    }
+  }
+  return (req.currentUser && req.currentUser.groups.indexOf('users')>=0);
+}
+
+export function beScanner(req) {
+  if (req.headers['test-token'] === secret.test.token) {
+      req.currentUser = {
+        id:'5c73c64bee5b022584ff9414',
+        fullName: 'test man',
+        email: 'yishaluo@gmail.com',
+        groups: ['scanner'],
+        iat: Math.floor(Date.now()),
+        exp: Math.floor(Date.now()) + 3600,
+        barcode: '5c73c64bee5b022584ff9414',
+      }
+    }
+  return (req.currentUser && (req.currentUser.groups.indexOf('scanner')>=0));
+}
+
+export function or(...args: Array<(req:Request)=>boolean>) {
+  const arg = arguments;
+  return (req :Request, res :Response, next: NextFunction) => {
+    if (Array.prototype.some.call(arg, f=>f(req))) {
+      next();
+    } else {
+      res.status(401).json({message: 'no previlege'})
+    }
+  }
+}
+
 export function userMustBeAdmin (req :Request, res :Response, next: NextFunction) {
     if (req.currentUser && req.currentUser.groups.indexOf('administrators')>=0) {
       req.log.info('currentGoup', req.currentUser.groups)

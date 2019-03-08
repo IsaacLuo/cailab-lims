@@ -377,6 +377,17 @@ export default function handlePart(app:Express) {
     })
   });
 
+  /**
+   * query parts by id
+   * @body query conditions, {"id": ["123", "456", "789"]}
+   */
+
+  app.post('/api/parts/queries', userMustLoggedIn,  async (req :Request, res: Response) => {
+    const query = req.body;
+    const parts = await Part.find(query).exec();
+    
+  });
+
   app.get('/api/parts/count', userMustLoggedIn, async (req :Request, res: Response) => {
     let {type, ownerId} = req.query;
     let condition :any = {};

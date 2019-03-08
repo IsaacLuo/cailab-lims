@@ -58,4 +58,28 @@ export default function handleTube(app:Express) {
     }
   });
 
+  /**
+   * get a batch of tubes
+   */
+  app.post('/api/tubes/queries', userCanUseScanner, async (req :Request, res: Response) => {
+    try {
+      const {query} = req.body;
+      const populates = [
+        {path:'operator', select:'name'},
+        {path:'part', select:'personalName'},
+        {path:'parentContainer', select:['barcode', 'location'], populate:{path:'location'}},
+        'location',
+      ];
+      let q = Container.find(query);
+      populates.forEach(populate => {
+        q = q.populate(populate);
+      });
+      const tubes = await q.exec();
+      res.json(tubes);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({message:err.message});
+    }
+  });
+
 }
