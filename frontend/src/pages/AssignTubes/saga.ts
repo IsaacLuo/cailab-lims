@@ -1,6 +1,6 @@
 import {IAction, IStoreState, IBasketState, IPart} from 'types'
 // redux saga
-import { delay} from 'redux-saga';
+import { delay} from 'redux-saga/effects';
 import {call, all, fork, put, take, select, takeLatest, takeEvery} from 'redux-saga/effects'
 // redux actions
 import {
