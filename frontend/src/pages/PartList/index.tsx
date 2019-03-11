@@ -482,6 +482,7 @@ export class PartList extends React.Component<IProps, IState> {
                   prop: "key",
                   align: "right",
                   width: 200,
+                  render: row => row.key.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(),
                 },
                 {
                   label: "value",
@@ -490,6 +491,7 @@ export class PartList extends React.Component<IProps, IState> {
               ]}
               data={[
                 {key: 'comment', value: data.comment},
+                ...(data.locationComment && data.locationComment !== '' ? [{key: 'location comment', value: data.locationComment}] : []),
                 {key: 'creator', value: data.ownerName},
                 {key: 'created at', value: new Date(data.createdAt).toLocaleDateString()},
                 {key: 'updated at', value: new Date(data.createdAt).toLocaleDateString()},

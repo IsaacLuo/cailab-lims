@@ -17,6 +17,7 @@ export default class PartTable extends React.Component<IProps, IState> {
       prop: "key",
       align: "right",
       width: 200,
+      render: data => data.key.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()
     }, {
       label: "value",
       prop: "value",
@@ -30,7 +31,7 @@ export default class PartTable extends React.Component<IProps, IState> {
   public render () {
     const {part} = this.props;
     const tableData = 
-      ['_id', 'labName', 'personalName', 'ownerName', 'sampleType', 'comment', 'createdAt', 'updatedAt', 'date', 'tags'].map(
+      ['_id', 'labName', 'personalName', 'ownerName', 'sampleType', 'comment', 'createdAt', 'updatedAt', 'date', 'tags', 'locationComment'].map(
         v => ({key: v, value:part[v] ? (Array.isArray(part[v]) ? part[v].join('; '): part[v]) : undefined})
       )
       if (part.content) {
