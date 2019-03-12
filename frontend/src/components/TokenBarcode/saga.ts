@@ -1,6 +1,6 @@
 import {IAction} from 'types'
 // redux saga
-import { delay} from 'redux-saga';
+import {delay} from 'redux-saga/effects';
 import {call, all, fork, put, take, select, takeLatest} from 'redux-saga/effects'
 // redux actions
 import {

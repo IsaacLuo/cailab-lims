@@ -31,7 +31,7 @@ const MyTokenBarcode = styled(TokenBarcode)`
 export interface IProps {
   basketList:IBasket[],
   defaultBasketId:string,
-  currentBasket:IBasket,
+  currentBasket:IBasket|undefined,
   getBasketList: ()=>void,
   submitDefaultBasketId:(basketId :string)=>void,
   setABasketName:(basketId:string, basketName :string) => void,
@@ -285,6 +285,5 @@ class BasketList extends React.Component<IProps, IState> {
   }
 
 }
-
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(BasketList))

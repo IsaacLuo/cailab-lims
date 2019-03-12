@@ -16,7 +16,7 @@ import { serverURL } from 'config';
 import getAuthHeader from 'authHeader';
 
 import {IPart, IPartForm, IPartFormAttachment} from 'types'
-import Dropzone, { FileWithPreview } from 'react-dropzone';
+import Dropzone from 'react-dropzone';
 import {fileSizeHumanReadable, readFileAsDataURL} from '../tools'
 
 
@@ -190,7 +190,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
     )
   }
 
-  private onDropFiles = async (acceptedFiles: FileWithPreview[], rejectedFiles: FileWithPreview[]) => {
+  private onDropFiles = async (acceptedFiles: any[], rejectedFiles: any[]) => {
     for (const file of acceptedFiles) {
       const fileContent = await readFileAsDataURL(file);
       // add a new row of attachments
@@ -211,9 +211,11 @@ class EditPartDialog extends React.Component<IProps, IState> {
     }
   }
 
-  private onChangeText = (index:number, content: string) => {
-    this.state.formFields[index].value = content;
-    this.setState({count:this.state.count+1}); // just change state to refresh
+  private onChangeText = (index:number, e?: React.SyntheticEvent<HTMLInputElement>) => {
+    if(e) {
+      this.state.formFields[index].value = (e.target as any).value;
+      this.setState({count:this.state.count+1}); // just change state to refresh
+    }
   }
 
   /**
@@ -222,7 +224,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
    * @param number: the index of this.state.formFields array
    * @param fileId: the id of this file in db
    */
-  private onClickDeleteAttachment = (index: number, fileId:string) => {
+  private onClickDeleteAttachment = (index: number, fileId?:string) => {
     this.state.formFields[index].type = 'deletedFile';
     this.setState({count:this.state.count+1}); // just change state to refresh
   }
@@ -230,7 +232,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
    * triggered when clicking delete icon again on an existing attachment, it will
    * remove the item from "will be deleted" list.
    */
-  private onClickCancelDeleteAttachment = (index: number, fileId:string) => {
+  private onClickCancelDeleteAttachment = (index: number, fileId?:string) => {
     this.state.formFields[index].type = 'file';
     this.setState({count:this.state.count+1}); // just change state to refresh
   }
@@ -239,7 +241,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
    * triggered when clicking delete icon on a newly added attachment, it will remove
    * the added file immediately.
    */
-  private onClickCancelUploadAttachment = (index: number, fileId:string) => {
+  private onClickCancelUploadAttachment = (index: number, fileId?:string) => {
     this.state.formFields.splice(index,1);
     this.setState({count:this.state.count+1}); // just change state to refresh
   }

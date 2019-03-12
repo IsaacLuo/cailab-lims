@@ -140,7 +140,7 @@ export class PartFormReader {
   private cols:number = 0;
   private rows:number = 0;
   private sheet: xlsx.Sheet;
-  private headers: string[];
+  private headers: string[] = [];
   private customHeaders: Set<string> = new Set();
 
   constructor(sheet: xlsx.Sheet, rows:number, cols:number) {
