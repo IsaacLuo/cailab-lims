@@ -2,6 +2,7 @@ import {IColumn, IAttachment, IStoreState} from 'types'
 import * as React from 'react'
 import { Input, Loading, DatePicker, Tag, Button, Notification } from 'element-react'
 import Dropzone from 'react-dropzone'
+import {useDropzone} from 'react-dropzone'
 import styled from 'styled-components'
 import {Table} from 'element-react'
 
@@ -28,7 +29,7 @@ const MyPanel = styled.div`
   flex-direction: column;
   align-items: center;
 `
-const MyDropzone = styled(Dropzone)`
+const DropzoneContainer = styled.div`
   width:300px;
   height:200px;
   display:flex;
@@ -91,7 +92,8 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
       sucessefulCount: 0,
       failedCount: 0,
     }
-  }  
+  }
+
   public render() {
     const {sampleType} = this.props;
     const {partsForm, formTitles, submitting} = this.state;
@@ -100,24 +102,27 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
         {partsForm.length === 0 ? 
         <div>
           <div>only modified xlsx from the <a href={`${serverURL}/public/${sampleType}_template.xlsx`}>template</a></div>
-          <MyDropzone
-            maxSize = {10*1024*1024}
-            accept = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            multiple = {false}
-            onDrop={this.onDropFiles}
-            rejectStyle={{
-              borderColor:'#f00',
-              backgroundColor:'#f77',
-            }}
-            acceptStyle={{
-              borderColor:'#0f0',
-              backgroundColor:'#7f7',
-            }}
-            >
-            <DropzopnHint>
-              drag and drop xlsx file to here or click
-            </DropzopnHint>
-          </MyDropzone>
+          <UploadPartsDropzone />
+            {/* // maxSize = {10*1024*1024}
+            // accept = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            // multiple = {false}
+            // onDrop={this.onDropFiles}
+            // rejectStyle={{
+            //   borderColor:'#f00',
+            //   backgroundColor:'#f77',
+            // }}
+            // acceptStyle={{
+            //   borderColor:'#0f0',
+            //   backgroundColor:'#7f7',
+            // }}
+            // >
+            // {({getRootProps, getInputProps}) => (
+            //     <DropzopnHint>
+            //       drag and drop xlsx file to here or click
+            //     </DropzopnHint>
+            // )} */}
+            
+          
         </div>
         :
         <div style={{width:'100%'}}>
@@ -146,6 +151,27 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
         </div>
         }
       </MyPanel>
+    )
+  }
+
+  UploadPartsDropzone (props) {
+    const {
+      getRootProps,
+      getInputProps,
+      isDragActive,
+      isDragAccept,
+      isDragReject,
+    } = useDropzone({
+      accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      multiple: false,
+      onDrop: this.onDropFiles,
+      })
+    
+    return (
+      <DropzoneContainer {...getRootProps({isDragActive, isDragAccept, isDragReject})}>
+        <input {...getInputProps()} />
+        <p>Drag 'n' drop some files here, or click to select files</p>
+      </DropzoneContainer>
     )
   }
 
