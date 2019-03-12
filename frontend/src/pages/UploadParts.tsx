@@ -35,7 +35,7 @@ const DropzoneContainer = styled.div`
   display:flex;
   border: solid 1px #000;
 `
-const MiniDropzone = styled(Dropzone)`
+const MiniDropzoneContainer = styled.div`
   width:100%;
   border: solid 1px rgba(0,0,0,0.01);
   box-sizing: border-box;
@@ -102,7 +102,7 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
         {partsForm.length === 0 ? 
         <div>
           <div>only modified xlsx from the <a href={`${serverURL}/public/${sampleType}_template.xlsx`}>template</a></div>
-          <UploadPartsDropzone />
+          <this.UploadPartsDropzone />
             {/* // maxSize = {10*1024*1024}
             // accept = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             // multiple = {false}
@@ -154,7 +154,7 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
     )
   }
 
-  UploadPartsDropzone (props) {
+  UploadPartsDropzone = (props) => {
     const {
       getRootProps,
       getInputProps,
@@ -175,10 +175,36 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
     )
   }
 
+  MiniDropzone = (props) => {
+    const {
+      getRootProps,
+      getInputProps,
+      isDragActive,
+      isDragAccept,
+      isDragReject,
+    } = useDropzone({
+      maxSize: 10*1024*1024,
+      onDrop: this.onDropAttachments.bind(this, props.index, props.attachments),
+      multiple: true
+      })
+    
+    return (
+      <MiniDropzoneContainer {...getRootProps({isDragActive, isDragAccept, isDragReject})}>
+        <input {...getInputProps()} />
+        <DropzopnHint>
+          <Button type="text" size="mini" style={{marginLeft: 5}}>
+              add <i className="el-icon-plus el-icon-right"/>
+          </Button>
+        </DropzopnHint>
+      </MiniDropzoneContainer>
+    )
+  }
+
   private clearParts = () => {
     this.setState({partsForm: []});
   }
   private onDropFiles = async (acceptedFiles:File[]) => {
+    console.log(acceptedFiles,'acc')
     if (acceptedFiles && acceptedFiles[0]) {
       try {
         const excelFile = acceptedFiles[0];
@@ -240,7 +266,11 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
                       </div>
                       )
                   }
-              <MiniDropzone
+              <this.MiniDropzone
+                index = {index}
+                attachments = {row.attachments}
+              />
+              {/* <MiniDropzone
                 maxSize={10*1024*1024}
                 onDrop={this.onDropAttachments.bind(this, index, row.attachments)}
                 rejectStyle={{
@@ -257,7 +287,7 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
                       add <i className="el-icon-plus el-icon-right"/>
                   </Button>
                 </DropzopnHint>
-              </MiniDropzone>
+              </MiniDropzone> */}
               </Loading>}
             </span>}, 
 
