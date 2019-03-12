@@ -46,7 +46,6 @@ import {
 } from 'element-react'
 import styled from 'styled-components'
 import ErrorBoundary from 'components/ErrorBoundary'
-import EditPartDialog from 'components/EditPartDialog';
 import { GET_BASKET_LIST, GET_BASKET } from 'pages/BasketList/actions';
 import ClickableIcon from 'components/ClickableIcon';
 import { GET_PART } from './actions';

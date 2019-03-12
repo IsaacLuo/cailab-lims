@@ -16,7 +16,8 @@ import { serverURL } from 'config';
 import getAuthHeader from 'authHeader';
 
 import {IPart, IPartForm, IPartFormAttachment} from 'types'
-import Dropzone from 'react-dropzone';
+// import Dropzone from 'react-dropzone';
+import {useDropzone} from 'react-dropzone'
 import {fileSizeHumanReadable, readFileAsDataURL} from '../tools'
 
 
@@ -46,7 +47,7 @@ const FormValue = styled.div`
 flex: auto;
 `;
 
-const MyDropzone = styled(Dropzone)`
+const MyDropzoneContainer = styled.div`
 width: 100%;
 height: 5em;
 border: solid 1px;
@@ -164,8 +165,8 @@ class EditPartDialog extends React.Component<IProps, IState> {
         <Dialog.Body>
           <Panel>
               {fields}
-              <MyDropzone
-                maxSize = {10*1024*1024}
+              <this.MyDropzone />
+                {/* maxSize = {10*1024*1024}
                 multiple = {false}
                 onDrop={this.onDropFiles}
                 rejectStyle={{
@@ -178,7 +179,7 @@ class EditPartDialog extends React.Component<IProps, IState> {
                 }}
               >
                 add more attachments
-              </MyDropzone>
+              </MyDropzone> */}
           </Panel>          
         </Dialog.Body>
         <Dialog.Footer>
@@ -187,6 +188,26 @@ class EditPartDialog extends React.Component<IProps, IState> {
         </Dialog.Footer>
         
       </Dialog>
+    )
+  }
+
+  private MyDropzone = (props) => {
+    const {
+      getRootProps,
+      getInputProps,
+      isDragActive,
+      isDragAccept,
+      isDragReject,
+    } = useDropzone({
+      multiple: false,
+      onDrop: this.onDropFiles,
+      })
+    
+    return (
+      <MyDropzoneContainer {...getRootProps({isDragActive, isDragAccept, isDragReject})}>
+        <input {...getInputProps()} />
+        add more attachments
+      </MyDropzoneContainer>
     )
   }
 
@@ -211,9 +232,9 @@ class EditPartDialog extends React.Component<IProps, IState> {
     }
   }
 
-  private onChangeText = (index:number, e?: React.SyntheticEvent<HTMLInputElement>) => {
+  private onChangeText = (index:number, e:any) => {
     if(e) {
-      this.state.formFields[index].value = (e.target as any).value;
+      this.state.formFields[index].value = e as string;
       this.setState({count:this.state.count+1}); // just change state to refresh
     }
   }

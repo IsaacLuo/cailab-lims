@@ -266,7 +266,8 @@ export class PartList extends React.Component<IProps, IState> {
       // editPartDialog has closed, fetch data again from server;
       // this.props.getParts({keyword, userFilter, skip, limit});
       const {searchKeyword, userFilter, skip, limit, sortMethod} = this.props;
-      this.props.getParts({searchKeyword, userFilter, skip, limit, sortMethod});
+      const sampleType = this.getSampleType();
+      this.props.getParts({sampleType, searchKeyword, userFilter, skip, limit, sortMethod});
     }
     if (nextProps.limit !== this.props.limit ||
       nextProps.skip !== this.props.skip ||
