@@ -204,7 +204,7 @@ export const mapDispatchToProps = (dispatch :Dispatch) => ({
   setUserFilter: (val:string) => dispatch({type:SET_USER_FILTER, data: val}),
   setSkip: (val:number) => dispatch({type:SET_SKIP, data: val}),
   setLimit: (val:number) => dispatch({type:SET_LIMIT, data: val}),
-  setSort: (sortMethod: any) => dispatch({type:SET_SORT_METHOD, data:sortMethod }),
+  setSort: (sortMethod: { order: 'asc'|'desc', prop: string}) => dispatch({type:SET_SORT_METHOD, data:sortMethod }),
   exportToXlsx: (skip?: number, limit?: number) => dispatch({type:EXPORT_TO_XLSX, data:{skip, limit}}),
 })
 
@@ -272,7 +272,9 @@ export class PartList extends React.Component<IProps, IState> {
     if (nextProps.limit !== this.props.limit ||
       nextProps.skip !== this.props.skip ||
       nextProps.userFilter !== this.props.userFilter ||
-      nextProps.searchKeyword !== this.props.searchKeyword
+      nextProps.searchKeyword !== this.props.searchKeyword ||
+      nextProps.sortMethod !== this.props.sortMethod
+
     ) {
       // set new URL
       this.pushHistory(nextProps);
@@ -397,7 +399,7 @@ export class PartList extends React.Component<IProps, IState> {
       sort: sortMethod.prop === '_id' ? undefined : sortMethod.prop,
       desc: sortMethod.order=== 'asc' ? 'asc' : undefined,
     }
-    console.log(qs.stringify(query));
+    console.log('qs=', qs.stringify(query));
     props.history.replace(`${pathName}${qs.stringify(query)}`);
     
   }
@@ -431,6 +433,13 @@ export class PartList extends React.Component<IProps, IState> {
 
   protected onTableSortChange = (sortProp: {column:any, order:'ascending'|'descending', prop:string}) => {
     const {order, prop} = sortProp;
+    console.log({order,prop});
+    if (prop === null) {
+      this.props.setSort({order: undefined, prop: undefined});
+    }else {
+      const orderStr = order === 'ascending' ? 'asc': 'desc';
+      this.props.setSort({order: orderStr, prop});
+    }
     // this.setState({sortMethod: {order, prop}}, this.fetchPartsData);
   }
   protected onSelectChange = (selection:any[]) => {

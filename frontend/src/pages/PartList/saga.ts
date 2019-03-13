@@ -18,6 +18,7 @@ import {
   DELETE_PART_REQUEST,
   DELETE_PART,
   ADD_PARTS_TO_BASKET,
+  SET_SORT_METHOD,
 } from './actions'
 
 
@@ -219,6 +220,12 @@ function* addPartsToBasket(action:IAction) {
   }
 }
 
+function* setSortMethod(action:IAction) {
+  const sortMethod :{order:'asc'|'desc', prop:string} = action.data;
+  const {sampleType, limit, skip, userFilter, searchKeyword} = yield select((state:IStoreState)=> state.partList);
+  yield put({type:GET_PARTS, data:{searchKeyword, sampleType, limit, skip, userFilter, sortMethod}});
+}
+
 
 export default function* watchPartList() {
   yield takeLatest(GET_DEFAULT_BASKET, getDefaultBasket);
@@ -231,4 +238,5 @@ export default function* watchPartList() {
   yield takeLatest(DELETE_PART, deletePart);
   yield takeLatest(SET_SEARCH_KEYWORD, setSearchKeyword);
   yield takeLatest(ADD_PARTS_TO_BASKET, addPartsToBasket);
+  yield takeLatest(SET_SORT_METHOD, setSortMethod);
 }
