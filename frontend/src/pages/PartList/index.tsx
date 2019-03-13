@@ -350,6 +350,7 @@ export class PartList extends React.Component<IProps, IState> {
               { basketListDropDownItems }
             </Select>
             <Button icon="plus" onClick = {this.addPartsToBasket} >add to basket</Button>
+            <Link to="/myBasket/"><Button>manage baskets</Button></Link>
           </FlexRow>
     
           <Pagination
@@ -397,7 +398,7 @@ export class PartList extends React.Component<IProps, IState> {
       page: page === 0 ? undefined : page,
       limit: limit === 10 ? undefined : limit,
       sort: sortMethod.prop === '_id' ? undefined : sortMethod.prop,
-      desc: sortMethod.order=== 'asc' ? 'asc' : undefined,
+      order: sortMethod.order=== 'asc' ? 'asc' : undefined,
     }
     console.log('qs=', qs.stringify(query));
     props.history.replace(`${pathName}${qs.stringify(query)}`);

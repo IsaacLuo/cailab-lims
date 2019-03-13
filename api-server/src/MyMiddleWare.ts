@@ -2,17 +2,18 @@ import {Response, NextFunction} from 'express'
 import {Request} from './MyRequest'
 import secret from '../secret.json'
 
+const dummyUserId = '5c88cea93c27125df4ff9f4a'
 
 export function beUser(req) {
   if (req.headers['test-token'] === secret.test.token) {
     req.currentUser = {
-      id:'5c73c64bee5b022584ff9414',
+      id:dummyUserId,
       fullName: 'test man',
       email: 'yishaluo@gmail.com',
       groups: ['users'],
       iat: Math.floor(Date.now()),
       exp: Math.floor(Date.now()) + 3600,
-      barcode: '5c73c64bee5b022584ff9414',
+      barcode: dummyUserId,
     }
   }
   return (req.currentUser && req.currentUser.groups.indexOf('users')>=0);
@@ -21,13 +22,13 @@ export function beUser(req) {
 export function beScanner(req) {
   if (req.headers['test-token'] === secret.test.token) {
       req.currentUser = {
-        id:'5c73c64bee5b022584ff9414',
+        id:dummyUserId,
         fullName: 'test man',
         email: 'yishaluo@gmail.com',
         groups: ['scanner'],
         iat: Math.floor(Date.now()),
         exp: Math.floor(Date.now()) + 3600,
-        barcode: '5c73c64bee5b022584ff9414',
+        barcode: dummyUserId,
       }
     }
   return (req.currentUser && (req.currentUser.groups.indexOf('scanner')>=0));
@@ -50,13 +51,13 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
       next();
     } else if (req.headers['test-token'] === secret.test.token) {
       req.currentUser = {
-        id:'5c73c64bee5b022584ff9414',
+        id:dummyUserId,
         fullName: 'test man',
         email: 'yishaluo@gmail.com',
         groups: ['users'],
         iat: Math.floor(Date.now()),
         exp: Math.floor(Date.now()) + 3600,
-        barcode: '5c73c64bee5b022584ff9414',
+        barcode: dummyUserId,
       }
       next();
     } else {
@@ -72,13 +73,13 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
   export function userMustLoggedIn (req :Request, res :Response, next: NextFunction) {
     if (req.headers['test-token'] === secret.test.token) {
       req.currentUser = {
-        id:'5c73c64bee5b022584ff9414',
+        id:dummyUserId,
         fullName: 'test man',
         email: 'yishaluo@gmail.com',
         groups: ['users'],
         iat: Math.floor(Date.now()),
         exp: Math.floor(Date.now()) + 3600,
-        barcode: '5c73c64bee5b022584ff9414',
+        barcode:dummyUserId,
       }
     }
     if (req.currentUser && req.currentUser.groups.indexOf('users')>=0) {
@@ -92,13 +93,13 @@ export function userMustBeAdmin (req :Request, res :Response, next: NextFunction
   export function userCanUseScanner (req :Request, res :Response, next: NextFunction) {
     if (req.headers['test-token'] === secret.test.token) {
       req.currentUser = {
-        id:'5c73c64bee5b022584ff9414',
+        id:dummyUserId,
         fullName: 'test man',
         email: 'yishaluo@gmail.com',
         groups: ['scanner'],
         iat: Math.floor(Date.now()),
         exp: Math.floor(Date.now()) + 3600,
-        barcode: '5c73c64bee5b022584ff9414',
+        barcode: dummyUserId,
       }
     }
     if (req.currentUser && (req.currentUser.groups.indexOf('scanner')>=0 || req.currentUser.groups.indexOf('users')>=0)) {

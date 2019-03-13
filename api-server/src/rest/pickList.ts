@@ -16,7 +16,7 @@ const ObjectId = mongoose.Types.ObjectId;
 async function getDefaultPicklist(user:any) {
   try {
     if (user.defaultPickListId) {
-      const pickList = await PersonalPickList.findOne({_id:user.defaultPickListId}).exec();
+      const pickList = await PersonalPickList.findOne({_id:user.defaultPickListId, owner:user._id}).exec();
       if(pickList) {
         return pickList;
       } else {
@@ -27,8 +27,8 @@ async function getDefaultPicklist(user:any) {
     }
   } catch (err) {
     if (err.message === 'no default pickList') {
-      console.warn('user does not have default pickList');
-      let pickList = await PersonalPickList.findOne().sort('-createdAt').exec();
+      console.warn(`user ${user.name} does not have default pickList`);
+      let pickList = await PersonalPickList.findOne({owner:user._id}).sort('-createdAt').exec();
       const now = new Date();
       if(!pickList) {
         pickList = new PersonalPickList({
@@ -137,7 +137,8 @@ export default function handlePickList(app:Express) {
     const userId = req.currentUser.id;
     
     try {
-      const pickLists = await PersonalPickList.find({owner:ObjectId(userId)}, '_id createdAt updatedAt partsCount name').exec();
+      const pickLists = await PersonalPickList.find({owner:ObjectId(userId)}, '_id owner createdAt updatedAt partsCount name').exec();
+      console.log(pickLists);
       // if the user does not have a picklist, generate a default one.
       const user = await User.findOne({_id:userId}).exec();
       console.log(user);

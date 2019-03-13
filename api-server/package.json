@@ -21,6 +21,7 @@
     "build": "cross-env NODE_ENV=production tsc",
     "production": "cross-env NODE_ENV=production node build/src/server.js",
     "dev": "node ./node_modules/nodemon/bin/nodemon.js",
+    "debug": "node ./node_modules/nodemon/bin/nodemon.js --inspect",
     "importDB": "ts-node src/script/importDB.ts",
     "testScript": "ts-node src/script/test.ts",
     "shell": "ts-node"
