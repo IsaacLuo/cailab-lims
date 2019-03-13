@@ -348,6 +348,7 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
         newPartForm.sampleType = this.props.sampleType;
         try {
           newPartForm.submitStatus = 'submitting';
+          // create a new part
           const res = await axios.post(serverURL+'/api/part', newPartForm, getAuthHeader());
           newPartForm.labName = res.data.labName;
           newPartForm.personalName = res.data.personalName;

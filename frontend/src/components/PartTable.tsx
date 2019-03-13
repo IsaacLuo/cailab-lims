@@ -31,9 +31,12 @@ export default class PartTable extends React.Component<IProps, IState> {
   public render () {
     const {part} = this.props;
     const tableData = 
-      ['_id', 'labName', 'personalName', 'ownerName', 'sampleType', 'comment', 'createdAt', 'updatedAt', 'date', 'tags', 'locationComment'].map(
+      ['_id', 'labName', 'personalName', 'ownerName', 'sampleType', 'comment', 'createdAt', 'updatedAt', 'date', 'tags'].map(
         v => ({key: v, value:part[v] ? (Array.isArray(part[v]) ? part[v].join('; '): part[v]) : undefined})
       )
+      if(part['dbv1'] && part['dbv1']['locationComment']) {
+        tableData.push({key: 'location comment', value: part['dbv1']['locationComment']});
+      }
       if (part.content) {
         for (const key in part.content) {
           if (key !== 'customData' && part.content[key]) {

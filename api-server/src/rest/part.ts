@@ -1,5 +1,5 @@
 import {Express, Response} from 'express'
-import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, Container} from '../models'
+import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, Container, ContainerGroup, ContainerSchema} from '../models'
 import {Request} from '../MyRequest'
 import {userMustLoggedIn,userCanUseScanner} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
@@ -32,6 +32,11 @@ export default function handlePart(app:Express) {
       vendor,
       attachments,
       customData,
+
+      // tube barcode for creating container if not null
+      plateBarcode,
+      wellId,
+      tubeBarcode,
     } = req.body;
   
     try {
@@ -127,7 +132,54 @@ export default function handlePart(app:Express) {
         },
         attachments: attachmentIds,
       });
+      
+      let parentContainer;
+      const parentContainerType = tubeBarcode ? 'rack' : 'plate';
+      if (plateBarcode) {
+        parentContainer = await ContainerGroup.findOne({barcode:plateBarcode}).exec();
+        if (parentContainer) {
+          if (parentContainer.ctype !== parentContainerType) {
+            // wrong type
+
+            res.status(403).json({message: `the barcode belongs a ${parentContainer.ctype}, not a ${parentContainerType}`});
+            return;
+          }
+        } else {
+          parentContainer = await ContainerGroup.create({
+            ctype: parentContainerType,
+            barcode: plateBarcode,
+            createdAt: now,
+            currentStatus: 'created',
+          });
+        }
+      }
+
+      // if (tubeBarcode) {
+      //   let tube = await Container.findOne({barcode: tubeBarcode}).exec();
+      //   if (!tube) {
+      //     tube = await new Container({
+      //       ctype: 'tube',
+      //       barcode: tubeBarcode,
+      //       createdAt: now,
+      //       assignedAt: now,
+      //       operator: currentUser,
+      //     })
+      //   }
+      // }
+      
       await part.save();
+      // await Promise.all(tubeBarcodes.map( (barcode, i) => 
+      //   Container.create({
+      //     ctype: containerType, // tube or well
+      //     barcode,
+      //     createdAt: now,
+      //     assignedAt: now,
+      //     operator: currentUser,
+      //     part,
+      //     parentContainer: 
+      //   })
+      // ));
+
       // =============log================
       LogOperation.create({
         operator: req.currentUser.id,
