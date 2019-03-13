@@ -117,6 +117,7 @@ export interface IPart {
   updatedAt: Date,
   date?: Date, 
   tags?: string[],
+  dbV1?: any,
   content?: {
     // primers only
     description?: string,

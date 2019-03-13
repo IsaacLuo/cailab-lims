@@ -492,7 +492,7 @@ export class PartList extends React.Component<IProps, IState> {
               ]}
               data={[
                 {key: 'comment', value: data.comment},
-                ...(data.dbv1 && data.dbv1.locationComment && data.dbv1.locationComment !== '' ? [{key: 'location comment', value: data.dbv1.locationComment}] : []),
+                ...(data.dbV1 && data.dbV1.locationComment && data.dbV1.locationComment !== '' ? [{key: 'location comment', value: data.dbV1.locationComment}] : []),
                 {key: 'creator', value: data.ownerName},
                 {key: 'created at', value: new Date(data.createdAt).toLocaleDateString()},
                 {key: 'updated at', value: new Date(data.createdAt).toLocaleDateString()},
