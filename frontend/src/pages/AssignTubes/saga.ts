@@ -41,7 +41,7 @@ function* assignTubeToPart(action:IAction) {
   try {
     yield put({type:NEW_BARCODE_ASSIGNED, data:{partId, tubeId, submitStatus: 'pending'}});
     const res = yield call(axios.put, serverURL+`/api/part/${partId}/tube/${tubeId}`,{}, getAuthHeader());
-    yield call(delay,1000);
+    yield delay(1000);
     yield put({type:NEW_BARCODE_ASSIGNED, data:{partId, tubeId, submitStatus: 'verified'}});
   } catch (err) {
     if (err.response.status === 409) {
@@ -59,7 +59,7 @@ function* resignTube(action:IAction) {
   try {
     yield put({type:TUBE_RESIGNED, data:{tubeId, submitStatus: 'deleting'}});
     const res = yield call(axios.delete, serverURL+`/api/part/${partId}/tube/${tubeId}`, getAuthHeader());
-    yield call(delay,1000);
+    yield delay(1000);
     yield put({type:TUBE_RESIGNED, data:{tubeId, submitStatus: 'deleted'}});
   } catch (err) {
     Notification.error('failed to assign tube barcode');

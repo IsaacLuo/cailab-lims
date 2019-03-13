@@ -58,7 +58,7 @@ export function* getMyStatus() {
       }
       // save id, full name and groups to redux store.
       yield put(ActionSetLoginInformation(id, fullName, groups));
-      // yield call(delay, 60000);
+      // yield delay(60000);
       // yield put({type:'GET_MY_STATUS'});
     }
   } catch (err) {
@@ -134,9 +134,9 @@ export function* getNotifications() {
       const res = yield call(axios.get,serverURL+'/api/notifications', getAuthHeader());
       for (const notification of res.data) {
         yield call(showNotification,notification);
-        yield call(delay, 10000);
+        yield delay(10000);
       }
-      yield call(delay, 600000); // 10 minutes
+      yield delay(600000); // 10 minutes
       yield put({type:'GET_NOTIFICATIONS'}); // fetch notifications again
     }
   } catch (err) {
