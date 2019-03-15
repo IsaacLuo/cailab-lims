@@ -5,6 +5,7 @@ import getAuthHeader from '../authHeader'
 import { Checkbox, Button, Notification } from 'element-react'
 // import {TableColumn} from 'element-react/typings/index'
 import {Table} from 'element-react'
+import { IReactRouterProps } from 'types';
 
 
 interface IUser {
@@ -15,7 +16,7 @@ interface IUser {
   createdAt: string,
 }
 
-export interface IUserProps {
+export interface IUserProps extends IReactRouterProps{
 }
 
 export interface IUserState {
@@ -156,6 +157,9 @@ export default class Users extends React.Component<IUserProps, IUserState> {
       users: res.data
     })
     } catch (err) {
+      if(err.response.status === 401) {
+        this.props.history.push('/');
+      }
       console.warn (err)
     }
   }

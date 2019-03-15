@@ -14,6 +14,7 @@ const DEFAULT_STATE:IUserState = {
   loggedIn: false,
   userId: 'guest',
   fullName: 'guest',
+  email:'',
   groups: [],
   barcode: '',
   token: '',
@@ -27,6 +28,7 @@ function userReducer(state :IUserState = DEFAULT_STATE, action: IAction) {
         ...state,
         userId: action.data.id,
         fullName: action.data.name,
+        email: action.data.email,
         groups: action.data.groups,
         loggedIn: true,
       }
@@ -38,6 +40,7 @@ function userReducer(state :IUserState = DEFAULT_STATE, action: IAction) {
         ...state,
         userId: 'guest',
         fullName: 'guest',
+        email: '',
         groups: [],
         profilePicture: '',
         loggedIn: false,

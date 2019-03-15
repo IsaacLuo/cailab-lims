@@ -53,6 +53,8 @@ import BateriumPartList from 'pages/PartList/BacteriumPartList.tsx'
 import PrimerPartList from 'pages/PartList/PrimerPartList';
 import YeastPartList from 'pages/PartList/YeastPartList';
 import ContainerList from 'pages/ContainerList';
+import {hot} from 'react-hot-loader/root';
+import RegisterUser from 'pages/RegisterUser';
 
 interface IProps {
   initializing: boolean,
@@ -117,6 +119,7 @@ class App extends React.Component<IProps, any> {
           <Route path='/myBasket/' component={BasketList} />
 
           <Route path='/containers/' exact={true} component={ContainerList} />
+          <Route path='/register/' exact={true} component={RegisterUser} />
 
         </div>
       );
@@ -139,4 +142,5 @@ const mapDispatchToProps = (dispatch :Dispatch) => ({
   dispatchGetMyStatus: () => dispatch({type: 'GET_MY_STATUS'}),
 })
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App))
+// export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App))
+export default hot(withRouter(connect(mapStateToProps, mapDispatchToProps)(App)))

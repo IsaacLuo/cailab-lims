@@ -45,7 +45,7 @@ import watchContainers from 'pages/ContainerList/saga';
 export function* getMyStatus() {
   try {
     const res = yield call(axios.get,serverURL+'/api/currentUser', getAuthHeader());
-    const {id, fullName, groups, token, barcode,} = res.data;
+    const {id, fullName, groups, email, token, barcode,} = res.data;
     if (id === 'guest') {
       // force logout if current user becomes a guest
       yield put(ActionClearLoginInformation());
@@ -57,7 +57,7 @@ export function* getMyStatus() {
         yield put({type: TOKEN_REFRESHED, data: {token, refreshTime}});
       }
       // save id, full name and groups to redux store.
-      yield put(ActionSetLoginInformation(id, fullName, groups));
+      yield put(ActionSetLoginInformation(id, fullName, email, groups));
       // yield delay(60000);
       // yield put({type:'GET_MY_STATUS'});
     }
@@ -71,7 +71,7 @@ export function* getMyStatus() {
 export function* initialize() {
   try {
     const res = yield call(axios.get,serverURL+'/api/currentUser', getAuthHeader());
-    const {id, fullName, groups, token} = res.data;
+    const {id, fullName, email, groups, token} = res.data;
     if (id === 'guest') {
       yield put(ActionClearLoginInformation());
     } else {
@@ -91,7 +91,7 @@ export function* initialize() {
           }
         }
       }
-      yield put(ActionSetLoginInformation(id, fullName, groups));
+      yield put(ActionSetLoginInformation(id, fullName, email, groups));
       yield put({type:QUERY_MY_USER_BARCODE});
       // get notifications when initilizing
       yield put({type:'GET_NOTIFICATIONS'});

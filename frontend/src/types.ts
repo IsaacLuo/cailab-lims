@@ -26,6 +26,7 @@ export interface IUserState {
   loggedIn: boolean,
   userId: string,
   fullName: string,
+  email: string,
   profilePicture?: string,
   groups: string[],
   barcode: string,

@@ -55,6 +55,11 @@ function* sendNormalLoginInfoToServer (action:IAction) {
         password,
       }
     );
+    localStorage.setItem('token',res.data.token);
+    localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
+    yield put({type: SET_LOGIN_INFORMATION, data: res.data});
+    yield put({type:LOGIN_DIALOG_VISIBLE, data: false});
+    Message.success(res.data.message);
   } catch (err) {
     Message.error({message:err.toLocaleString()});
   }

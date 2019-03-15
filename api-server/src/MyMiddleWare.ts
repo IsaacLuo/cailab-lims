@@ -34,6 +34,21 @@ export function beScanner(req) {
   return (req.currentUser && (req.currentUser.groups.indexOf('scanner')>=0));
 }
 
+export function beAdmin(req) {
+  if (req.headers['test-token'] === secret.test.token) {
+      req.currentUser = {
+        id:dummyUserId,
+        fullName: 'test man',
+        email: 'yishaluo@gmail.com',
+        groups: ['scanner'],
+        iat: Math.floor(Date.now()),
+        exp: Math.floor(Date.now()) + 3600,
+        barcode: dummyUserId,
+      }
+    }
+  return (req.currentUser && req.currentUser.groups.indexOf('administrators')>=0);
+}
+
 export function or(...args: Array<(req:Request)=>boolean>) {
   const arg = arguments;
   return (req :Request, res :Response, next: NextFunction) => {

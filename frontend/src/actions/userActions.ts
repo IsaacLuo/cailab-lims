@@ -3,6 +3,7 @@ export const SET_LOGIN_INFORMATION = 'SET_LOGIN_INFORMATION';
 export function ActionSetLoginInformation (
   id: string,
   name: string,
+  email: string,
   groups: string[],
 ) {
   return {
@@ -10,6 +11,7 @@ export function ActionSetLoginInformation (
     data: {
       id,
       name,
+      email,
       groups,
     }
   }

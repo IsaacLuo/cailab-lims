@@ -215,7 +215,7 @@ app.get('/api/currentUser', async (req :Request, res: Response) =>
   const {id, fullName, email, groups, exp} = req.currentUser;
   const now = Math.floor(Date.now()/1000);
   req.log.debug({exp, now});
-  let payload :{id:string, fullName :string, groups: string[], token?:string, tokenExpireIn?:number} = {id, fullName, groups}
+  let payload :{id:string, fullName :string, email: string, groups: string[], token?:string, tokenExpireIn?:number} = {id, fullName, email, groups}
   console.debug(now, exp, exp - now);
   if (now < exp && exp - now < 1200) {
     payload.token = jwt.sign({
@@ -233,6 +233,19 @@ app.get('/api/currentUser', async (req :Request, res: Response) =>
 } else {
   res.json({id:'guest', fullName: 'guest', groups:['guest']})
 }
+});
+
+// get current user information, it gets more info
+app.get('/api/currentUser/detail/', userMustLoggedIn, async (req :Request, res: Response) => 
+{ 
+  const {id} = req.currentUser;
+  const now = Math.floor(Date.now()/1000);
+  try {
+    const user = await User.findOne({_id:id}).exec();  
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({message:err.message});
+  }
 });
 
 // get current user barcode

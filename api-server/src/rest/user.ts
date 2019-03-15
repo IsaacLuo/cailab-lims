@@ -39,7 +39,7 @@ export default function handleUsers(app:Express) {
   /**
    * new user
    */
-  app.post('/api/user/', userMustBeAdmin, async (req :Request, res: Response) => {
+  app.post('/api/user/', async (req :Request, res: Response) => {
     try {
       const {
         name,
@@ -53,12 +53,14 @@ export default function handleUsers(app:Express) {
       // save user information
       const userCount = await User.countDocuments({email}).exec();
       if (userCount > 0) {
-        throw new Error('user exists');
+        res.status(409).json({message: `user ${email} exists`});
+        return;
       }
       // verify abbr is unique
       const abbrCount = await User.countDocuments({abbr}).exec();
       if (abbrCount > 0) {
-        throw new Error('abbr duplicated');
+        res.status(409).json({message: `abbr ${abbr} is used by another user`});
+        return;
       }
 
       const now = new Date();
@@ -66,7 +68,7 @@ export default function handleUsers(app:Express) {
         email,
         name,
         abbr,
-        groups,
+        groups: [],
         createdAt: now,
         updatedAt: now,
         authType: 'local',
@@ -88,7 +90,6 @@ export default function handleUsers(app:Express) {
   app.put('/api/user/:id', userMustBeAdmin, async (req :Request, res: Response) => {
     const {id} = req.params;
     try {
-
       const user = await User.findOne({_id:id}).exec();
       if(!user) {
         throw new Error('user not found');
@@ -101,6 +102,8 @@ export default function handleUsers(app:Express) {
         abbr,
         groups,
       } = req.body;
+
+
       let passwordSalt, passwordHash;
 
       if (password) {
@@ -111,7 +114,7 @@ export default function handleUsers(app:Express) {
       // verify abbr is unique
       const abbrCount = await User.countDocuments({_id:{$ne:id}, abbr}).exec();
       if (abbrCount > 0) {
-        throw new Error('abbr duplicated');
+        throw new Error(`abbr ${abbr} duplicated`);
       }
 
       const now = new Date();

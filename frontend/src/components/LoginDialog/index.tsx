@@ -17,7 +17,7 @@ import {
 } from 'actions/appActions'
 
 import {
-  ActionSetLoginInformation,
+  SET_LOGIN_INFORMATION,
 } from 'actions/userActions'
 
 // tools
@@ -31,13 +31,14 @@ import {
   SEND_NORMAL_LOGIN_INFO_TO_SERVER,
 } from './actions';
 import logo from 'img/logo.png';
+import {Link} from 'react-router-dom'
 
 export interface IProps {
   dialogVisible: boolean,
   busy: boolean,
 
   setDialogVisible: (visible:boolean)=>void,
-  setLoginInformation: (id:string, name :string, groups: string[]) => void,
+  setLoginInformation: (id:string, name :string, email: string, groups: string[]) => void,
   getMyStatus: () => void,
   refreshPartsCount: () => void,
   sendGoogleAuthInfoToServer: (data:any) => void,
@@ -55,11 +56,12 @@ const mapStateToProps = (state: IStoreState) => ({
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({
   setDialogVisible: (visible :boolean) => dispatch(ActionLoginDialogVisible(visible)),
-  setLoginInformation: (id:string, name :string, groups: string[]) => dispatch(ActionSetLoginInformation(id, name, groups)),
+  setLoginInformation: (id:string, name :string, email: string, groups: string[]) => dispatch({type: SET_LOGIN_INFORMATION, data:{id, name, groups, email}}),
   getMyStatus: ()=>dispatch({type:'GET_MY_STATUS'}),
   refreshPartsCount: () => dispatch({type:'GET_PARTS_COUNT'}),
   sendGoogleAuthInfoToServer: (data:any) => dispatch({type: SEND_GOOGLE_AUTH_INFO_TO_SERVER, data,}),
   sendNormalLoginInfoToServer: (username:string, password:string) => dispatch({type: SEND_NORMAL_LOGIN_INFO_TO_SERVER, data:{username, password}}),
+
 })
 
 class LoginDialog extends React.Component<IProps, IState> {
@@ -104,6 +106,13 @@ class LoginDialog extends React.Component<IProps, IState> {
             size="large"
             onClick={this.onClickLogin}
           >Login</Button>
+          <Link to='/register/'>
+            <Button
+              style={{width:190}}
+              size="large"
+              onClick={this.onClickRegister}
+            >Register</Button>
+          </Link>
           <p>or use your google account to login</p>
           <GoogleLogin
             clientId={googleAuthURL}
@@ -151,6 +160,10 @@ class LoginDialog extends React.Component<IProps, IState> {
   private onClickLogin = () => {
     const {username, password} = this.state;
     this.props.sendNormalLoginInfoToServer(username, password)
+  }
+
+  private onClickRegister = () => {
+    this.props.setDialogVisible(false);
   }
 }
 

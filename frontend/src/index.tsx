@@ -8,6 +8,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import store from './store'
 
+
 ReactDOM.render(
     <Provider store={store}>
       <BrowserRouter>
@@ -21,3 +22,5 @@ document.getElementById('root'));
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
+
+
