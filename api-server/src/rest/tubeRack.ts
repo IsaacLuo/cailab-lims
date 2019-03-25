@@ -2,7 +2,7 @@ import { Container, ContainerGroup, LogOperation } from './../models';
 import {Express, Response} from 'express'
 import {Part, Tube, RackScannerRecord} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn,userCanUseScanner, fromFluidXScanner, userMustBeAdmin} from '../MyMiddleWare'
+import {userMustLoggedIn,userCanUseScanner, fromFluidXScanner, userMustBeAdmin, or, beARScanner, beUser} from '../MyMiddleWare'
 import mongoose from 'mongoose'
 import { NextFunction } from 'connect';
 const ObjectId = mongoose.Types.ObjectId;
@@ -101,7 +101,7 @@ export default function handleTubeRack(app:Express) {
   /**
    * get latest verified rack
    */
-  app.get('/api/tubeRack/lastVerified', userCanUseScanner, async (req :Request, res: Response, next: NextFunction) => {
+  app.get('/api/tubeRack/lastVerified', or(beARScanner, beUser), async (req :Request, res: Response, next: NextFunction) => {
     const {full} = req.query;
     try {
       const rack = await RackScannerRecord.find({}).select('rackBarcode').sort({createdAt:-1}).limit(1).exec();

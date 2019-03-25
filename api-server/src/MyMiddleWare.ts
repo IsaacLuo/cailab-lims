@@ -49,6 +49,21 @@ export function beAdmin(req) {
   return (req.currentUser && req.currentUser.groups.indexOf('administrators')>=0);
 }
 
+export function beARScanner(req) {
+  if (req.headers['token'] === secret.ARScannerToken) {
+      req.currentUser = {
+        id:dummyUserId,
+        fullName: 'AR Scanner',
+        email: 'cailab.bio@gmail.com',
+        groups: ['scanner'],
+        iat: Math.floor(Date.now()),
+        exp: Math.floor(Date.now()) + 3600,
+        barcode: dummyUserId,
+      }
+    }
+  return req.currentUser;
+}
+
 export function or(...args: Array<(req:Request)=>boolean>) {
   const arg = arguments;
   return (req :Request, res :Response, next: NextFunction) => {
