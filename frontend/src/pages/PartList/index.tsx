@@ -570,11 +570,14 @@ export class PartList extends React.Component<IProps, IState> {
         prop: "comment",
         sortable: "custom",
         minWidth: 200,
+        align:'left',
+        headerAlign: 'left',
         render: (data, column, index) =>
           <div style={{
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
+            textAlign:'left',
           }}>{data.description} {data.comment}</div> 
       },
       {

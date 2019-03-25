@@ -1,7 +1,7 @@
 import {Express, Response} from 'express'
 import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, Container} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn,userCanUseScanner, userMustBeAdmin} from '../MyMiddleWare'
+import {userMustLoggedIn,userCanUseScanner, userMustBeAdmin, beAdmin, beUser, or} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
 import { IPart, IAttachment, IPartForm } from '../types';
@@ -87,7 +87,7 @@ export default function handleUsers(app:Express) {
   /**
    * update user
    */
-  app.put('/api/user/:id', userMustBeAdmin, async (req :Request, res: Response) => {
+  app.put('/api/user/:id', or(beUser,beAdmin), async (req :Request, res: Response) => {
     const {id} = req.params;
     try {
       const user = await User.findOne({_id:id}).exec();

@@ -145,11 +145,14 @@ class BacteriumPartList extends PartList {
         prop: "comment",
         sortable: "custom",
         minWidth: 200,
+        align:'left',
+        headerAlign: 'left',
         render: (row, column, index) =>
           <div style={{
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
+            textAlign:'left',
           }}>{row.comment}</div> 
       },
       {

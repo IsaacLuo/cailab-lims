@@ -181,6 +181,8 @@ export interface IColumn {
   minWidth?: number,
   sortable?: boolean|string,
   fixed? : boolean | string,
+  align?: string,
+  headerAlign?: string,
   render?: (data:any, column:any, index:number) => void,
 }
 

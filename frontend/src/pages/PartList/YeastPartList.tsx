@@ -152,6 +152,7 @@ class YeastPartList extends PartList {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
+            textAlign:'left',
           }}>{row.comment}</div> 
       },
       {
