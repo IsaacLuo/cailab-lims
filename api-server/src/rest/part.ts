@@ -473,7 +473,7 @@ export default function handlePart(app:Express) {
       }
       // try to find a tube with given barcode
       let container = await Container.findOne({barcode}).exec();
-      if(container && container.currentStatus !== 'empty') {
+      if(container && container.currentStatus !== 'empty' && container.currentStatus !== undefined) {
         if (container.part && container.part.toString() === id) {
           // because the id is the same, return 200
           res.json({id, container});
