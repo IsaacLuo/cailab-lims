@@ -1,3 +1,4 @@
+import { Tube } from './models';
 import mongoose from 'mongoose'
 import {Schema} from 'mongoose'
 
@@ -253,18 +254,17 @@ export const Tube = mongoose.model('Tube', {
 
 });
 
-export const RackScannerRecord = mongoose.model('RackScannerRecord', {
-  createdAt: Date,
-  rackBarcode: String,
-  tubes: [{
+export const TubesInRackScannerRecordSchema = new Schema({
     wellName: String,
     wellId: Number,
     barcode: String,
-  }]
+  }, {_id: false});
+
+export const RackScannerRecord = mongoose.model('RackScannerRecord', {
+  createdAt: Date,
+  rackBarcode: String,
+  tubes: [TubesInRackScannerRecordSchema],
 },'rackScannerRecords');
-
-
-
 
 
 export const LocationHistorySchema = new Schema({

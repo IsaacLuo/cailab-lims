@@ -30,6 +30,20 @@ export default function handleTubeRack(app:Express) {
         await rack.save();
       }
 
+      // remove this rack from tubes which not in the tubeBarcode list.
+
+      Container.updateMany(
+        {
+          ctype: 'tube', 
+          parentContainer: rack._id, 
+          barcode: {$nin:tubeBarcodes}
+        },
+        {
+          parentContainer: undefined,
+          verifiedAt: now,
+        }
+      )
+
       // save tubes
       const promises = req.body.tubes.map(v=> Container.updateMany(
         {
@@ -62,6 +76,7 @@ export default function handleTubeRack(app:Express) {
 
       // rack is on scanner
       rack.currentStatus = `checked out by ${req.currentUser.fullName}`
+      rack.verifiedAt = now;
       rack.save();
 
       res.json({message:'OK'});
