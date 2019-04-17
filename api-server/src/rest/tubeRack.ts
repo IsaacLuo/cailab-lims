@@ -12,6 +12,7 @@ export default function handleTubeRack(app:Express) {
    * update a rack
    */
   app.put('/api/tubeRack/:rackBarcode', fromFluidXScanner, async (req :Request, res: Response) => {
+    console.log('pub tube rack');
     const {rackBarcode} = req.params;
     const tubeBarcodes = req.body.tubes.map(v=>v.barcode);
     try {
@@ -32,7 +33,7 @@ export default function handleTubeRack(app:Express) {
 
       // remove this rack from tubes which not in the tubeBarcode list.
 
-      Container.updateMany(
+      const result = await Container.updateMany(
         {
           ctype: 'tube', 
           parentContainer: rack._id, 
