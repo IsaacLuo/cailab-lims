@@ -6,9 +6,11 @@ import mongoose from 'mongoose'
 import secret from '../secret.json'
 import jwt from 'jsonwebtoken'
 import log4js from 'log4js'
+import cookieParser from 'cookie-parser';
 
 export default function preprocess(app :Express) {
   app.use(cors())
+  app.use(cookieParser())
 
   app.use(bodyParser.json({ type: 'application/json' , limit:'10MB'}))
 

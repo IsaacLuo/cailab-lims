@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {Express, Response} from 'express'
 import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, Container, LogLogin} from '../models'
 import {Request} from '../MyRequest'
@@ -17,22 +18,47 @@ const ObjectId = mongoose.Types.ObjectId;
 export default function handleSession(app:Express) {
 
   /**
-   * get a tube
+   * create session, read token from cookie, verify it on cailab-auth, then create session locally
    */
   app.post('/api/session/', async (req :Request, res: Response) => {
     try {
-      const {username, password} = req.body;
-      if(!username || !password) {
-        throw new Error('invalid username or password');
+      const {token} = req.cookies;
+      if (!token) {
+        res.status(404).json({message: 'unable to login, no token'});
       }
-      const user = await User.findOne({email:username}).exec();
-      if (!user) {
-        res.status(404).json({message: 'username of password is incorrect'});
-      }
-      
-      const {passwordHash, passwordSalt} = user;
-      const passwordHash2 = crypto.createHmac('sha256', HMAC_KEY).update(password+passwordSalt).digest().toString('base64');
-      if(passwordHash === passwordHash2) {
+      // verify toekn in cailab-auth
+      const cailabAuthResponse = await axios.get('https://api.auth.cailab.org/api/user/current', {headers: {Authorization: `Bearer ${token}`}});
+      console.log(cailabAuthResponse);
+      if (cailabAuthResponse.status === 200 && cailabAuthResponse.data.message==='OK' && cailabAuthResponse.data.user) {
+        // user verified
+        const {_id, fullName, email, groups} = cailabAuthResponse.data.user;
+        let user = await User.findOne({email, authType: 'cailab'}).exec();
+        const now = new Date();
+        if (!user) {
+          user = await User.findOneAndUpdate(
+            {email, authType: 'cailab'},
+            {
+              _id,
+              authType: 'cailab',
+              name: fullName,
+              email, 
+              groups,
+              createdAt: now,
+              updatedAt: now,
+              abbr: fullName.split(' ').map(v=>v[0]).join('')
+            },
+            {new: true, upsert: true}
+          ).exec();
+        } else {
+          user = await User.findOneAndUpdate(
+              {email, authType: 'cailab'},
+              {
+                name: fullName,
+                groups,
+              },
+              {new: true, upsert: true}
+            ).exec();
+        }
         const token = jwt.sign({
           id:user._id,
           fullName: user.name,
@@ -41,10 +67,6 @@ export default function handleSession(app:Express) {
         }, 
         secret.jwt.key,
         {expiresIn:'1h'})
-        // generate a new barcode of user
-        user.barcode = crypto.createHash('md5').update(token).digest("hex");
-        user.save();
-
         // log to database
         LogLogin.create({
           operatorId: user._id,
@@ -59,7 +81,6 @@ export default function handleSession(app:Express) {
       }
       
       // var hash=crypto.createHmac('sha1', app_secret).update(args).digest().toString('base64');
-      
     } catch (err) {
       res.status(401).send(err.message);
     }
