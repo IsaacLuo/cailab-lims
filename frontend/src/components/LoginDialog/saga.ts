@@ -1,3 +1,4 @@
+import { cailabAuthURL } from './../../config';
 // types
 import {
   IAction,
@@ -8,6 +9,7 @@ import {call, all, fork, put, take, select, takeLatest, takeEvery} from 'redux-s
 import {
   SEND_GOOGLE_AUTH_INFO_TO_SERVER,
   SEND_NORMAL_LOGIN_INFO_TO_SERVER,
+  SEND_CAILAB_LOGIN_INFO_TO_SERVER,
 } from './actions'
 
 // other libs
@@ -45,6 +47,10 @@ function* sendGoogleAuthInfoToServer (action:IAction) {
   }
 }
 
+/**
+ * abandonded
+ * @param action 
+ */
 function* sendNormalLoginInfoToServer (action:IAction) {
   const {username, password} = action.data;
   try {
@@ -65,8 +71,24 @@ function* sendNormalLoginInfoToServer (action:IAction) {
   }
 }
 
+function* sendCailabLoginInfoToServer (action:IAction) {
+  // verify user on cailab-auth
+  try {
+    const res = yield call(axios.post,
+      serverURL + '/api/session/',
+    );
+    localStorage.setItem('token',res.data.token);
+    localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
+    yield put({type: SET_LOGIN_INFORMATION, data: res.data});
+    yield put({type:LOGIN_DIALOG_VISIBLE, data: false});
+    Message.success(res.data.message);
+  } catch (err) {
+    Message.error({message:err.toLocaleString()});
+  }
+}
+
 export default function* () {
   yield takeLatest(SEND_GOOGLE_AUTH_INFO_TO_SERVER, sendGoogleAuthInfoToServer);
-  yield takeLatest(SEND_NORMAL_LOGIN_INFO_TO_SERVER, sendNormalLoginInfoToServer);
-  
+  // yield takeLatest(SEND_NORMAL_LOGIN_INFO_TO_SERVER, sendNormalLoginInfoToServer);
+  yield takeLatest(SEND_CAILAB_LOGIN_INFO_TO_SERVER, sendCailabLoginInfoToServer);
 }

@@ -21,7 +21,7 @@ import {
 } from 'actions/userActions'
 
 // tools
-import {googleAuthURL} from 'config';
+import {googleAuthURL, cailabAuthURL} from 'config';
 
 // components
 import { Dialog, Message, Input, Button } from 'element-react'
@@ -29,6 +29,7 @@ import GoogleLogin from 'react-google-login';
 import { 
   SEND_GOOGLE_AUTH_INFO_TO_SERVER,
   SEND_NORMAL_LOGIN_INFO_TO_SERVER,
+  SEND_CAILAB_LOGIN_INFO_TO_SERVER,
 } from './actions';
 import logo from 'img/logo.png';
 import {Link} from 'react-router-dom'
@@ -43,6 +44,7 @@ export interface IProps {
   refreshPartsCount: () => void,
   sendGoogleAuthInfoToServer: (data:any) => void,
   sendNormalLoginInfoToServer: (username:string, password:string) => void,
+  sendCailabAuthInfoToServer: ()=> void,
 }
 
 interface IState {
@@ -61,7 +63,7 @@ const mapDispatchToProps = (dispatch :Dispatch) => ({
   refreshPartsCount: () => dispatch({type:'GET_PARTS_COUNT'}),
   sendGoogleAuthInfoToServer: (data:any) => dispatch({type: SEND_GOOGLE_AUTH_INFO_TO_SERVER, data,}),
   sendNormalLoginInfoToServer: (username:string, password:string) => dispatch({type: SEND_NORMAL_LOGIN_INFO_TO_SERVER, data:{username, password}}),
-
+  sendCailabAuthInfoToServer: ()=>dispatch({type: SEND_CAILAB_LOGIN_INFO_TO_SERVER}),
 })
 
 class LoginDialog extends React.Component<IProps, IState> {
@@ -85,38 +87,18 @@ class LoginDialog extends React.Component<IProps, IState> {
       >
         <Dialog.Body>
           <img src={logo} style={{marginBottom:20}}/>
-          <p>use your username and password</p>
-          <Input
-            style={{marginBottom:10}}
-            placeholder="username"
-            value={this.state.username}
-            onChange={this.onChangeUsername}
-          />
-          <Input
-            type="password"
-            style={{marginBottom:10}}
-            placeholder="password"
-            value={this.state.password}
-            onChange={this.onChangePassword}
-            onKeyUp={this.onPasswordKeyUp}
-          />
-          <Button
-            style={{width:190}}
-            type="primary"
-            size="large"
-            onClick={this.onClickLogin}
-          >Login</Button>
-          <Link to='/register/'>
+          <p>cailab login</p>
+          {/* <a href={`${cailabAuthURL}/login`}> */}
             <Button
               style={{width:190}}
               size="large"
-              onClick={this.onClickRegister}
-            >Register</Button>
-          </Link>
+              onClick={this.onClickCailabLogin}
+            >Cailab Login</Button>
+          {/* </a> */}
           <p>or use your google account to login</p>
           <GoogleLogin
             clientId={googleAuthURL}
-            buttonText="Google+"
+            buttonText="Google Login"
             onSuccess={this.loginSuccessful}
             onFailure={this.loginFailed}
             // uxMode="redirect" // or popup
@@ -141,6 +123,31 @@ class LoginDialog extends React.Component<IProps, IState> {
     if(response.error) {
       alert(response.error);
     }
+  }
+
+  private onClickCailabLogin = async () => {
+    const width = 400;
+    const height = 560;
+    const top = (screen.availHeight / 2) - (height / 2);
+    const left = (screen.availWidth / 2) - (width / 2);
+
+    window.addEventListener('message', this.onLogginWindowClosed, false);
+    const subWindow = window.open(
+      'https://auth.cailab.org/login',
+      'cailablogin',
+// tslint:disable-next-line: max-line-length
+      `toolbar=no,location=no,status=no,menubar=no,scrollbar=yes,resizable=yes,width=${width},height=${height},top=${top},left=${left}`,
+    );
+  }
+
+  private onLogginWindowClosed = (messageEvent: MessageEvent) => {
+    const {origin, data} = messageEvent;
+    if (data.event === 'closed' && data.success === true) {
+      console.log('logged in by cailab auth');
+      // now token is in cookie
+      this.props.sendCailabAuthInfoToServer()
+    }
+    window.removeEventListener('message', this.onLogginWindowClosed);
   }
 
   private onChangeUsername = (username) => {
