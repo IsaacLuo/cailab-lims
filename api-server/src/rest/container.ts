@@ -1,7 +1,7 @@
 import {Express, Response} from 'express'
 import {Container} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn, userCanUseScanner} from '../MyMiddleWare'
+import {or, beScanner, beUser} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
 import { IPart, IAttachment, IPartForm } from '../types';
@@ -11,7 +11,7 @@ export default function handleContainers(app:Express) {
   /**
    * get containers
    */
-  app.get('/api/containers/', userCanUseScanner, async (req :Request, res: Response) => {
+  app.get('/api/containers/', or(beScanner, beUser), async (req :Request, res: Response) => {
     try {
       let containers = await Container.find().exec();
       let totalCount = await Container.countDocuments().exec();

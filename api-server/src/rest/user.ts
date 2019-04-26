@@ -1,7 +1,7 @@
 import {Express, Response} from 'express'
 import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, Container} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn,userCanUseScanner, userMustBeAdmin, beAdmin, beUser, or} from '../MyMiddleWare'
+import {beAdmin, beUser, or} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
 import { IPart, IAttachment, IPartForm } from '../types';

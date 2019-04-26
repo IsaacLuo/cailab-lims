@@ -10,7 +10,7 @@ import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, LogLogin, Log
 import multer from 'multer'
 
 import {Request} from './MyRequest'
-import {userMustLoggedIn, userMustBeAdmin} from './MyMiddleWare'
+import {or, beUser, beAdmin} from './MyMiddleWare'
 import config from '../config.json'
 
 // other processors
@@ -193,7 +193,7 @@ app.post('/api/scannerSessions/', async (req :Request, res: Response) => {
 
 // get user names
 // response: [{name: user's full name, id: unique user id in db}]
-app.get('/api/users/names/', userMustLoggedIn, async (req :Request, res: Response) => {
+app.get('/api/users/names/', or(beUser), async (req :Request, res: Response) => {
   let users = await User.find({groups:'users'});
   users = users.map(user => ({
     name: user.name,
@@ -236,7 +236,7 @@ app.get('/api/currentUser', async (req :Request, res: Response) =>
 });
 
 // get current user information, it gets more info
-app.get('/api/currentUser/detail/', userMustLoggedIn, async (req :Request, res: Response) => 
+app.get('/api/currentUser/detail/', or(beUser), async (req :Request, res: Response) => 
 { 
   const {id} = req.currentUser;
   const now = Math.floor(Date.now()/1000);
@@ -251,7 +251,7 @@ app.get('/api/currentUser/detail/', userMustLoggedIn, async (req :Request, res: 
 // get current user barcode
 // response:
 //   {barcode: the barcode token for login}
-app.get('/api/currentUser/barcode', userMustLoggedIn, async (req :Request, res: Response) => 
+app.get('/api/currentUser/barcode', or(beUser), async (req :Request, res: Response) => 
 {
   const {id} = req.currentUser;
   const user = await User.findOne({_id:id}).exec();
@@ -305,7 +305,7 @@ app.get('/api/statistic', async (req :Request, res: Response) => {
   }
 });
 
-app.get('/api/notifications', userMustLoggedIn, async (req :Request, res: Response) => {
+app.get('/api/notifications', or(beUser), async (req :Request, res: Response) => {
   try {
     const notifications:{title:string, message:string, link:string}[] = [];
     if (req.currentUser.groups.indexOf('administrators')>=0) {
@@ -327,7 +327,7 @@ app.get('/api/notifications', userMustLoggedIn, async (req :Request, res: Respon
 
 
 // ===========================admin==========================================
-app.get('/api/users', userMustBeAdmin, async (req :Request, res: Response) => {
+app.get('/api/users', or(beAdmin), async (req :Request, res: Response) => {
   let users = await User.find({}).sort({groups: -1, createdAt:1 });
   users = users.map(user => ({
     id: user._id,
@@ -341,7 +341,7 @@ app.get('/api/users', userMustBeAdmin, async (req :Request, res: Response) => {
   res.json(users);
 })
 
-app.put('/api/user/:email/privilege', userMustBeAdmin, async (req :Request, res: Response) => {
+app.put('/api/user/:email/privilege', or(beAdmin), async (req :Request, res: Response) => {
   const {email} = req.params
   try {
     const user = await User.findOne({email}).exec();
@@ -406,3 +406,5 @@ app.listen(port, host, (err) => {
   console.info(`api server on ${host}:${port}`);
   if (err) console.error(err);
 })
+
+export default app;

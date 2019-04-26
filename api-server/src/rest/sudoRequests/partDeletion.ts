@@ -1,10 +1,10 @@
 import {Express, Response} from 'express'
 import {Part, PartDeletionRequest, LogOperation} from '../../models'
 import {Request} from '../../MyRequest'
-import {userMustLoggedIn, userMustBeAdmin} from '../../MyMiddleWare'
+import {or, beUser, beAdmin} from '../../MyMiddleWare'
 
 export default function handlePartDeletion(app:Express) {
-  app.get('/api/sudoRequests/partDeletions', userMustBeAdmin, async (req :Request, res: Response) => {
+  app.get('/api/sudoRequests/partDeletions', or(beAdmin), async (req :Request, res: Response) => {
   try {
     const requests = await PartDeletionRequest.find({}).exec();
     const requestDict: any = {};
@@ -24,7 +24,7 @@ export default function handlePartDeletion(app:Express) {
   }
 });
 
-app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Request, res: Response) => {
+app.put('/api/sudoRequests/partDeletion/:id', or(beUser), async (req :Request, res: Response) => {
   try {
     const {id} = req.params;
     const part = await Part.findById(id).exec();
@@ -87,7 +87,7 @@ app.put('/api/sudoRequests/partDeletion/:id', userMustLoggedIn, async (req :Requ
 
 
 // just delete the requests, it won't delete a part
-app.delete('/api/sudoRequests/partDeletion/:id', userMustBeAdmin, async (req :Request, res: Response) => {
+app.delete('/api/sudoRequests/partDeletion/:id', or(beAdmin), async (req :Request, res: Response) => {
   try {
     const {id} = req.params;
     const parts = PartDeletionRequest.deleteMany({partId:id}).exec();

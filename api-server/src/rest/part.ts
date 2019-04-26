@@ -1,7 +1,7 @@
 import {Express, Response} from 'express'
 import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, Container, ContainerGroup, ContainerSchema} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn,userCanUseScanner} from '../MyMiddleWare'
+import {or, beUser, beScanner} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
 import { IPart, IAttachment, IPartForm } from '../types';
@@ -10,7 +10,7 @@ import config from '../config';
 const ObjectId = mongoose.Types.ObjectId;
 
 export default function handlePart(app:Express) {
-  app.post('/api/part', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.post('/api/part', or(beUser), async (req :Request, res: Response) => {
     // read part form
     let form = req.body;
     // get increased labId
@@ -198,7 +198,7 @@ export default function handlePart(app:Express) {
     }
   });
   
-  app.get('/api/part/:id', userCanUseScanner, async (req :Request, res: Response) => {
+  app.get('/api/part/:id', or(beUser, beScanner), async (req :Request, res: Response) => {
     const {id} = req.params;
     const {containers} = req.query;
     try {
@@ -213,7 +213,7 @@ export default function handlePart(app:Express) {
     }
   });
   
-  app.put('/api/part/:id', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.put('/api/part/:id', or(beUser), async (req :Request, res: Response) => {
     const {id} = req.params;
     const form:IPartForm = req.body;
     try {
@@ -318,7 +318,7 @@ export default function handlePart(app:Express) {
     }
   });
   
-  app.delete('/api/part/:id', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.delete('/api/part/:id', or(beUser), async (req :Request, res: Response) => {
     try {
       const {id} = req.params;
       req.log.info(`${req.ip} delete part ${id}`);
@@ -366,7 +366,7 @@ export default function handlePart(app:Express) {
     }
   });
 
-  app.get('/api/parts', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.get('/api/parts', or(beUser), async (req :Request, res: Response) => {
     let {search, type, skip, limit, user, sortBy, desc, format} = req.query;
     let condition :any = {};
     if (search) {
@@ -434,13 +434,13 @@ export default function handlePart(app:Express) {
    * @body query conditions, {"id": ["123", "456", "789"]}
    */
 
-  app.post('/api/parts/queries', userMustLoggedIn,  async (req :Request, res: Response) => {
+  app.post('/api/parts/queries', or(beUser),  async (req :Request, res: Response) => {
     const query = req.body;
     const parts = await Part.find(query).exec();
     
   });
 
-  app.get('/api/parts/count', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.get('/api/parts/count', or(beUser), async (req :Request, res: Response) => {
     let {type, ownerId} = req.query;
     let condition :any = {};
     if (type) {
@@ -463,7 +463,7 @@ export default function handlePart(app:Express) {
   /**
    * assgin a tube to a part
    */
-  app.put('/api/part/:id/tube/:barcode', userCanUseScanner, async (req :Request, res: Response) => {
+  app.put('/api/part/:id/tube/:barcode', or(beUser), async (req :Request, res: Response) => {
     const {id, barcode} = req.params;
     try {
       const part = await Part.findOne({_id:id}).exec();
@@ -519,7 +519,7 @@ export default function handlePart(app:Express) {
    * different from DELETE /api/tube/:id, this API requires the part id. it will verify the part owner, and assigned time.
    * the previledge is lower.
    */
-  app.delete('/api/part/:id/tube/:barcode', userCanUseScanner, async (req :Request, res: Response) => {
+  app.delete('/api/part/:id/tube/:barcode', or(beUser), async (req :Request, res: Response) => {
     const {id, barcode} = req.params;
     try {
       const container = await Container.findOne({barcode, part:id}).exec();
@@ -557,7 +557,7 @@ export default function handlePart(app:Express) {
   })
 
 
-  app.get('/api/parts/search/:keyword', userMustLoggedIn, async (req: Request, res: Response) => {
+  app.get('/api/parts/search/:keyword', or(beUser), async (req: Request, res: Response) => {
     const {keyword} = req.params;
     let {skip, limit} = req.query;
     console.debug(`search key = "${keyword}"`);

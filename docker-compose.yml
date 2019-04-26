@@ -20,4 +20,5 @@ services:
     depends_on:
       - api
     network_mode: bridge
+    restart: always
     command: ['nginx', '-g', 'daemon off;']

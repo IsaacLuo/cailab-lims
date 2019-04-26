@@ -9,7 +9,7 @@ if (process.env.NODE_ENV === 'production') {
   config.serverURL = 'https://api.lims-dev.cailab.org';
   config.googleAuthURL = '656734864012-ga7roednhiabgbfe53ttevcguivra19a.apps.googleusercontent.com';
 } else {
-  config.serverURL = 'http://localhost:8000';
+  config.serverURL = 'http://local.cailab.org:8000';
   config.googleAuthURL = '656734864012-ga7roednhiabgbfe53ttevcguivra19a.apps.googleusercontent.com';
 }
 

@@ -1,14 +1,10 @@
 import axios from 'axios';
 import {Express, Response} from 'express'
-import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, Container, LogLogin} from '../models'
+import {User, LogLogin} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn,userCanUseScanner, userMustBeAdmin} from '../MyMiddleWare'
-import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
-import { IPart, IAttachment, IPartForm } from '../types';
-import { json } from 'body-parser';
-import secret, {HMAC_KEY} from '../../secret.json'
-import crypto from 'crypto';
+
+import secret from '../../secret.json'
 import jwt from 'jsonwebtoken'
 
 
@@ -64,6 +60,7 @@ export default function handleSession(app:Express) {
           fullName: user.name,
           email: user.email,
           groups: user.groups,
+          abbr: user.abbr,
         }, 
         secret.jwt.key,
         {expiresIn:'1h'})
@@ -75,7 +72,7 @@ export default function handleSession(app:Express) {
           sourceIP: req.ip,
           timeStamp: new Date(),
         });
-        res.json({message: `welcome ${user.name}`, id:user._id, token, name:user.name, email:user.email, groups:user.groups})
+        res.json({message: `welcome ${user.name}`, id:user._id, token, name:user.name, email:user.email, groups:user.groups, abbr: user.abbr});
       } else {
         res.status(404).json({message: 'username of password is incorrect'});
       }

@@ -2,7 +2,7 @@ import { Container, ContainerGroup, LogOperation } from './../models';
 import {Express, Response} from 'express'
 import {Part, Tube, RackScannerRecord} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn,userCanUseScanner, fromFluidXScanner, userMustBeAdmin, or, beARScanner, beUser} from '../MyMiddleWare'
+import {or, beARScanner, beUser, beRackScanner, beScanner} from '../MyMiddleWare'
 import mongoose from 'mongoose'
 import { NextFunction } from 'connect';
 const ObjectId = mongoose.Types.ObjectId;
@@ -11,7 +11,7 @@ export default function handleTubeRack(app:Express) {
   /**
    * update a rack
    */
-  app.put('/api/tubeRack/:rackBarcode', fromFluidXScanner, async (req :Request, res: Response) => {
+  app.put('/api/tubeRack/:rackBarcode', or(beRackScanner), async (req :Request, res: Response) => {
     console.log('pub tube rack');
     const {rackBarcode} = req.params;
     const tubeBarcodes = req.body.tubes.map(v=>v.barcode);
@@ -136,7 +136,7 @@ export default function handleTubeRack(app:Express) {
   /**
    * get a rack
    */
-  app.get('/api/tubeRack/:rackBarcode', userCanUseScanner, async (req :Request, res: Response, next: NextFunction) => {
+  app.get('/api/tubeRack/:rackBarcode', or(beUser, beARScanner, beScanner), async (req :Request, res: Response, next: NextFunction) => {
     const {rackBarcode} = req.params;
     const {full} = req.query;
     req.customData = {rackBarcode, full};

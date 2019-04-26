@@ -76,6 +76,8 @@ function* sendCailabLoginInfoToServer (action:IAction) {
   try {
     const res = yield call(axios.post,
       serverURL + '/api/session/',
+      {},
+      {withCredentials: true}
     );
     localStorage.setItem('token',res.data.token);
     localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
@@ -83,6 +85,7 @@ function* sendCailabLoginInfoToServer (action:IAction) {
     yield put({type:LOGIN_DIALOG_VISIBLE, data: false});
     Message.success(res.data.message);
   } catch (err) {
+    console.error(err);
     Message.error({message:err.toLocaleString()});
   }
 }

@@ -1,7 +1,7 @@
 import {Express, Response} from 'express'
 import {User, Part, UserSchema, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, PersonalPickList, Container} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn, userCanUseScanner, or, beUser, beScanner} from '../MyMiddleWare'
+import {or, beUser, beScanner} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
 import { IPart, IAttachment, IPartForm } from '../types';
@@ -52,7 +52,7 @@ export default function handlePickList(app:Express) {
   /**
    * add items in pickList, if id is invalid, use default pickList
    */
-  app.post('/api/pickList/:id/items/', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.post('/api/pickList/:id/items/', or(beUser), async (req :Request, res: Response) => {
     const userId = req.currentUser.id;
     const pickListId = req.params.id;
     let pickList;
@@ -91,7 +91,7 @@ export default function handlePickList(app:Express) {
    * @param id the pickList id in mongodb,  if id is 0, use the default pickList
    * @query full: if set, return full part details, else, return id and names.
    */
-  app.get('/api/pickList/:id', userCanUseScanner, async (req :Request, res: Response) => {
+  app.get('/api/pickList/:id', or(beUser), async (req :Request, res: Response) => {
     const pickListId = req.params.id;
     const {full} = req.query;
     const user = await User.findOne({_id:req.currentUser.id});
@@ -133,7 +133,7 @@ export default function handlePickList(app:Express) {
   /**
    * get all pickList and item count of current user
    */
-  app.get('/api/pickLists/', userCanUseScanner, async (req :Request, res: Response) => {
+  app.get('/api/pickLists/', or(beUser), async (req :Request, res: Response) => {
     const userId = req.currentUser.id;
     
     try {
@@ -162,7 +162,7 @@ export default function handlePickList(app:Express) {
    * delete a pickList
    * @param id the pickList id in mongodb
    */
-  app.delete('/api/pickList/:id', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.delete('/api/pickList/:id', or(beUser), async (req :Request, res: Response) => {
     const _id = req.params.id;
     const parts = await PersonalPickList.deleteMany({_id,}).exec();
     res.json(parts);
@@ -172,7 +172,7 @@ export default function handlePickList(app:Express) {
    * delete an item in pickList
    * @param id the pickList id in mongodb
    */
-  app.delete('/api/pickList/:id/items/:itemId', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.delete('/api/pickList/:id/items/:itemId', or(beUser), async (req :Request, res: Response) => {
     const pickListId = ObjectId(req.params.id);
     const itemId = ObjectId(req.params.itemId);
     try {
@@ -193,7 +193,7 @@ export default function handlePickList(app:Express) {
    * delete all items in pickList
    * @param id the pickList id in mongodb
    */
-  app.delete('/api/pickList/:id/items/', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.delete('/api/pickList/:id/items/', or(beUser), async (req :Request, res: Response) => {
     const pickListId = ObjectId(req.params.id);
     const itemId = ObjectId(req.params.itemId);
     try {
@@ -211,7 +211,7 @@ export default function handlePickList(app:Express) {
   /**
    * set user's default pickList, pickListId in request body.
    */
-  app.put('/api/defaultPickListId', userMustLoggedIn, async (req :Request, res :Response) => {
+  app.put('/api/defaultPickListId', or(beUser), async (req :Request, res :Response) => {
     const userId = req.currentUser.id;
     const newPickListId = req.body.pickListId;
     try {
@@ -234,7 +234,7 @@ export default function handlePickList(app:Express) {
    * set new pickList name, pickList name in request body
    * @param id the pickList id in mongodb
    */
-  app.post('/api/picklist/:id/name', userMustLoggedIn, async (req :Request, res :Response) => {
+  app.post('/api/picklist/:id/name', or(beUser), async (req :Request, res :Response) => {
     const userId = req.currentUser.id;
     const pickListId = req.params.id;
     const newPickListName = req.body.name;
@@ -264,7 +264,7 @@ export default function handlePickList(app:Express) {
   /**
    * create a new pickList with name
    */
-  app.put('/api/pickList/:name', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.put('/api/pickList/:name', or(beUser), async (req :Request, res: Response) => {
     const userId = req.currentUser.id;
     const pickListName = req.params.name;
     let pickList;

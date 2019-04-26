@@ -10,11 +10,13 @@
     "express": "^4.16.3",
     "express-jwt": "^5.3.1",
     "google-auth-library": "^2.0.0",
+    "jest": "^24.7.1",
     "jsonwebtoken": "^8.3.0",
     "log4js": "^3.0.5",
     "mongoose": "^5.4.14",
     "multer": "^1.4.0",
     "node-xlsx": "^0.12.1",
+    "supertest": "^4.0.2",
     "xlsx": "^0.14.0"
   },
   "scripts": {
@@ -25,11 +27,14 @@
     "debug": "node ./node_modules/nodemon/bin/nodemon.js --inspect",
     "importDB": "ts-node src/script/importDB.ts",
     "testScript": "ts-node src/script/test.ts",
-    "shell": "ts-node"
+    "shell": "ts-node",
+    "test": "jest"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.11",
     "nodemon": "^1.18.3",
+    "ts-jest": "^24.0.2",
     "ts-node": "^7.0.0",
-    "typescript": "^3.0.1"
+    "typescript": "^3.4.5"
   }
 }

@@ -1,7 +1,7 @@
 import {Express, Response} from 'express'
 import {User, Part, FileData, PartsIdCounter, PartDeletionRequest, PartHistory, LogOperation, Container} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn,userCanUseScanner, userMustBeAdmin} from '../MyMiddleWare'
+import {or, beUser, beScanner, beAdmin} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
 import { IPart, IAttachment, IPartForm } from '../types';
@@ -13,7 +13,7 @@ export default function handleTube(app:Express) {
   /**
    * get a tube
    */
-  app.get('/api/tubes/', userCanUseScanner, async (req :Request, res: Response) => {
+  app.get('/api/tubes/', or(beUser, beScanner), async (req :Request, res: Response) => {
     try {
       let containers = await Container.find({ctype:'tube'}).exec();
       let totalCount = await Container.countDocuments({ctype:'tube'}).exec();
@@ -26,7 +26,7 @@ export default function handleTube(app:Express) {
   /**
    * get a tube
    */
-  app.get('/api/tube/:barcode/content', userCanUseScanner, async (req :Request, res: Response) => {
+  app.get('/api/tube/:barcode/content', or(beUser, beScanner), async (req :Request, res: Response) => {
     const {barcode} = req.params;
     console.debug(barcode);
     try {
@@ -45,7 +45,7 @@ export default function handleTube(app:Express) {
    * should call DELETE /api/part/:partId/tube/:tubeId to delete a tube
    * @param id, the tube barcode
    */
-  app.delete('/api/tube/:barcode', userMustBeAdmin, async (req :Request, res: Response) => {
+  app.delete('/api/tube/:barcode', or(beAdmin), async (req :Request, res: Response) => {
     const {barcode} = req.params;
     try {
       let part = await Part.findOne({'containers.ctype':'tube', 'containers.barcode':barcode}).exec();
@@ -61,7 +61,7 @@ export default function handleTube(app:Express) {
   /**
    * get a batch of tubes
    */
-  app.post('/api/tubes/queries', userCanUseScanner, async (req :Request, res: Response) => {
+  app.post('/api/tubes/queries', or(beUser, beScanner), async (req :Request, res: Response) => {
     try {
       const {query} = req.body;
       const populates = [

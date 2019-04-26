@@ -6,7 +6,7 @@
 import {Express, Response} from 'express'
 import {Broadcast} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn, userMustBeAdmin} from '../MyMiddleWare'
+import {or, beUser, beAdmin} from '../MyMiddleWare'
 import mongoose from 'mongoose'
 
 const ObjectId = mongoose.Types.ObjectId;
@@ -23,7 +23,7 @@ export default function hanleBroadcasts(app:Express) {
  * 200: the file data in raw
  * 404: unable to find the file
  */
-  app.get('/api/broadcast', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.get('/api/broadcast', or(beUser), async (req :Request, res: Response) => {
     try {
       const broadcast = await Broadcast.findOne().sort({ _id: -1 }).exec();
       if (broadcast) {
@@ -43,7 +43,7 @@ export default function hanleBroadcasts(app:Express) {
    * 200: OK
    * 500: unable to save broadcast
    */
-  app.post('/api/broadcast', userMustBeAdmin, async (req :Request, res: Response) => {
+  app.post('/api/broadcast', or(beAdmin), async (req :Request, res: Response) => {
     try {
       const message = req.body.message;
       await Broadcast.create({message});

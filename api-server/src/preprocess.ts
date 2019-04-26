@@ -9,7 +9,22 @@ import log4js from 'log4js'
 import cookieParser from 'cookie-parser';
 
 export default function preprocess(app :Express) {
-  app.use(cors())
+
+  var whitelist = ['http://local.cailab.org:9000', 'https://lims-dev.cailab.org', 'https://lims.cailab.org'];
+  var corsOptions = {
+    origin: function (origin, callback) {
+      console.log('originfrom', origin)
+      if (whitelist.indexOf(origin) !== -1) {
+        console.log('allow origin')
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
+    credentials: true,
+  }
+
+  app.use(cors(corsOptions))
   app.use(cookieParser())
 
   app.use(bodyParser.json({ type: 'application/json' , limit:'10MB'}))

@@ -7,7 +7,7 @@ import {
   Container,
   } from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn,userCanUseScanner, userMustBeAdmin} from '../MyMiddleWare'
+import {or, beUser, beScanner,} from '../MyMiddleWare'
 import sendBackXlsx from '../sendBackXlsx'
 import mongoose from 'mongoose'
 import { IPart, IAttachment, IPartForm } from '../types';
@@ -19,7 +19,7 @@ export default function handleLocation(app:Express) {
   /**
    * put a tube or rack into location
    */
-  app.put('/api/location/:locationBarcode/content/:objectBarcode', userCanUseScanner, async (req :Request, res: Response) => {
+  app.put('/api/location/:locationBarcode/content/:objectBarcode', or(beScanner, beUser), async (req :Request, res: Response) => {
     const {locationBarcode, objectBarcode} = req.params;
     try {
       // find location
@@ -81,7 +81,7 @@ export default function handleLocation(app:Express) {
   /**
    * find some thing in the location
    */
-  app.get('/api/location/:locationBarcode', userCanUseScanner, async (req :Request, res: Response) => {
+  app.get('/api/location/:locationBarcode', or(beScanner, beUser), async (req :Request, res: Response) => {
     const {locationBarcode} = req.params;
     try {
       // find location

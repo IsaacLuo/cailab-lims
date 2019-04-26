@@ -8,7 +8,7 @@
 import {Express, Response} from 'express'
 import {Part, FileData, LogOperation} from '../models'
 import {Request} from '../MyRequest'
-import {userMustLoggedIn, userMustBeAdmin} from '../MyMiddleWare'
+import {or, beUser} from '../MyMiddleWare'
 import mongoose from 'mongoose'
 import multer from 'multer'
 
@@ -28,7 +28,7 @@ export default function handleAttachments(app:Express, upload:multer.Instance) {
  * 200: the file data in raw
  * 404: unable to find the file
  */
-  app.get('/api/attachment/:id', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.get('/api/attachment/:id', or(beUser), async (req :Request, res: Response) => {
     try {
       const {id} = req.params;
       if(id === undefined) {
@@ -59,7 +59,7 @@ export default function handleAttachments(app:Express, upload:multer.Instance) {
    *    - id: the id of created attachment
    * 500: unable to save attachment
    */
-  app.post('/api/attachment', userMustLoggedIn, upload.single('file'), async (req :Request, res: Response) => {
+  app.post('/api/attachment', or(beUser), upload.single('file'), async (req :Request, res: Response) => {
     try {
       if (!req.file) {
         throw new Error('no file');
@@ -103,7 +103,7 @@ export default function handleAttachments(app:Express, upload:multer.Instance) {
    * 403: the attachment is in using, can't be deleted
    * 404: can't find target
    */
-  app.delete('/api/attachment/:id', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.delete('/api/attachment/:id', or(beUser), async (req :Request, res: Response) => {
     try {
       const {id} = req.params;
       if(id === undefined) {
@@ -149,7 +149,7 @@ export default function handleAttachments(app:Express, upload:multer.Instance) {
    * 200: file metadataContent as IFileMetaData
    * 404: can't find target
    */
-  app.get('/api/attachment/:id/metadata', userMustLoggedIn, async (req :Request, res: Response) => {
+  app.get('/api/attachment/:id/metadata', or(beUser), async (req :Request, res: Response) => {
     try {
       const {id} = req.params;
       console.log('getting file', id)
