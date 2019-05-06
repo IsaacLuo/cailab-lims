@@ -4,11 +4,14 @@
     },
     "development": {
         "host": "0.0.0.0",
-        "port": 8000
+        "publicURL": "http://local.cailab.org",
+        "port": 8000,
+        "enablePushService": true
     },
     "production": {
         "host": "0.0.0.0",
         "publicURL": "https://api.lims-dev.cailab.org",
-        "port": 8000 
+        "port": 8000,
+        "enablePushService": true
     }
 }

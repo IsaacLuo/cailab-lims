@@ -5,6 +5,8 @@ import {Request} from '../MyRequest'
 import {or, beARScanner, beUser, beRackScanner, beScanner} from '../MyMiddleWare'
 import mongoose from 'mongoose'
 import { NextFunction } from 'connect';
+import config from '../config';
+import pushNotification from '../pushNotification';
 const ObjectId = mongoose.Types.ObjectId;
 
 export default function handleTubeRack(app:Express) {
@@ -79,6 +81,11 @@ export default function handleTubeRack(app:Express) {
       rack.currentStatus = `checked out by ${req.currentUser.fullName}`
       rack.verifiedAt = now;
       rack.save();
+
+      // send a push notification
+      if (config.enablePushService) {
+        pushNotification({ctype:'event', event:'rackScanned', id:rack._id});
+      }
 
       res.json({message:'OK'});
 

@@ -3,6 +3,7 @@ export interface IGLobalConfig {
   host: string,
   port: number,
   publicURL?: string,
+  enablePushService: boolean,
 }
 
 export interface IAttachment {
