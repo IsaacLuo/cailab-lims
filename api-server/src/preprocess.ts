@@ -14,11 +14,12 @@ export default function preprocess(app :Express) {
   var corsOptions = {
     origin: function (origin, callback) {
       console.log('originfrom', origin)
-      if (whitelist.indexOf(origin) !== -1) {
-        console.log('allow origin')
+      if (origin === undefined) {
+        callback(null, true);
+      } else if (whitelist.indexOf(origin) !== -1) {
         callback(null, true)
       } else {
-        callback(new Error('Not allowed by CORS'))
+        callback(new Error('Not allowed by CORS, '))
       }
     },
     credentials: true,
