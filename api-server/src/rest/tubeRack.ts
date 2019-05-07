@@ -84,7 +84,12 @@ export default function handleTubeRack(app:Express) {
 
       // send a push notification
       if (config.enablePushService) {
-        pushNotification({ctype:'event', event:'rackScanned', id:rack._id, barcode: rack.barcode});
+        pushNotification({
+          ctype:'event',
+          origin: config.publicURL,
+          event:'rackScanned', 
+          id:rack._id, 
+          barcode: rack.barcode});
       }
 
       res.json({message:'OK'});
