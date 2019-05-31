@@ -85,7 +85,7 @@ export function* initialize() {
         if (cachedToken) {
           try {
             const refreshTime = getTokenIssuedAt(cachedToken);
-            yield put({type: TOKEN_REFRESHED, data: {token:cachedToken, refreshTime}});
+            yield put({type: TOKEN_REFRESHED, data: {token:cachedToken, refreshTime}}); 
           } catch (err) {
             yield put(ActionClearLoginInformation());
           }
@@ -94,7 +94,7 @@ export function* initialize() {
       yield put(ActionSetLoginInformation(id, fullName, email, groups));
       yield put({type:QUERY_MY_USER_BARCODE});
       // get notifications when initilizing
-      yield put({type:'GET_NOTIFICATIONS'});
+      // yield put({type:'GET_NOTIFICATIONS'});
     }
   } catch (err) {
     yield put(ActionClearLoginInformation());

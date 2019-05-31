@@ -94,7 +94,7 @@ class App extends React.Component<IProps, any> {
           <header>
           <NavBar />
           </header>
-          <LoginDialog/>
+          {/* <LoginDialog/> */}
           <Route path='/' exact={true} component={Dashboard} />
 
           <Route path='/parts/all/' exact={true} component={PartList} />

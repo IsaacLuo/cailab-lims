@@ -1,5 +1,6 @@
+import { IUser } from './types';
 import mongoose from 'mongoose'
-import {Schema} from 'mongoose'
+import {Schema, Model, Document} from 'mongoose'
 
 export const UserSchema = new Schema({
   dbV1:{  // old data migrated from the cailab-database-v1 useless in v2
@@ -26,7 +27,8 @@ export const UserSchema = new Schema({
   defaultPickListId: String,
 });
 
-export const User = mongoose.model('User', UserSchema);
+export interface IUserModel extends IUser, Document{}
+export const User:Model<IUserModel> = mongoose.model('User', UserSchema);
 
 export const ContainerSchema = new Schema({
     ctype: String,  //'tube'|'well'

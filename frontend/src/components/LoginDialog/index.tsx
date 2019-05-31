@@ -119,7 +119,7 @@ class LoginDialog extends React.Component<IProps, IState> {
   }
 
   private loginFailed = (response :any) => {
-    console.warn(response);
+    console.warn('google login failed', response);
     if(response.error) {
       alert(response.error);
     }

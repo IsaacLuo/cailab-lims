@@ -42,7 +42,6 @@ class Dashboard extends React.Component<IProps, IState> {
       message: '',
       searchKey: '',
     };
-    this.fetchBroadcast();
   }
 
   public render() {
