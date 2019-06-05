@@ -1,6 +1,6 @@
-import { IUser } from './types';
-import mongoose from 'mongoose'
+import mongoose, { Model, Document }  from 'mongoose'
 import {Schema, Model, Document} from 'mongoose'
+import { IUser, IPartComment} from './types';
 
 export const UserSchema = new Schema({
   dbV1:{  // old data migrated from the cailab-database-v1 useless in v2
@@ -272,5 +272,29 @@ export const LocationHistorySchema = new Schema({
   containerBarcode: String,
   locationBarcode: String,
 })
+export const CommentSchema = new Schema({
 
 export const LocationHistory = mongoose.model('LocationHistory', ContainerSchema, 'locationHistories');
+  createdAt: Date,
+  creator: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  creatorName: String,
+  text: String,
+  attachments: [{
+    type: Schema.Types.ObjectId,
+    ref: 'FileData',
+  }]
+})
+
+export const PartCommentSchema = new Schema({
+  part: {
+    type: Schema.Types.ObjectId,
+    ref: 'Part',
+  },
+  comments: [CommentSchema],
+});
+
+export interface IPartCommentModal extends IPartComment, Document{}
+export const PartComment:Model<IPartCommentModal> = mongoose.model('PartComment', UserSchema, 'part_comments');

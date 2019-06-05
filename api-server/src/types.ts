@@ -106,3 +106,16 @@ export interface IUser {
   passwordHash?: string, // empty if user signed up using google account
   passwordSalt?: string, // empty if user signed up using google account
 }
+
+export interface IComment {
+  createdAt: Date,
+  creator: any,
+  creatorName: String,
+  text: String,
+  attachments: any[],
+}
+
+export interface IPartComment {
+  part: any;
+  comments: IComment[],
+}
