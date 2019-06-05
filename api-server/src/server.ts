@@ -209,7 +209,7 @@ app.get('/api/users/names/', or(beUser), async (req :Request, res: Response) => 
 //   email: user's email or undefined
 //   groups: can be one or more of "guests, users, administrators, visitors"
 //   token: a new jwt token, appears only if current token is going to be expired soon}
-app.get('/api/currentUser', async (req :Request, res: Response) => 
+app.get('/api/currentUser', async (req :Request, res: Response) =>
 { 
   if (req.currentUser) {
   const {id, fullName, email, groups, exp} = req.currentUser;
@@ -402,9 +402,8 @@ let {host, port} = config[process.env.NODE_ENV];
 if (!host) host = '127.0.0.1';
 if (!port) port = 8000;
 
-app.listen(port, host, (err) => {
+app.listen(port, host, () => {
   console.info(`api server on ${host}:${port}`);
-  if (err) console.error(err);
 })
 
 export default app;
