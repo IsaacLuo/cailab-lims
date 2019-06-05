@@ -405,5 +405,3 @@ if (!port) port = 8000;
 app.listen(port, host, () => {
   console.info(`api server on ${host}:${port}`);
 })
-
-export default app;
