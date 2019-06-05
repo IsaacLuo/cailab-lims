@@ -298,3 +298,29 @@ export const PartCommentSchema = new Schema({
 
 export interface IPartCommentModal extends IPartComment, Document{}
 export const PartComment:Model<IPartCommentModal> = mongoose.model('PartComment', UserSchema, 'part_comments');
+});
+
+export const CommentSchema = new Schema({
+  createdAt: Date,
+  creator: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  creatorName: String,
+  text: String,
+  attachments: [{
+    type: Schema.Types.ObjectId,
+    ref: 'FileData',
+  }]
+})
+
+export const PartCommentSchema = new Schema({
+  part: {
+    type: Schema.Types.ObjectId,
+    ref: 'Part',
+  },
+  comments: [CommentSchema],
+});
+
+export interface IPartCommentModal extends IPartComment, Document{}
+export const PartComment:Model<IPartCommentModal> = mongoose.model('PartComment', UserSchema, 'part_comments');
