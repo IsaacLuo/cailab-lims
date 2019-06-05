@@ -2,3 +2,5 @@
 /api-server/logs
 /api-server/.vscode
 /.vscode
+/api/logs
+/api/secret.ts
