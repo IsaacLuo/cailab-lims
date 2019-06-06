@@ -1,5 +1,6 @@
 import { 
-  ICustomState, 
+  Ctx,
+  Next, 
 } from '../types';
 
 import koa from 'koa';
@@ -17,7 +18,7 @@ export default function handleSessions (app:koa, router:Router) {
    * @body : {barcode}
    */
   router.post('/api/scannerSessions/',
-    async (ctx:koa.ParameterizedContext<ICustomState, {}>, next:()=>Promise<any>)=> {
+    async (ctx:Ctx, next:Next)=> {
       const {barcode} = ctx.request.body;
       if(!barcode) {
         ctx.throw(406, 'barcode is required');

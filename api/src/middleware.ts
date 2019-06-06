@@ -1,4 +1,4 @@
-import { ICustomState } from './types';
+import { ICustomState, Next, Ctx } from './types';
 import koa from 'koa';
 import log4js, {Appender, LogLevelFilterAppender} from 'log4js';
 import mongoose from 'mongoose';
@@ -95,5 +95,16 @@ export default function middleware (app:koa) {
       '/',
     ]
   }));
+
+  // record user token
+  app.use( async (ctx:Ctx, next:Next)=> {
+    if (ctx.headers.authorization) {
+      ctx.state.userToken = ctx.headers.authorization.split(' ')[1];
+    } else if (ctx.cookies.get('token')) {
+      ctx.state.userToken = ctx.cookies.get('token');
+    }
+    
+    await next();
+  });
 
 }

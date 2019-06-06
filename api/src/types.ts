@@ -22,6 +22,7 @@ export interface ITokenContent extends IUserEssential{
 }
 
 export interface IUser extends IUserEssential {
+  abbr: string,
   createdAt?: Date,
   updatedAt?: Date,
   barcode: string,
@@ -38,6 +39,7 @@ export interface ILogLogin {
 export interface ICustomState {
   user?: ITokenContent,
   data?: any,
+  userToken: string,
 }
 
 export interface IPart {
