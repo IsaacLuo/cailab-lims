@@ -183,3 +183,32 @@ export default function handleParts (app:koa, router:Router) {
     }
   );
 }
+
+  router.get('/api/part/:id',
+    userMust(beUser, beScanner),
+    async (ctx:Ctx, next:Next)=> {
+      const user = ctx.state.user;
+      try {
+        let part = await Part.findById(user._id).exec();
+        ctx.body = part;
+      } catch (err) {
+        ctx.throw(404, err.message);
+      }
+    }
+  );
+
+  router.get(
+    '/api/parts',
+    userMust(beUser), 
+    async (ctx:Ctx, next:Next)=> {
+      let {search, type, skip, limit, user, sortBy, desc, format} = ctx.query;
+      let condition :any = {};
+      if (search) {
+        condition.$text = {$search:search};
+      }
+      if (type) {
+        condition.sampleType = type;
+      }
+      if (user) {
+        condition.owner = mongoose.Types.ObjectId(user);
+      }

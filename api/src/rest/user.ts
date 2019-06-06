@@ -23,7 +23,7 @@ export default function handleUsers(app: koa, router: Router) {
     userMust(beUser),
     async (ctx: Ctx, next: Next) => {
       const users = await User.find({ groups: {$in:['users', 'lims/users']} }).select('_id name').exec();
-      ctx.body = {users};
+      ctx.body = users;
     }
   );
 
@@ -136,7 +136,7 @@ export default function handleUsers(app: koa, router: Router) {
     userMust(beAdmin),
     async (ctx:Ctx, next: Next)=> {
     let users = await User.find({}).sort({groups: -1, createdAt:1 }).exec();
-    ctx.body = {users};
+    ctx.body = users;
   });
 
 

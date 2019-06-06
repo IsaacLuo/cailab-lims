@@ -30,14 +30,14 @@ export default function handleSessions (app:koa, router:Router) {
 
       const {_id, name, email, groups} = user;
 
-      if (groups.indexOf('scanner')<0) {
+      if (groups.indexOf('lims/scanners')<0) {
         throw new Error('invalid user');
       }
       const token = jwt.sign({
         _id,
         fullName: name,
         email,
-        groups:['scanner'], // user who only provide barcode get the scanner group only
+        groups:['lims/scanners'], // user who only provide barcode get the scanner group only
       }, 
       secret.jwt.key,
       {expiresIn:'1h'});
@@ -50,7 +50,7 @@ export default function handleSessions (app:koa, router:Router) {
         timeStamp: new Date(),
       });
       console.log(`scanner logged in as ${name}`);
-      ctx.body = {message: `welcome ${name} on scanner`, _id, token, name, email, groups:['scanner']};
+      ctx.body = {message: `welcome ${name} on scanner`, _id, token, name, email, groups:['lims/scanners']};
   });
 
 

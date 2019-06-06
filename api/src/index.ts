@@ -16,16 +16,21 @@ import handleSessions from './rest/session';
 import handleUsers from './rest/user';
 import { userMust, beAdmin } from './identifyUsers';
 import handleParts from './rest/part';
+import koaStatic from 'koa-static';
+import path from 'path';
+import handleParts from './rest/part';
 
 const app = new koa();
 const router = new Router();
+
+app.use(koaStatic('static'));
 
 app.use(cors({credentials: true}));
 app.use(koaBody({multipart:true}));
 middleware(app);
 handleUsers(app, router);
 handleSessions(app, router);
-handleParts(app,router);
+handleParts(app, router);
 
 router.get('/', async (ctx:Ctx)=> {
   ctx.body={message:'server: cailab-lims'};
@@ -93,5 +98,6 @@ router.get(
 // });
 
 app.use(router.routes());
+
 app.listen(8000, '0.0.0.0');
-log4js.getLogger().info('start listening at 8000');
+log4js.getLogger().info('start listening at 8000 ' );

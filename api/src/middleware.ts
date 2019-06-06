@@ -1,4 +1,4 @@
-import { ICustomState, Next, Ctx } from './types';
+import { ICustomState, Ctx, Next } from './types';
 import koa from 'koa';
 import log4js, {Appender, LogLevelFilterAppender} from 'log4js';
 import mongoose from 'mongoose';
@@ -59,7 +59,7 @@ export default function middleware (app:koa) {
   });
 
   // mongodb
-  app.use( async (ctx:koa.ParameterizedContext<any, {}>, next: ()=>Promise<any>)=> {
+  app.use( async (ctx:Ctx, next:Next)=> {
     try {
       const mongooseState = mongoose.connection.readyState;
       switch (mongooseState) {
@@ -83,7 +83,7 @@ export default function middleware (app:koa) {
   });
 
   // always json type
-  app.use( async (ctx:koa.ParameterizedContext<any, {}>, next: ()=>Promise<any>)=> {
+  app.use( async (ctx:Ctx, next:Next)=> {
     ctx.type = 'json';
     // ctx.body = {};
     await next();

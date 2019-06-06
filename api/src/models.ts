@@ -37,6 +37,25 @@ export const LogLoginSchema = new Schema({
 export interface ILogLoginModel extends ILogLogin, Document{}
 
 export const LogLogin:Model<ILogLoginModel> = mongoose.model('LogLogin', LogLoginSchema, 'log_logins');
+/**
+ * level: the important level of operations
+ *  - 0: debugging information
+ *  - 1: listing or getting data
+ *  - 2: exporting data
+ *  - 3: adding more data into the database
+ *  - 4: modifying data, deleting data,
+ *  - 5: change previleges, change user information, and other admin operations
+ */
+export const LogOperationSchema = new Schema({
+  operatorId: Schema.Types.ObjectId,
+  operatorName: String,
+  type: String,
+  level: Number,        
+  sourceIP: String,
+  timeStamp: Date,
+  data: Schema.Types.Mixed,
+});
+export const LogOperation = mongoose.model('LogOperation', LogOperationSchema, 'log_operations');
 
 export const PartSchema = new Schema({
   labName: String,                      // combined "labPrefix" and "labId", e.g. 'YCe1234', redundant information
@@ -106,6 +125,21 @@ export const PartSchema = new Schema({
 export interface IPartModel extends IPart, Document{}
 
 export const Part:Model<IPartModel> = mongoose.model('Part', PartSchema, 'parts');
+
+export const PartsIdCounterSchema = new Schema({
+  name: String,
+  count: Number,
+});
+
+export const PartsIdCounter = mongoose.model('PartsIdCounter', PartsIdCounterSchema);
+
+export const FileDataSchema = new Schema({
+  name: String,   // original file name, 
+  contentType: String,  // MIME type
+  size: Number,   // bytes
+  data: Buffer,   // data in binary
+})
+export const FileData = mongoose.model('FileData', FileDataSchema);
 
 export const PartDeletionRequestSchema = new Schema({
   sender: {

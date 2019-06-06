@@ -13,11 +13,15 @@ export function userMust (...args: Array<(ctx:koa.ParameterizedContext<any, {}>,
 }
 
 export function beUser (ctx:koa.ParameterizedContext<ICustomState, {}>, next:()=>Promise<any>) {
-  return ctx.state.user && ctx.state.user.groups.indexOf('emma/users')>=0;
+  return ctx.state.user && (ctx.state.user.groups.indexOf('lims/users')>=0 || ctx.state.user.groups.indexOf('users')>=0);
 }
 
 export function beAdmin (ctx:koa.ParameterizedContext<ICustomState, {}>, next:()=>Promise<any>) {
-  return ctx.state.user && (ctx.state.user.groups.indexOf('administrators')>=0 || ctx.state.user.groups.indexOf('emma/administrators')>=0);
+  return ctx.state.user && (ctx.state.user.groups.indexOf('administrators')>=0 || ctx.state.user.groups.indexOf('lims/administrators')>=0);
+}
+
+export function beScanner (ctx:koa.ParameterizedContext<ICustomState, {}>, next:()=>Promise<any>) {
+  return ctx.state.user && (ctx.state.user.groups.indexOf('lims/scanners')>=0);
 }
 
 export function beGuest (ctx:koa.ParameterizedContext<ICustomState, {}>, next:()=>Promise<any>) {

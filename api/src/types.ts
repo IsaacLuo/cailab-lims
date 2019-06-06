@@ -28,6 +28,7 @@ export interface IUser extends IUserEssential {
   createdAt?: Date,
   updatedAt?: Date,
   barcode: string,
+  abbr:string,
 }
 
 export interface ILogLogin {
