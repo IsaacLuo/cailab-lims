@@ -75,21 +75,21 @@ router.get(
   }
 );
 
-router.get(
-  '/api/notifications',
-  userMust(beAdmin),
-  async (ctx:Ctx, next:Next)=> {
-    const notifications:{title:string, message:string, link:string}[] = [];
-    const sudoRequestCount = await PartDeletionRequest.countDocuments({}).exec();
-    if (sudoRequestCount>0) {
-      notifications.push({
-        title: 'requests from users', 
-        message: `You have ${sudoRequestCount} request${sudoRequestCount === 1? '': 's'} of deleting parts`,
-        link: '/requests/partsDeletion',
-      });
-    }
-    ctx.body = {notifications};
-});
+// router.get(
+//   '/api/notifications',
+//   userMust(beAdmin),
+//   async (ctx:Ctx, next:Next)=> {
+//     const notifications:{title:string, message:string, link:string}[] = [];
+//     const sudoRequestCount = await PartDeletionRequest.countDocuments({}).exec();
+//     if (sudoRequestCount>0) {
+//       notifications.push({
+//         title: 'requests from users', 
+//         message: `You have ${sudoRequestCount} request${sudoRequestCount === 1? '': 's'} of deleting parts`,
+//         link: '/requests/partsDeletion',
+//       });
+//     }
+//     ctx.body = {notifications};
+// });
 
 app.use(router.routes());
 app.listen(8000, '0.0.0.0');

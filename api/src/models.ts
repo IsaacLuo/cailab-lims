@@ -9,6 +9,7 @@ import {Schema} from 'mongoose'
 export const UserSchema = new Schema({
   email: String,
   name: String, // user's full name
+  abbr: String, 
   groups: [String], // array of group name, 'guest', 'users', 'visitors', or 'administrators'
   createdAt: Date,
   updatedAt: Date,
@@ -41,7 +42,14 @@ export const PartSchema = new Schema({
   personalName: String,                 // combined "personalPrefix" and "personalId", e.g. 'YLe123', redundant information
   personalPrefix: String,               // the first part of personalName, e.g. 'YLe', YL is the initial letters of the user's name, e means E.coli 
   personalId: Number,                   // the second part of personalName, e.g. 123, incrementing.
-  ownerId: Schema.Types.ObjectId,       // the ID of the owner
+  owner: {                              // the ID of the owner
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  operators: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  }],
   ownerName: String,                    // the owner's name, redundant information
   sampleType: String,                   // 'bacterium', 'primer', or 'yeast'
   comment: String,                      // description of this part
