@@ -18,7 +18,7 @@ import { userMust, beAdmin } from './identifyUsers';
 import handleParts from './rest/part';
 import koaStatic from 'koa-static';
 import path from 'path';
-import handleParts from './rest/part';
+
 
 const app = new koa();
 const router = new Router();

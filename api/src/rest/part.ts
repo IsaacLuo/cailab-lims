@@ -11,10 +11,12 @@ import {
 import koa from 'koa';
 import Router from 'koa-router';
 
-import {userMust, beAdmin, beUser} from '../identifyUsers'
+import {userMust, beAdmin, beUser, beScanner} from '../identifyUsers'
 import { User, LogLogin } from '../models';
 import jwt from 'jsonwebtoken';
 import secret from '../../secret';
+import mongoose from 'mongoose';
+import sendBackXlsx from '../sendBackXlsx';
 
 export default function handleParts (app:koa, router:Router) {
 
@@ -182,14 +184,16 @@ export default function handleParts (app:koa, router:Router) {
     }
     }
   );
-}
 
-  router.get('/api/part/:id',
+  router.get(
+    '/api/part/:id',
     userMust(beUser, beScanner),
     async (ctx:Ctx, next:Next)=> {
       const user = ctx.state.user;
+      const partId = ctx.params.id;
       try {
-        let part = await Part.findById(user._id).exec();
+        let part = await Part.findById(partId).exec();
+        console.log(part);
         ctx.body = part;
       } catch (err) {
         ctx.throw(404, err.message);
@@ -201,7 +205,17 @@ export default function handleParts (app:koa, router:Router) {
     '/api/parts',
     userMust(beUser), 
     async (ctx:Ctx, next:Next)=> {
-      let {search, type, skip, limit, user, sortBy, desc, format} = ctx.query;
+      let {
+        search, 
+        type, 
+        skip, 
+        limit, 
+        user, 
+        sortBy, 
+        desc, 
+        format
+      } = ctx.query;
+
       let condition :any = {};
       if (search) {
         condition.$text = {$search:search};
@@ -212,3 +226,51 @@ export default function handleParts (app:koa, router:Router) {
       if (user) {
         condition.owner = mongoose.Types.ObjectId(user);
       }
+      let parts = Part.find(condition);
+      if (sortBy) {
+        let realSortBy = sortBy;
+        if (sortBy === 'personalName') {
+          if (desc === 'true') {
+            parts = parts.sort({'personalName': -1, 'personalId': -1});
+          } else {
+            parts = parts.sort({'personalName': 1, 'personalId': 1});
+          }
+        } else {
+          if (sortBy === 'labName') {
+              realSortBy = 'labId';
+          }
+          if (desc === 'true') {
+            parts = parts.sort({[realSortBy]: -1});
+          } else {
+            parts = parts.sort({[realSortBy]: 1});
+          }
+        }
+      } else {
+        parts = parts.sort({labId:-1});
+      }
+      if (skip) parts = parts.skip(parseInt(skip))
+      if (limit) parts = parts.limit(parseInt(limit))
+
+      // get count of all
+      let totalCount = await Part.countDocuments(condition).exec();
+
+      // .select('labName')
+      const data = await parts
+      .populate('containers')
+      .exec();
+      switch(format) {
+        case 'xlsx':
+          sendBackXlsx(ctx, data);
+        break;
+        default:
+          ctx.body = {
+            filter: {type, skip, limit, user, sortBy, order: desc ? 'desc': 'asc'},
+            totalCount, 
+            parts: data,
+            };
+      }
+    }
+  );
+
+
+}

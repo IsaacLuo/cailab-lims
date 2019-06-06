@@ -24,7 +24,6 @@ export interface ITokenContent extends IUserEssential{
 }
 
 export interface IUser extends IUserEssential {
-  abbr: string,
   createdAt?: Date,
   updatedAt?: Date,
   barcode: string,

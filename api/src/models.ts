@@ -9,6 +9,11 @@ import {
 import mongoose, { Model, Document } from 'mongoose'
 import {Schema} from 'mongoose'
 
+
+
+/**
+ * User
+ */
 export const UserSchema = new Schema({
   email: String,
   name: String, // user's full name
@@ -18,11 +23,12 @@ export const UserSchema = new Schema({
   updatedAt: Date,
   barcode: String,
 });
-
 export interface IUserModel extends IUser, Document{}
-
 export const User:Model<IUserModel> = mongoose.model('User', UserSchema, 'users');
 
+/**
+ * LogLogin
+ */
 export const LogLoginSchema = new Schema({
   operator: {
     type:  Schema.Types.ObjectId,
@@ -33,11 +39,11 @@ export const LogLoginSchema = new Schema({
   sourceIP: String,
   timeStamp: Date,
 });
-
 export interface ILogLoginModel extends ILogLogin, Document{}
-
 export const LogLogin:Model<ILogLoginModel> = mongoose.model('LogLogin', LogLoginSchema, 'log_logins');
+
 /**
+ * LogOperation
  * level: the important level of operations
  *  - 0: debugging information
  *  - 1: listing or getting data
@@ -57,6 +63,9 @@ export const LogOperationSchema = new Schema({
 });
 export const LogOperation = mongoose.model('LogOperation', LogOperationSchema, 'log_operations');
 
+/**
+ * Part
+ */
 export const PartSchema = new Schema({
   labName: String,                      // combined "labPrefix" and "labId", e.g. 'YCe1234', redundant information
   labPrefix: String,                    // the first part of labName, e.g. 'YCe'. e means E.coli
@@ -121,26 +130,33 @@ export const PartSchema = new Schema({
   // history: Schema.Types.Mixed,      // previous version of this part.
   historyId: Schema.Types.ObjectId, // previous version of this part.
 });
-
 export interface IPartModel extends IPart, Document{}
-
 export const Part:Model<IPartModel> = mongoose.model('Part', PartSchema, 'parts');
 
+/**
+ * PartsIdCounter
+ */
 export const PartsIdCounterSchema = new Schema({
   name: String,
   count: Number,
 });
+export const PartsIdCounter = mongoose.model('PartsIdCounter', PartsIdCounterSchema, 'part_id_counters');
 
-export const PartsIdCounter = mongoose.model('PartsIdCounter', PartsIdCounterSchema);
-
-export const FileDataSchema = new Schema({
+/**
+ * FileData
+ */
+const FileDataSchema = new Schema({
   name: String,   // original file name, 
   contentType: String,  // MIME type
   size: Number,   // bytes
   data: Buffer,   // data in binary
 })
-export const FileData = mongoose.model('FileData', FileDataSchema);
+export interface IFileDataSchemaModel extends IFileData, Document{}
+export const FileData = mongoose.model('FileData', FileDataSchema, 'file_data');
 
+/**
+ * PartDeletionRequest
+ */
 export const PartDeletionRequestSchema = new Schema({
   sender: {
     type:  Schema.Types.ObjectId,
@@ -151,24 +167,11 @@ export const PartDeletionRequestSchema = new Schema({
   requestedCount: Number,
   requestedAt: [Date],
 });
-
 export const PartDeletionRequest = mongoose.model('PartDeletionRequest', PartDeletionRequestSchema, 'part_deletion_requests');
 
-export const PartsIdCounter = mongoose.model('PartsIdCounter', new Schema({
-  name: String,
-  count: Number,
-}),'part_id_counters');
-
-const FileDataSchema = new Schema({
-  name: String,   // original file name, 
-  contentType: String,  // MIME type
-  size: Number,   // bytes
-  data: Buffer,   // data in binary
-})
-
-export interface IFileDataSchemaModel extends IFileData, Document{}
-export const FileData = mongoose.model('FileData', FileDataSchema, 'file_data');
-
+/**
+ * Container
+ */
 export const ContainerSchema = new Schema({
     ctype: String,  //'tube'|'well'
     barcode: String,
@@ -211,6 +214,9 @@ export const ContainerSchema = new Schema({
 export interface IContainerModel extends IContainer, Document{}
 export const Container:Model<IContainerModel> = mongoose.model('Container', ContainerSchema, 'containers');
 
+/**
+ * ContainerGroup
+ */
 export const ContainerGroupSchema = new Schema({
   ctype: String, //'plate'|'rack'
   barcode: String,
@@ -233,28 +239,3 @@ export const ContainerGroupSchema = new Schema({
 });
 export interface IContainerGroupModel extends IContainerGroup, Document{}
 export const ContainerGroup:Model<IContainerGroupModel> = mongoose.model('ContainerGroup', ContainerGroupSchema, 'container_groups');
-
-
-/**
- * level: the important level of operations
- *  - 0: debugging information
- *  - 1: listing or getting data
- *  - 2: exporting data, moveing racks
- *  - 3: adding more data into the database
- *  - 4: modifying data, deleting data,
- *  - 5: change previleges, change user information, and other admin operations
- */
-export const LogOperation = mongoose.model('LogOperation', new Schema({
-  operator: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-  },
-
-  operatorName: String,
-  type: String,
-  level: Number,
-  sourceIP: String,
-  timeStamp: Date,
-  comment: String,
-  data: Schema.Types.Mixed,
-}),'log_operations');
