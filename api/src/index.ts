@@ -1,5 +1,4 @@
 import { 
-  ICustomState, 
   Ctx,
   Next,
 } from './types';
@@ -12,10 +11,11 @@ import conf from '../conf';
 import crypto from 'crypto';
 import {Part, PartDeletionRequest} from './models';
 import jwt from 'jsonwebtoken';
-import cors from 'koa-cors';
+import cors from '@koa/cors';
 import handleSessions from './rest/session';
 import handleUsers from './rest/user';
 import { userMust, beAdmin } from './identifyUsers';
+import handleParts from './rest/part';
 
 const app = new koa();
 const router = new Router();
@@ -25,6 +25,7 @@ app.use(koaBody({multipart:true}));
 middleware(app);
 handleUsers(app, router);
 handleSessions(app, router);
+handleParts(app,router);
 
 router.get('/', async (ctx:Ctx)=> {
   ctx.body={message:'server: cailab-lims'};

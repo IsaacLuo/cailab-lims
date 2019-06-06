@@ -1,7 +1,10 @@
-import { 
+import {
+  IContainer,
   IUser,
   ILogLogin,
   IPart,
+  IFileData,
+  IContainerGroup,
 } from './types';
 import mongoose, { Model, Document } from 'mongoose'
 import {Schema} from 'mongoose'
@@ -116,3 +119,108 @@ export const PartDeletionRequestSchema = new Schema({
 });
 
 export const PartDeletionRequest = mongoose.model('PartDeletionRequest', PartDeletionRequestSchema, 'part_deletion_requests');
+
+export const PartsIdCounter = mongoose.model('PartsIdCounter', new Schema({
+  name: String,
+  count: Number,
+}),'part_id_counters');
+
+const FileDataSchema = new Schema({
+  name: String,   // original file name, 
+  contentType: String,  // MIME type
+  size: Number,   // bytes
+  data: Buffer,   // data in binary
+})
+
+export interface IFileDataSchemaModel extends IFileData, Document{}
+export const FileData = mongoose.model('FileData', FileDataSchema, 'file_data');
+
+export const ContainerSchema = new Schema({
+    ctype: String,  //'tube'|'well'
+    barcode: String,
+    createdAt: Date,
+    assignedAt: Date,
+    
+    operator: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    part: {
+      type: Schema.Types.ObjectId,
+      ref: 'Part',
+    },
+
+    parentContainer: {
+      type: Schema.Types.ObjectId,
+      ref: 'ContainerGroup',
+    },
+
+    wellId: Number,
+    wellName: String,
+
+    location: {
+      type: Schema.Types.ObjectId,
+      ref: 'Location',
+    },
+    verifiedAt: Date,
+
+    locationHistory: [{
+      location: {
+        type: Schema.Types.ObjectId,
+        ref: 'Location',
+      },
+      verifiedAt: Date,
+    }],
+
+    currentStatus: String,
+});
+export interface IContainerModel extends IContainer, Document{}
+export const Container:Model<IContainerModel> = mongoose.model('Container', ContainerSchema, 'containers');
+
+export const ContainerGroupSchema = new Schema({
+  ctype: String, //'plate'|'rack'
+  barcode: String,
+  createdAt: Date,
+  verifiedAt: Date,
+  currentStatus: String,
+
+  location: {
+    type: Schema.Types.ObjectId,
+    ref: 'Location',
+  },
+
+  locationHistory: [{
+    location: {
+      type: Schema.Types.ObjectId,
+      ref: 'Location',
+    },
+    verifiedAt: Date,
+  }],
+});
+export interface IContainerGroupModel extends IContainerGroup, Document{}
+export const ContainerGroup:Model<IContainerGroupModel> = mongoose.model('ContainerGroup', ContainerGroupSchema, 'container_groups');
+
+
+/**
+ * level: the important level of operations
+ *  - 0: debugging information
+ *  - 1: listing or getting data
+ *  - 2: exporting data, moveing racks
+ *  - 3: adding more data into the database
+ *  - 4: modifying data, deleting data,
+ *  - 5: change previleges, change user information, and other admin operations
+ */
+export const LogOperation = mongoose.model('LogOperation', new Schema({
+  operator: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+
+  operatorName: String,
+  type: String,
+  level: Number,
+  sourceIP: String,
+  timeStamp: Date,
+  comment: String,
+  data: Schema.Types.Mixed,
+}),'log_operations');
