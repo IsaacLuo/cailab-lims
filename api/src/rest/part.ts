@@ -1,4 +1,4 @@
-import { Part, ContainerGroup, LogOperation } from './../models';
+import { Part, ContainerGroup, LogOperation, PartDeletionRequest, PartHistory } from './../models';
 import { 
 PartsIdCounter,
 FileData,
@@ -22,7 +22,7 @@ export default function handleParts (app:koa, router:Router) {
 
   router.post('/api/part',
     userMust(beUser),
-    async (ctx:Ctx, next:Next)=> {
+    async (ctx:Ctx, next:Next) => {
       let {
       sampleType,
       comment,
@@ -188,7 +188,7 @@ export default function handleParts (app:koa, router:Router) {
   router.get(
     '/api/part/:id',
     userMust(beUser, beScanner),
-    async (ctx:Ctx, next:Next)=> {
+    async (ctx:Ctx, next:Next) => {
       const user = ctx.state.user;
       const partId = ctx.params.id;
       try {
@@ -204,7 +204,7 @@ export default function handleParts (app:koa, router:Router) {
   router.get(
     '/api/parts',
     userMust(beUser), 
-    async (ctx:Ctx, next:Next)=> {
+    async (ctx:Ctx, next:Next) => {
       let {
         search, 
         type, 
@@ -271,6 +271,57 @@ export default function handleParts (app:koa, router:Router) {
       }
     }
   );
+
+  router.delete(
+    '/api/part/:id',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+      const user = ctx.state.user;
+      try {
+        const partId = ctx.params.id;
+        ctx.state.logger.info(`${ctx.request.ip} delete part ${partId}`);
+        const part = await Part.findById(partId).exec();
+        if(!part) {
+          await PartDeletionRequest.findOneAndDelete({partId}).exec();
+          ctx.throw(404, {message: 'no this part'});
+        }
+        if (
+          part.owner.toString() !== user._id && 
+          user.groups.indexOf('administrators')===-1
+          ) {
+          ctx.throw(401, {message: 'unable to delete a part of others'});
+        } else if (
+          Date.now() - part.createdAt.getTime() > 3600000 * 24 * 7 &&
+          user.groups.indexOf('administrators')===-1
+          ) {
+          ctx.throw(401, {message: 'unable to delete a part older than 1 week'});
+        } else {
+          // ===============save history before change=============
+          let partHistory = await PartHistory.findOne({partId: part._id}).exec();
+          if (!partHistory) partHistory = new PartHistory({partId: part._id, histories:[] });
+          partHistory.histories.push(part);
+          await partHistory.save();
+          // ===============end saving hisoty======================
+          await Part.findOneAndDelete({_id:partId}).exec(); 
+          await PartDeletionRequest.findOneAndDelete({partId}).exec();
+          ctx.body = part;
+          // =============log================
+          LogOperation.create({
+            operator: user._id,
+            operatorName: user.name,
+            type: 'delete part',
+            level: 4,
+            sourceIP: ctx.request.ip,
+            timeStamp: new Date(),
+            data: { part },
+          });
+          // ===========log end=============
+        }
+      } catch (err) {
+        console.error('err', err);
+        ctx.throw(500);
+      }
+    });
 
 
 }

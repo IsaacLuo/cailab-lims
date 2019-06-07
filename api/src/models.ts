@@ -5,6 +5,7 @@ import {
   IPart,
   IFileData,
   IContainerGroup,
+  IPartHistory,
 } from './types';
 import mongoose, { Model, Document } from 'mongoose'
 import {Schema} from 'mongoose'
@@ -239,3 +240,11 @@ export const ContainerGroupSchema = new Schema({
 });
 export interface IContainerGroupModel extends IContainerGroup, Document{}
 export const ContainerGroup:Model<IContainerGroupModel> = mongoose.model('ContainerGroup', ContainerGroupSchema, 'container_groups');
+
+
+export const PartHistorySchema = new Schema({
+  partId: Schema.Types.ObjectId,
+  histories: [Schema.Types.Mixed],
+});
+export interface IPartHistoryModel extends IPartHistory, Document{}
+export const PartHistory:Model<IPartHistoryModel> = mongoose.model('PartHistory', PartHistorySchema, 'part_histories');

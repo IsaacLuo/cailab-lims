@@ -53,7 +53,7 @@ export interface IPart {
   personalPrefix: string,
   personalId: number,
   personalName: string,
-  ownerId?: string,
+  owner?: string|IUser,
   sampleType?: string,
   comment?: string,
   createdAt: Date,
@@ -138,4 +138,9 @@ export interface IContainerGroup {
     location:  string|Schema.Types.ObjectId|ILocation,
     verifiedAt: Date,
   }>,
+}
+
+export interface IPartHistory {
+  partId: string,
+  histories: any,
 }
