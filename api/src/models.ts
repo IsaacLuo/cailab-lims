@@ -113,23 +113,27 @@ export const PartSchema = new Schema({
     customData: Schema.Types.Mixed,  // any other {key:value} pairs are saved here
   },
   attachments: [{                    
-    fileName: String,                // redundant information
+    name: String,                // redundant information
     contentType: String,             // redundant information
-    fileSize: Number,                // redundant information
-    fileId: Schema.Types.ObjectId,   // id in the FileData modal
+    size: Number,                // redundant information
+    file: {
+      type: Schema.Types.ObjectId,
+      ref: 'FileData'
+    },   // id in the FileData modal
   }],
   containers: [{
-    ctype: String,
-    barcode: String,
-    assignedAt: Date,
-    operatorId: Schema.Types.ObjectId,
-  }],
+      type: Schema.Types.ObjectId,
+      ref: 'Container'
+    }],
   dbV1:{                             // old id and user id data from the cailab-database-v1, useless in v2
     id: Number,
     userId: Number,
   },
   // history: Schema.Types.Mixed,      // previous version of this part.
-  historyId: Schema.Types.ObjectId, // previous version of this part.
+  history: {
+      type: Schema.Types.ObjectId,
+      ref: 'History'
+    }, // previous version of this part.
 });
 export interface IPartModel extends IPart, Document{}
 export const Part:Model<IPartModel> = mongoose.model('Part', PartSchema, 'parts');
@@ -153,7 +157,7 @@ const FileDataSchema = new Schema({
   data: Buffer,   // data in binary
 })
 export interface IFileDataSchemaModel extends IFileData, Document{}
-export const FileData = mongoose.model('FileData', FileDataSchema, 'file_data');
+export const FileData:Model<IFileDataSchemaModel> = mongoose.model('FileData', FileDataSchema, 'file_data');
 
 /**
  * PartDeletionRequest

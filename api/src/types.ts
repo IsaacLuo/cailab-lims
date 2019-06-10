@@ -83,16 +83,16 @@ export interface IPart {
     // all
     customData?: any,
   },
-  attachments?: [{
-    fileName: string,
+  attachments?: IAttachment[],
+  containers?: Array<string|IContainer>,
+  history: string|IPartHistory,
+}
+
+export interface IAttachment {
+    name: string,
     contentType: string,
-    fileSize: number,
-    fileId: string,
-}],
-  container?: {
-    type: string,
-    barcode: string,
-  },
+    size: number,
+    file: string|IFileData,
 }
 
 export interface IFileData {
@@ -143,4 +143,32 @@ export interface IContainerGroup {
 export interface IPartHistory {
   partId: string,
   histories: any,
+}
+
+export interface IPartForm {
+  sampleType?: string,
+  comment?: string,
+  date?: Date,
+  tags?: string[],
+  markers?: string[],
+  plasmidName?: string,
+  hostStrain?: string,
+  parents?: string[],
+  genotype?: string[],
+  plasmidType?: string,
+  sequence?: string,
+  orientation?: string,
+  meltingTemperature?: number,
+  concentration?: string,
+  vendor?: string,
+  attachments?: IPartFormAttachment[],
+  customData?: any,
+}
+
+export interface IPartFormAttachment {
+  fileId?:string,
+  fileName?:string,
+  contentType?:string,
+  fileSize?:number,
+  content?:string,
 }

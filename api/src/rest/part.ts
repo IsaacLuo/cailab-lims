@@ -1,11 +1,20 @@
-import { Part, ContainerGroup, LogOperation, PartDeletionRequest, PartHistory } from './../models';
 import { 
-PartsIdCounter,
-FileData,
-} from '../models';
+  Part, 
+  Container,
+  ContainerGroup, 
+  LogOperation, 
+  PartDeletionRequest, 
+  PartHistory, 
+  IPartModel,
+  PartsIdCounter,
+  FileData,
+} from './../models';
+
 import { 
   Ctx,
-  Next, 
+  Next,
+  IAttachment,
+  IPartForm,
 } from '../types';
 
 import koa from 'koa';
@@ -20,7 +29,11 @@ import sendBackXlsx from '../sendBackXlsx';
 
 export default function handleParts (app:koa, router:Router) {
 
-  router.post('/api/part',
+  /**
+   * create a new part
+   */
+  router.post(
+    '/api/part',
     userMust(beUser),
     async (ctx:Ctx, next:Next) => {
       let {
@@ -185,6 +198,9 @@ export default function handleParts (app:koa, router:Router) {
     }
   );
 
+  /**
+   * get a part by id
+   */
   router.get(
     '/api/part/:id',
     userMust(beUser, beScanner),
@@ -201,6 +217,9 @@ export default function handleParts (app:koa, router:Router) {
     }
   );
 
+  /**
+   * search parts by conditions
+   */
   router.get(
     '/api/parts',
     userMust(beUser), 
@@ -272,6 +291,9 @@ export default function handleParts (app:koa, router:Router) {
     }
   );
 
+  /**
+   * delete a part
+   */
   router.delete(
     '/api/part/:id',
     userMust(beUser),
@@ -323,5 +345,218 @@ export default function handleParts (app:koa, router:Router) {
       }
     });
 
+  /**
+   * modify a part
+   * @body IPartForm {
+                    sampleType?: string,
+                    comment?: string,
+                    date?: Date,
+                    tags?: string[],
+                    markers?: string[],
+                    plasmidName?: string,
+                    hostStrain?: string,
+                    parents?: string[],
+                    genotype?: string[],
+                    plasmidType?: string,
+                    sequence?: string,
+                    orientation?: string,
+                    meltingTemperature?: number,
+                    concentration?: string,
+                    vendor?: string,
+                    attachments?: IPartFormAttachment[],
+                    customData?: any,
+                    }
+   */
+  router.put(
+    '/api/part/:id',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+      const partId = ctx.params.id;
+      const user = ctx.state.user;
+      const form:IPartForm = ctx.request.body;
+      try {
+          const part:IPartModel = await Part.findById(partId).exec();
+        // user must own this part
+        if (part._id.toString() === partId && part.owner.toString() === user._id) {
+          // ===============save history before change=============
+          let partHistory = await PartHistory.findOne({partId: part._id}).exec();
+          if (!partHistory) partHistory = new PartHistory({partId: part._id, histories:[] });
+          partHistory.histories.push(part);
+          await partHistory.save();
+          // ===============end saving hisoty======================
+
+          // now save the part
+          part.history = partHistory._id;
+          part.comment = form.comment;
+          part.date = form.date? new Date(form.date) : undefined;
+          part.tags = form.tags;
+          part.updatedAt = new Date();
+          if (part.sampleType === 'bacterium') {
+            part.content.plasmidName = form.plasmidName;
+            part.content.hostStrain = form.hostStrain;
+            part.content.markers = form.markers;
+          } else if(part.sampleType === 'primer') {
+            part.content.sequence = form.sequence;
+            part.content.orientation = form.orientation;
+            part.content.meltingTemperature = form.meltingTemperature;
+            part.content.concentration = form.concentration;
+            part.content.vendor = form.vendor;
+          } else if(part.sampleType === 'yeast') {
+            part.content.parents = form.parents;
+            part.content.genotype = form.genotype;
+            part.content.plasmidType = form.plasmidType;
+            part.content.markers = form.markers;
+          }
+          part.content.customData = form.customData;
+
+          // handling attachments
+          try {
+            // const originalAttachments = part.attachments;
+            const newAttachments:IAttachment[] = [];
+            for (const attachment of form.attachments) {
+              if(attachment.fileId) {
+                // there is a file Id, check if the file Id exist then add it.
+                const fileData = await FileData.findOne({_id:attachment.fileId});
+                newAttachments.push({
+                  file: fileData._id,
+                  name: fileData.name,
+                  contentType: fileData.contentType,
+                  size: fileData.size,
+                })
+              } else if(attachment.content && 
+                        attachment.fileName && 
+                        attachment.contentType && 
+                        attachment.fileSize) {
+                  let attContent = attachment.content;
+                  if (/data:(.*);base64,/.test(attContent)) {
+                    attContent = attContent.split(',')[1];
+                  }
+                const fileData = new FileData({
+                  name: attachment.fileName,
+                  data: new Buffer(attContent, 'base64'),
+                  size: attachment.fileSize,
+                  contentType: attachment.contentType,
+                });
+                await fileData.save();
+                newAttachments.push({
+                  file: fileData._id,
+                  name: fileData.name,
+                  contentType: fileData.contentType,
+                  size: fileData.size,
+                });
+              } else {
+                throw new Error('incorrect attachmentformat');
+              }
+            }
+            part.attachments = newAttachments;
+          } catch(err) {
+            ctx.state.logger.error(err);
+            ctx.throw(401, {message: 'unable to modify this part', err: err.message});
+            return;
+          }
+          await part.save();
+          ctx.body = {message:'OK', part};
+          // =============log================
+          LogOperation.create({
+            operator: ctx.state.user._id,
+            operatorName: ctx.state.user.name,
+            type: 'update part',
+            level: 4,
+            sourceIP: ctx.request.ip,
+            timeStamp: new Date(),
+            data: { part },
+          });
+          // ===========log end=============
+        } else {
+          ctx.throw(401);
+        }
+      } catch (err) {
+        ctx.throw(404);
+      }
+    }
+  );
+
+  /**
+   * get count of all parts
+   * @query {
+   *   type:string bacterium, primer or yeast
+   *   owner:string owner's id
+   * }
+   */
+  router.get(
+    '/api/parts/count',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+      let {type, owner} = ctx.request.query;
+
+      let condition :any = {};
+      if (type) {
+        condition.sampleType = type;
+      }
+      if (owner) {
+        condition.owner = owner;
+      }
+      const count = await Part.countDocuments(condition).exec();
+      ctx.body = {count};
+    }
+  )
+
+  /**
+   * assgin a tube to a part, designed for barcode scanner
+   */
+  router.put(
+    '/api/part/:id/tube/:barcode',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+      const {id, barcode} = ctx.params;
+      try {
+        const part = await Part.findById(id).exec();
+        if(!part) {
+          ctx.throw(404, {message:`unable to find part ${id}`});
+          return;
+        }
+        // try to find a tube with given barcode
+        let container = await Container.findOne({barcode}).exec();
+        if(container && container.currentStatus !== 'empty' && container.currentStatus !== undefined) {
+          if (container.part && container.part.toString() === id) {
+            // because the id is the same, return 200
+            ctx.body = {id, container};
+          } else {
+            // found a tube, but it is not empty, and the content is not the target part
+            ctx.status = 409;
+            ctx.body = {message:`the target tube is already in use`, container};
+          }
+        } else {
+          ctx.state.logger.info('create new tube');
+          if (!container) {
+            container = new Container({
+              ctype:'tube',
+              barcode,
+              assignedAt: new Date(),
+              operator: ctx.state.user._id,
+              currentStatus: 'empty',
+            });
+          }
+          if (part.containers === undefined) {
+            console.log('init first container');
+            part.containers = [];
+            await part.save();
+          }
+
+          console.debug('new barcode', barcode);
+          container.part = part;
+          container.currentStatus = 'filled';
+          await container.save();
+          part.containers.push(container._id);
+          await part.save();
+          ctx.state.logger.info(`${ctx.state.user.name} assigned a new tube ${barcode} to part ${part.personalName} (${part._id})`);
+          
+          ctx.body = {id:part._id, containers: part.containers};
+        }
+      } catch(err) {
+        ctx.throw(404, {message:err.message});
+        ctx.state.logger.log(err);
+      }
+    })
 
 }
