@@ -18,6 +18,8 @@ import { userMust, beAdmin } from './identifyUsers';
 import handleParts from './rest/part';
 import koaStatic from 'koa-static';
 import path from 'path';
+import handleContainers from './rest/container';
+import handleAttachment from './rest/attachment';
 
 
 const app = new koa();
@@ -31,6 +33,8 @@ middleware(app);
 handleUsers(app, router);
 handleSessions(app, router);
 handleParts(app, router);
+handleContainers(app, router);
+handleAttachment(app, router);
 
 router.get('/', async (ctx:Ctx)=> {
   ctx.body={message:'server: cailab-lims'};

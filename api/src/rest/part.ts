@@ -27,6 +27,19 @@ import secret from '../../secret';
 import mongoose, { Schema } from 'mongoose';
 import sendBackXlsx from '../sendBackXlsx';
 
+/**
+ * handles the CURD of parts and parts related
+ * POST /api/part
+ * GET /api/part/:id
+ * GET /api/parts
+ * DELETE /api/part/:id
+ * PUT /api/part/:id
+ * GET /api/parts/count
+ * GET /api/part/:id/tubes
+ * PUT /api/part/:id/tube/:barcode
+ * DELETE /api/part/:id/tube/:barcode
+ * GET /api/parts/search/:keyword
+ */
 export default function handleParts (app:koa, router:Router) {
 
   /**
