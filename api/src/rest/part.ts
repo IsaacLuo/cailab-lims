@@ -24,7 +24,7 @@ import {userMust, beAdmin, beUser, beScanner} from '../identifyUsers'
 import { User, LogLogin } from '../models';
 import jwt from 'jsonwebtoken';
 import secret from '../../secret';
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import sendBackXlsx from '../sendBackXlsx';
 
 export default function handleParts (app:koa, router:Router) {
@@ -502,6 +502,19 @@ export default function handleParts (app:koa, router:Router) {
   )
 
   /**
+   * get tubes of a part
+   */
+  router.get(
+    '/api/part/:id/tubes',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+      const {id} = ctx.params;
+      const part = await Part.findById(id).select('containers').populate('containers').exec();
+      ctx.body = part.containers;
+    }
+  );
+
+  /**
    * assgin a tube to a part, designed for barcode scanner
    */
   router.put(
@@ -520,7 +533,7 @@ export default function handleParts (app:koa, router:Router) {
         if(container && container.currentStatus !== 'empty' && container.currentStatus !== undefined) {
           if (container.part && container.part.toString() === id) {
             // because the id is the same, return 200
-            ctx.body = {id, container};
+            ctx.body = {id, container, message: 'use exist tube'};
           } else {
             // found a tube, but it is not empty, and the content is not the target part
             ctx.status = 409;
@@ -544,9 +557,10 @@ export default function handleParts (app:koa, router:Router) {
           }
 
           console.debug('new barcode', barcode);
-          container.part = part;
+          container.part = part._id;
           container.currentStatus = 'filled';
-          await container.save();
+          const ss = await container.save();
+          console.log(ss);
           part.containers.push(container._id);
           await part.save();
           ctx.state.logger.info(`${ctx.state.user.name} assigned a new tube ${barcode} to part ${part.personalName} (${part._id})`);
@@ -557,6 +571,69 @@ export default function handleParts (app:koa, router:Router) {
         ctx.throw(404, {message:err.message});
         ctx.state.logger.log(err);
       }
-    })
+    }
+  );
 
+  /** 
+   * resign a tube from a part
+   * different from DELETE /api/tube/:id, this API requires the part id. it will verify the part owner, and assigned time.
+   * the previledge is lower.
+   */
+  router.delete(
+    '/api/part/:id/tube/:barcode',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+      const {id, barcode} = ctx.params;
+        const container = await Container.findOne({barcode, part:id}).exec();
+        if(container) {
+          const part = await Part.findById(id).exec();
+          if (part) {
+            part.containers = part.containers.filter(_id => _id.toString()!==container._id.toString()); //(_id as Schema.Types.ObjectId).equals(container._id));
+            console.log(part.containers);
+            await part.save();
+            
+            container.part = undefined;
+            container.currentStatus = 'empty';
+            await container.save();
+
+            ctx.state.logger.info(`${ctx.state.user.name} removed tube ${barcode} from part ${part.personalName} (${part._id})`);
+            ctx.body = {id:part._id, containers: part.containers};
+            return;
+          }
+        }
+
+        const part = await Part.findById(id);
+        if (part) {
+          ctx.throw(401);
+        } else {
+          ctx.throw(404);
+        }
+        ctx.throw(500, {message:'unable to delete tube'});
+    }
+  );
+
+  router.get(
+    '/api/parts/search/:keyword',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+      const {keyword} = ctx.params;
+      let {skip, limit} = ctx.query;
+      // console.debug(`search key = "${keyword}"`);
+      try {
+        if(!skip) skip = '0';
+        if(!limit) limit = '10';
+        skip = parseInt(skip);
+        limit = parseInt(limit);
+        if (limit > 100) limit = 100;
+
+        const count = await Part.count({$text:{$search:keyword}}).exec();
+        const parts = await Part.find({$text:{$search:keyword}}).skip(skip).limit(limit).exec();
+
+        ctx.body = {keyword, count, skip, limit, parts};
+      } catch (err) {
+        ctx.throw(404, {message:err.message});
+        console.log(err);
+      }
+    }
+  );
 }

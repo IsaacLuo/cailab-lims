@@ -84,15 +84,15 @@ export interface IPart {
     customData?: any,
   },
   attachments?: IAttachment[],
-  containers?: Array<string|IContainer>,
-  history: string|IPartHistory,
+  containers?: Array<string|IContainer|Schema.Types.ObjectId>,
+  history: string|Schema.Types.ObjectId|IPartHistory,
 }
 
 export interface IAttachment {
     name: string,
     contentType: string,
     size: number,
-    file: string|IFileData,
+    file: string|Schema.Types.ObjectId|IFileData,
 }
 
 export interface IFileData {
