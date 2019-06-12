@@ -115,25 +115,39 @@ export default function handleParts (app:koa, router:Router) {
       const attachmentIds = [];
       if(attachments) {
         for(const attachment of attachments) {
-          let attContent = attachment.content;
-          if (/data:(.*);base64,/.test(attContent)) {
-            attContent = attContent.split(',')[1];
-          }
-          const att = new FileData({
-            name: attachment.name,
-            data: new Buffer(attContent, 'base64'),
-            size: attachment.size,
-            contentType: attachment.type,
-          });
-          await att.save();
-          attachmentIds.push(
-            {
-              fileName: attachment.name,
-              contentType: attachment.type,
-              fileSize: attachment.size,
-              fileId: att._id,
+          if (typeof (attachment) === 'string') {
+            const att = await FileData.findById(attachment).exec();
+            if (att) {
+              attachmentIds.push(
+                {
+                  name: att.name,
+                  contentType: att.contentType,
+                  size: att.size,
+                  file: att._id,
+                }
+              );
             }
-          );
+          } else {
+            let attContent = attachment.content;
+            if (/data:(.*);base64,/.test(attContent)) {
+              attContent = attContent.split(',')[1];
+            }
+            const att = new FileData({
+              name: attachment.name,
+              data: new Buffer(attContent, 'base64'),
+              size: attachment.size,
+              contentType: attachment.type,
+            });
+            await att.save();
+            attachmentIds.push(
+              {
+                name: attachment.name,
+                contentType: attachment.type,
+                size: attachment.size,
+                file: att._id,
+              }
+            );
+          }
         }
     
         ctx.state.logger.info('saved attachmes', attachmentIds.length);

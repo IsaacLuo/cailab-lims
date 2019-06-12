@@ -1,4 +1,4 @@
-import { FileData, LogOperation } from './../models';
+import { FileData, LogOperation, Part } from './../models';
 /**
  * @file CRD of attachments
  * GET    /api/attachement/:id
@@ -21,6 +21,7 @@ import Router from 'koa-router';
 import {userMust, beAdmin, beUser, beScanner} from '../identifyUsers'
 import fs from 'fs';
 import util from 'util';
+import { Schema } from 'mongoose';
 const readFile = util.promisify(fs.readFile);
 
 /**
@@ -119,68 +120,62 @@ export default function handleAttachment (app:koa, router:Router) {
    * 403: the attachment is in using, can't be deleted
    * 404: can't find target
    */
-  // app.delete('/api/attachment/:id', or(beUser), async (req :Request, res: Response) => {
-  //   try {
-  //     const {id} = req.params;
-  //     if(id === undefined) {
-  //       res.status(404).json({message: 'file not found'})
-  //     }
-  //     // check if the attachment is in using
+  router.delete(
+    '/api/attachment/:id',
+    userMust(beUser), 
+    async (ctx:Ctx, next:Next) => {
+      const {id} = ctx.params;
+      if(!id) {
+        ctx.throw(404, {message: 'file not found'})
+      }
+      // check if the attachment is in using
+      const part = await Part.findOne({'attachments.file':id}).exec();
+      if (!part) {
+        const result = await FileData.findOneAndDelete({_id:id})
+        if (result) {
+          ctx.state.logger.info(`deleting ${id} ${result.name}`);
+          ctx.body = {message:'OK', result};
+        } else {
+          ctx.throw(404, {message: 'file not found'});
+        }
+        // =============log================
+        LogOperation.create({
+          operator: ctx.state.user._id,
+          operatorName: ctx.state.user.name,
+          type: 'delete attachment',
+          level: 4,
+          sourceIP: ctx.request.ip,
+          timeStamp: new Date(),
+          data: result,
+        });
+        // ===========log end=============
+      } else {
+        ctx.state.logger.info(`unable to delete ${id} because ${part._id} (${part.labName}) is using this attachment`);
+        ctx.throw(403, {message: `${part._id} (${part.labName}) is using this attachment`});
+      }
+  });
 
-  //     const part = await Part.findOne({'attachments.fileId':ObjectId(id)}).exec();
-  //     if (!part) {
-  //       const result = await FileData.findOneAndDelete({_id:id})
-  //       res.json({message:'OK', result});
-  //       // =============log================
-  //       LogOperation.create({
-  //         operator: req.currentUser.id,
-  //         operatorName: req.currentUser.fullName,
-  //         type: 'delete attachment',
-  //         level: 4,
-  //         sourceIP: req.ip,
-  //         timeStamp: new Date(),
-  //         data: result,
-  //       });
-  //       // ===========log end=============
-  //     } else {
-  //       res.status(403).json({message: `${part._id} (${part.labName}) is using this attachment`});
-  //     }
-
-  //   } catch (err) {
-  //     res.status(404).json({message:err.message});
-  //   }
-  // });
-
-
-  // interface IFileMetaData {
-  //   _id: string,
-  //   name: string,
-  //   size: string,
-  //   contentType: string,
-  // }
-  // /**
-  //  * to get the metadata of file id
-  //  * @param id: the mongodb id of the FileData
-  //  * responses:
-  //  * 200: file metadataContent as IFileMetaData
-  //  * 404: can't find target
-  //  */
-  // app.get('/api/attachment/:id/metadata', or(beUser), async (req :Request, res: Response) => {
-  //   try {
-  //     const {id} = req.params;
-  //     console.log('getting file', id)
-  //     if(id === undefined) {
-  //       res.status(404).json({message: 'file not found'});
-  //     }
-  //     const file:IFileMetaData = await FileData.findOne({_id:id},'_id name size contentType');
-  //     if(file){
-  //       res.json(file);
-  //     } else {
-  //       res.status(404).json({message: 'file not found'});
-  //     }
-  //   } catch (err) {
-  //     res.status(404).json({message:err.message});
-  //   }
-  // });
+  /**
+   * to get the metadata of file id
+   * @param id: the mongodb id of the FileData
+   * responses:
+   * 200: file metadataContent as IFileMetaData
+   * 404: can't find target
+   */
+  router.get(
+    '/api/attachment/:id/metadata',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+      const {id} = ctx.params;
+      if(id === undefined) {
+        ctx.throw(404, {message: 'file not found'});
+      }
+      const file = await FileData.findOne({_id:id},'_id name size contentType').exec();
+      if(file){
+        ctx.body = file;
+      } else {
+        ctx.throw(404, {message: 'file not found'});
+      }
+  });
 
 }

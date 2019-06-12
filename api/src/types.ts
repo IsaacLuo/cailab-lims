@@ -120,7 +120,7 @@ export interface IContainer {
   location: string|Schema.Types.ObjectId|ILocation,
   verifiedAt: Date,
   locationHistory: Array<{
-    location:  string|Schema.Types.ObjectId|ILocation,
+    location:  any,
     verifiedAt: Date,
   }>,
   currentStatus: String,
@@ -171,4 +171,9 @@ export interface IPartFormAttachment {
   contentType?:string,
   fileSize?:number,
   content?:string,
+}
+
+export interface ILocation {
+  barcode: string,
+  description: string,
 }

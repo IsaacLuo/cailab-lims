@@ -6,6 +6,7 @@ import {
   IFileData,
   IContainerGroup,
   IPartHistory,
+  ILocation,
 } from './types';
 import mongoose, { Model, Document } from 'mongoose'
 import {Schema} from 'mongoose'
@@ -252,3 +253,18 @@ export const PartHistorySchema = new Schema({
 });
 export interface IPartHistoryModel extends IPartHistory, Document{}
 export const PartHistory:Model<IPartHistoryModel> = mongoose.model('PartHistory', PartHistorySchema, 'part_histories');
+
+export const LocationSchema = new Schema({
+  barcode: String,
+  description: String,
+});
+
+export interface ILocationModel extends ILocation, Document{}
+export const Location:Model<ILocationModel> = mongoose.model('Location', LocationSchema);
+
+export const LocationHistorySchema = new Schema({
+  containerBarcode: String,
+  locationBarcode: String,
+})
+
+export const LocationHistory = mongoose.model('LocationHistory', ContainerSchema, 'locationHistories');

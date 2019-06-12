@@ -20,6 +20,7 @@ import koaStatic from 'koa-static';
 import path from 'path';
 import handleContainers from './rest/container';
 import handleAttachment from './rest/attachment';
+import handleLocations from './rest/location';
 
 
 const app = new koa();
@@ -35,6 +36,7 @@ handleSessions(app, router);
 handleParts(app, router);
 handleContainers(app, router);
 handleAttachment(app, router);
+handleLocations(app,router);
 
 router.get('/', async (ctx:Ctx)=> {
   ctx.body={message:'server: cailab-lims'};
