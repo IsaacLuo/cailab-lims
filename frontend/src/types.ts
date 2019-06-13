@@ -25,7 +25,7 @@ export interface IUserState {
   // ===user state controls===
   loggedIn: boolean,
   userId: string,
-  fullName: string,
+  name: string,
   email: string,
   profilePicture?: string,
   groups: string[],

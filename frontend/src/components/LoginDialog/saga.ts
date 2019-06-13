@@ -63,7 +63,7 @@ function* sendNormalLoginInfoToServer (action:IAction) {
     );
     localStorage.setItem('token',res.data.token);
     localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
-    yield put({type: SET_LOGIN_INFORMATION, data: res.data});
+    yield put({type: SET_LOGIN_INFORMATION, data: res.user});
     yield put({type:LOGIN_DIALOG_VISIBLE, data: false});
     Message.success(res.data.message);
   } catch (err) {
@@ -74,14 +74,14 @@ function* sendNormalLoginInfoToServer (action:IAction) {
 function* sendCailabLoginInfoToServer (action:IAction) {
   // verify user on cailab-auth
   try {
-    const res = yield call(axios.post,
-      serverURL + '/api/session/',
+    const res = yield call(axios.put,
+      serverURL + '/api/user/current/syncRequest',
       {},
       {withCredentials: true}
     );
-    localStorage.setItem('token',res.data.token);
-    localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
-    yield put({type: SET_LOGIN_INFORMATION, data: res.data});
+    // localStorage.setItem('token',res.data.token);
+    // localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
+    yield put({type: SET_LOGIN_INFORMATION, data: res.data.user});
     yield put({type:LOGIN_DIALOG_VISIBLE, data: false});
     Message.success(res.data.message);
   } catch (err) {

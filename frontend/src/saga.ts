@@ -44,23 +44,13 @@ import watchContainers from 'pages/ContainerList/saga';
 // get current user's status from the server, and ask again in 60 seconds
 export function* getMyStatus() {
   try {
-    const res = yield call(axios.get,serverURL+'/api/currentUser', getAuthHeader());
-    const {id, fullName, groups, email, token, barcode,} = res.data;
-    if (id === 'guest') {
-      // force logout if current user becomes a guest
-      yield put(ActionClearLoginInformation());
-    } else {
-      if (token) {
-        const refreshTime = new Date();
-        localStorage.setItem('token', token);
-        localStorage.setItem('tokenTimeStamp', refreshTime.toLocaleString());
-        yield put({type: TOKEN_REFRESHED, data: {token, refreshTime}});
-      }
-      // save id, full name and groups to redux store.
-      yield put(ActionSetLoginInformation(id, fullName, email, groups));
-      // yield delay(60000);
-      // yield put({type:'GET_MY_STATUS'});
-    }
+    const res = yield call(axios.get,serverURL+'/api/user/current', getAuthHeader());
+    const {id, fullName, groups, email,} = res.data.user;
+    // save id, full name and groups to redux store.
+    yield put(ActionSetLoginInformation(id, fullName, email, groups));
+    // yield delay(60000);
+    // yield put({type:'GET_MY_STATUS'});
+    
   } catch (err) {
     // force log out if any error happened
     yield put(ActionClearLoginInformation());
@@ -70,32 +60,12 @@ export function* getMyStatus() {
 // initialize, get token and other information from server to fill sotre states.
 export function* initialize() {
   try {
-    const res = yield call(axios.get,serverURL+'/api/currentUser', getAuthHeader());
-    const {id, fullName, email, groups, token} = res.data;
-    if (id === 'guest') {
-      yield put(ActionClearLoginInformation());
-    } else {
-      if (token) {
-        const refreshTime = new Date();
-        localStorage.setItem('token', token);
-        localStorage.setItem('tokenTimeStamp', refreshTime.toLocaleString());
-        yield put({type: TOKEN_REFRESHED, data: {token, refreshTime}});
-      } else {
-        const cachedToken = localStorage.getItem('token');
-        if (cachedToken) {
-          try {
-            const refreshTime = getTokenIssuedAt(cachedToken);
-            yield put({type: TOKEN_REFRESHED, data: {token:cachedToken, refreshTime}}); 
-          } catch (err) {
-            yield put(ActionClearLoginInformation());
-          }
-        }
-      }
-      yield put(ActionSetLoginInformation(id, fullName, email, groups));
-      yield put({type:QUERY_MY_USER_BARCODE});
-      // get notifications when initilizing
-      // yield put({type:'GET_NOTIFICATIONS'});
-    }
+    const res = yield call(axios.get,serverURL+'/api/user/current', getAuthHeader());
+    const {id, fullName, email, groups} = res.data.user;
+    yield put(ActionSetLoginInformation(id, fullName, email, groups));
+    yield put({type:QUERY_MY_USER_BARCODE});
+    // get notifications when initilizing
+    // yield put({type:'GET_NOTIFICATIONS'});
   } catch (err) {
     yield put(ActionClearLoginInformation());
   }

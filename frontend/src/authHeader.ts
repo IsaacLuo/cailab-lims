@@ -6,6 +6,7 @@ export default function getAuthHeader(otherHeaders: object = {}) {
     headers: {
       Authorization: `bearer ${token}`,
       ...otherHeaders
-    }
+    },
+    withCredentials: true,
   }
 }

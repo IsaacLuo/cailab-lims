@@ -13,7 +13,7 @@ import { SET_MY_USER_BARCODE } from 'components/TokenBarcode/actions';
 const DEFAULT_STATE:IUserState = {
   loggedIn: false,
   userId: 'guest',
-  fullName: 'guest',
+  name: 'guest',
   email:'',
   groups: [],
   barcode: '',
@@ -27,7 +27,7 @@ function userReducer(state :IUserState = DEFAULT_STATE, action: IAction) {
       return {
         ...state,
         userId: action.data.id,
-        fullName: action.data.name,
+        name: action.data.name,
         email: action.data.email,
         groups: action.data.groups,
         loggedIn: true,
@@ -39,7 +39,7 @@ function userReducer(state :IUserState = DEFAULT_STATE, action: IAction) {
       return {
         ...state,
         userId: 'guest',
-        fullName: 'guest',
+        name: 'guest',
         email: '',
         groups: [],
         profilePicture: '',

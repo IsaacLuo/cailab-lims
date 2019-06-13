@@ -57,7 +57,7 @@ interface IState {
 
 const mapStateToProps = (state: IStoreState) => ({
   username: state.user.email,
-  fullName: state.user.fullName,
+  fullName: state.user.name,
 })
 
 const mapDispatchToProps = (dispatch :Dispatch) => ({

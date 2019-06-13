@@ -35,7 +35,7 @@ export interface INavBarProps {
 
 const mapStateToProps = (state :IStoreState) => ({
   loggedIn: state.user.loggedIn,
-  username: state.user.fullName,
+  username: state.user.name,
   groups: state.user.groups,
   token: state.user.token,
   tokenRefreshTime: state.user.tokenRefreshTime,

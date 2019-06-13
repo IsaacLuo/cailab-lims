@@ -20,7 +20,7 @@ import getAuthHeader from 'authHeader'
 
 function* queryMyUserBarcode(action:IAction) {
   try {
-    const res = yield call(axios.get, serverURL+`/api/currentUser/barcode`, getAuthHeader());
+    const res = yield call(axios.get, serverURL+`/api/user/current/barcode`, getAuthHeader());
     yield put({type:SET_MY_USER_BARCODE, data: res.data.barcode});
   } catch (err) {
     console.error(err);

@@ -95,6 +95,7 @@ export default function middleware (app:koa) {
   }).unless({
     path: [
       '/',
+      '/api/statistic',
     ]
   }));
 
