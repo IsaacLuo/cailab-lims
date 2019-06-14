@@ -268,3 +268,21 @@ export const LocationHistorySchema = new Schema({
 })
 
 export const LocationHistory = mongoose.model('LocationHistory', ContainerSchema, 'locationHistories');
+
+export const PersonalPickListSchema = new Schema({
+  name: String,
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  createdAt: Date,
+  updatedAt: Date,
+  parts: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Part',
+  }],
+  partsCount: Number,
+  default: Boolean,
+});
+
+export const PersonalPickList = mongoose.model('PersonalPickList', PersonalPickListSchema, 'personal_pickLists');
