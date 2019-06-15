@@ -1,6 +1,10 @@
 import koa from 'koa';
 import { Logger } from 'log4js';
 import { Schema } from 'mongoose';
+import {
+  IUserModel, IPartModel,
+} from './models';
+
 export type Ctx = koa.ParameterizedContext<ICustomState, {}>;
 export type Next = ()=>Promise<any>;
 
@@ -28,6 +32,7 @@ export interface IUser extends IUserEssential {
   updatedAt?: Date,
   barcode: string,
   abbr:string,
+  defaultPickList: string,
 }
 
 export interface ILogLogin {
@@ -176,4 +181,14 @@ export interface IPartFormAttachment {
 export interface ILocation {
   barcode: string,
   description: string,
+}
+
+export interface IPersonalPickList {
+  name: string;
+  owner: string|IUserModel|IUser,
+  createdAt: Date,
+  updatedAt: Date,
+  parts: Array<string|IPartModel|IPart>,
+  partsCount: number,
+  default: boolean,
 }

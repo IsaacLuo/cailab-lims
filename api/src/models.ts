@@ -7,6 +7,7 @@ import {
   IContainerGroup,
   IPartHistory,
   ILocation,
+  IPersonalPickList,
 } from './types';
 import mongoose, { Model, Document } from 'mongoose'
 import {Schema} from 'mongoose'
@@ -24,6 +25,10 @@ export const UserSchema = new Schema({
   createdAt: Date,
   updatedAt: Date,
   barcode: String,
+  defaultPickList: {
+    type: Schema.Types.ObjectId,
+    ref: 'PersonalPickList'
+  }
 });
 export interface IUserModel extends IUser, Document{}
 export const User:Model<IUserModel> = mongoose.model('User', UserSchema, 'users');
@@ -284,5 +289,6 @@ export const PersonalPickListSchema = new Schema({
   partsCount: Number,
   default: Boolean,
 });
+export interface IPersonalPickListModel extends IPersonalPickList, Document{}
 
-export const PersonalPickList = mongoose.model('PersonalPickList', PersonalPickListSchema, 'personal_pickLists');
+export const PersonalPickList:Model<IPersonalPickListModel> = mongoose.model('PersonalPickList', PersonalPickListSchema, 'personal_pickLists');

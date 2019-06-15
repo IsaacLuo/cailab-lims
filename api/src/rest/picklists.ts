@@ -109,267 +109,259 @@ export default function handlePicklists (app:koa, router:Router) {
       const {full} = ctx.query;
 
       const user = await User.findById(ctx.state.user._id).exec();
-      
-      try {
-        let pickList;
-        if (pickListId === '0') {
-          pickList = await getDefaultPicklist(user);
-        } else {
-          pickList = await PersonalPickList.findOne({_id: pickListId}).exec();
-        }
-        if(!pickList) {
-          ctx.throw(404);
-        }
-        if (full) {
-          pickList = await PersonalPickList
-            .findOne({_id: pickList._id})
-            .exec();
-          await PersonalPickList.populate(pickList, {path:'parts'})
-          await Promise.all(pickList.parts.map(
-            v => Part.populate(v, {path:'containers', select:'barcode', model:Container})
-          ))
-          res.json(pickList);
-        } else {
-          pickList = await PersonalPickList
-            .findOne({_id: pickList._id})
-            .exec();
-          await PersonalPickList.populate(pickList, {path:'parts', select:'personalName'})
-          res.json(pickList);
-
-        }
+      let pickList;
+      if (pickListId === '0') {
+        pickList = await getDefaultPicklist(user);
+      } else {
+        pickList = await PersonalPickList.findOne({_id: pickListId}).exec();
+      }
+      if(!pickList) {
+        ctx.throw(404);
+      }
+      if (full) {
+        pickList = await PersonalPickList
+          .findOne({_id: pickList._id})
+          .populate({
+            path:'parts',
+            populate:  {
+              path:'containers'
+            }
+          })
+          .exec();
+        ctx.body = pickList;
+      } else {
+        pickList = await PersonalPickList
+          .findOne({_id: pickList._id})
+          .exec();
+        await PersonalPickList.populate(pickList, {path:'parts', select:'personalName'})
+        ctx.body = pickList;
+      }
     }
   );
 
-          router.get(
-    '/api/containers',
+  router.get(
+    '/api/pickLists/',
     userMust(beUser),
     async (ctx:Ctx, next:Next) => {
+      const pickLists = await PersonalPickList.find(
+        {owner:ctx.state.user._id}, 
+        '_id owner createdAt updatedAt partsCount name')
+        .exec();
+      console.log(pickLists);
+      // if the user does not have a picklist, generate a default one.
+      const user = await User.findById(ctx.state.user._id).exec();
+      console.log(user);
+      if (pickLists.length === 0) {
+        const newPickList = await getDefaultPicklist(user)
+        pickLists.push(newPickList);
+      }
 
+      if (!user.defaultPickList || !pickLists.find(v=>v._id.equals(user.defaultPickList))) {
+        user.defaultPickList = pickLists[0]._id;
+        await user.save();
+      }
+      ctx.body = {defaultPickList:user.defaultPickList, pickLists};
     }
   );
 
-  // /**
-  //  * get all pickList and item count of current user
-  //  */
-  // app.get('/api/pickLists/', or(beUser), async (req :Request, res: Response) => {
-  //   const userId = req.currentUser.id;
-    
-  //   try {
-  //     const pickLists = await PersonalPickList.find({owner:ObjectId(userId)}, '_id owner createdAt updatedAt partsCount name').exec();
-  //     console.log(pickLists);
-  //     // if the user does not have a picklist, generate a default one.
-  //     const user = await User.findOne({_id:userId}).exec();
-  //     console.log(user);
-  //     if (pickLists.length === 0) {
-  //       const newPickList = await getDefaultPicklist(user)
-  //       pickLists.push(newPickList);
-  //     }
+  /**
+   * delete a pickList
+   * @param id the pickList id in mongodb
+   */
+  router.delete(
+    '/api/pickList/:id',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+      const _id = ctx.params.id;
+      const parts = await PersonalPickList.deleteMany({_id,}).exec();
+      ctx.body = parts;
+    }
+  );
 
-  //     if (!user.defaultPickListId || !pickLists.find(v=>v._id.equals(user.defaultPickListId))) {
-  //       user.defaultPickListId = pickLists[0]._id;
-  //       await user.save();
-  //     }
-  //     res.json({defaultPickListId:user.defaultPickListId, pickLists});
-  //   } catch (err) {
-  //     console.error(err);
-  //     res.status(404).json({message:err.message});
-  //   }
-  // });
+  /**
+   * delete an item in pickList
+   * @param id the pickList id in mongodb
+   */
+  router.delete(
+    '/api/pickList/:id/items/:itemId',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+      const pickListId = ctx.params.id;
+      const itemId = ctx.params.itemId;
+      const pickList = await PersonalPickList.findById(pickListId).exec();
+      if (!pickList) {
+        ctx.throw(404);
+      }
+      pickList.parts = pickList.parts.filter(v => v.toString()!==itemId);
+      pickList.updatedAt = new Date();
+      pickList.partsCount = pickList.parts.length;
+      await pickList.save();
+      await PersonalPickList.populate(pickList, {path:'parts', select:'personalName'});
+      ctx.body = (pickList);
+    }
+  );
+  
+  /**
+   * delete all items in pickList
+   * @param id the pickList id in mongodb
+   */
+  router.delete(
+    '/api/pickList/:id/items/',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+      const pickListId = ctx.params.id;
+      const pickList = await PersonalPickList.findById(pickListId).exec();
+      pickList.parts = [];
+      pickList.updatedAt = new Date();
+      pickList.partsCount = pickList.parts.length;
+      await pickList.save();
+      ctx.body = pickList;
+    }
+  );
 
-  // /**
-  //  * delete a pickList
-  //  * @param id the pickList id in mongodb
-  //  */
-  // app.delete('/api/pickList/:id', or(beUser), async (req :Request, res: Response) => {
-  //   const _id = req.params.id;
-  //   const parts = await PersonalPickList.deleteMany({_id,}).exec();
-  //   res.json(parts);
-  // });
+  /**
+   * set user's default pickList, pickListId in request body.
+   */
+  router.put(
+    '/api/defaultPickListId',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+      const newPickListId = ctx.body.pickListId;
+      
+        const user = await User.findById(ctx.state.user._id).exec();
+        //verify
+        const pickList = await PersonalPickList.findOne({_id:newPickListId, owner:user._id}).exec();
+        if (!pickList) {
+          ctx.throw(404, {message:'pickList doesn\'t match'});
+        }
+        user.defaultPickList = pickList._id;
+        await user.save();
+        ctx.body = {pickList: pickList._id};
+  });
 
-  // /**
-  //  * delete an item in pickList
-  //  * @param id the pickList id in mongodb
-  //  */
-  // app.delete('/api/pickList/:id/items/:itemId', or(beUser), async (req :Request, res: Response) => {
-  //   const pickListId = ObjectId(req.params.id);
-  //   const itemId = ObjectId(req.params.itemId);
-  //   try {
-  //     const pickList = await PersonalPickList.findOne({_id:pickListId}).exec();
-  //     let parts = pickList.parts;
-  //     pickList.parts = pickList.parts.filter(v => !v._id.equals(itemId))
-  //     pickList.updatedAt = new Date();
-  //     pickList.partsCount = pickList.parts.length;
-  //     await pickList.save();
-  //     await PersonalPickList.populate(pickList, {path:'parts', select:'personalName'});
-  //     res.json(pickList);
-  //   } catch (err) {
-  //     res.status(404).json({message:err.message});
-  //   }
-  // });
+  /**
+   * set new pickList name, pickList name in request body
+   * @param id the pickList id in mongodb
+   */
+  router.put(
+    '/api/picklist/:id/name',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+    const pickListId = ctx.params.id;
+    const newPickListName = ctx.request.body.name;
 
-  //   /**
-  //  * delete all items in pickList
-  //  * @param id the pickList id in mongodb
-  //  */
-  // app.delete('/api/pickList/:id/items/', or(beUser), async (req :Request, res: Response) => {
-  //   const pickListId = ObjectId(req.params.id);
-  //   const itemId = ObjectId(req.params.itemId);
-  //   try {
-  //     const pickList = await PersonalPickList.findOne({_id:pickListId}).exec();
-  //     pickList.parts = [];
-  //     pickList.updatedAt = new Date();
-  //     pickList.partsCount = pickList.parts.length;
-  //     await pickList.save();
-  //     res.json(pickList);
-  //   } catch (err) {
-  //     res.status(404).json({message:err.message});
-  //   }
-  // });
+    if (newPickListName === undefined || newPickListName === '') {
+      ctx.throw(404,{message:'pickList can\'t be empty'});
+      return;
+    }
+    // const user = await User.findById(ctx.state.user._id);
+    // verify
+    const pickList = await PersonalPickList.findOne({_id:pickListId, owner:ctx.state.user._id}).exec();
+    if (!pickList) {
+      ctx.throw(404, {message:'pickList doesn\'t match'});
+    }
+    pickList.name = newPickListName;
+    pickList.updatedAt = new Date();
+    await pickList.save();
+    ctx.body = {pickListName:newPickListName};
+  });
 
-  // /**
-  //  * set user's default pickList, pickListId in request body.
-  //  */
-  // app.put('/api/defaultPickListId', or(beUser), async (req :Request, res :Response) => {
-  //   const userId = req.currentUser.id;
-  //   const newPickListId = req.body.pickListId;
-  //   try {
-  //     const user = await User.findOne({_id:userId});
-  //     //verify
-  //     const pickList = await PersonalPickList.findOne({_id:newPickListId, owner:userId}).exec();
-  //     if (!pickList) {
-  //       res.status(404).json({message:'pickList doesn\'t match'});
-  //     } else {
-  //       user.defaultPickListId = pickList._id;
-  //       await user.save();
-  //       res.json({pickListId: pickList._id});
-  //     }
-  //   } catch (err) {
-  //     res.status(404).json({message:err.message});
-  //   }
-  // });
+  /**
+   * create a new pickList with name
+   */
+  router.post(
+    '/api/pickList/:name',
+    userMust(beUser),
+    async (ctx:Ctx, next:Next) => {
+      const pickListName = ctx.params.name;
+      let pickList;
+      const now = new Date();  
+      pickList = await PersonalPickList.findOne({name: pickListName}).exec();
+      if (!pickList) {
+        pickList = new PersonalPickList({
+          name: pickListName,
+          owner: ctx.state.user._id,
+          createdAt: now,
+          updatedAt: now,
+          parts: [],
+          partsCount: 0,
+        });
+        await pickList.save();
+        ctx.body = pickList;
+      } else {
+        ctx.throw(406, {message:'wrong part ids'});
+      }
+  });
 
-  // /**
-  //  * set new pickList name, pickList name in request body
-  //  * @param id the pickList id in mongodb
-  //  */
-  // app.post('/api/picklist/:id/name', or(beUser), async (req :Request, res :Response) => {
-  //   const userId = req.currentUser.id;
-  //   const pickListId = req.params.id;
-  //   const newPickListName = req.body.name;
+  /**
+   * get tubes location of parts in a plickList
+   */
+  router.get(
+    '/api/pickList/:id/partLocations',
+    userMust(beUser, beScanner),
+    async (ctx:Ctx, next:Next) => {
+      // const userId = req.currentUser.id;
+      const pickListId = ctx.params.id;
+      let pickList;
+      if (pickListId === '0') {
+        const user = await User.findById(ctx.state.user).exec();
+        pickList = await getDefaultPicklist(user);
+      } else {
+        pickList = await PersonalPickList.findById(pickListId).exec();
+      }
+      // const user = await User.findOne({_id:userId});
+      // verify
+      
 
-  //   if (newPickListName === undefined || newPickListName === '') {
-  //     res.status(404).json({message:'pickList can\'t be empty'});
-  //     return;
-  //   }
+      if (!pickList) {
+        ctx.state.logger.error('no picklist');
+        ctx.throw(404, {message:'unable to find picklist'});
+      }
+      const partIds = pickList.parts;
+      const parts = await Part
+        .find({_id:partIds}, 'personalName containers')
+        .populate({
+          path: 'containers',
+          select: 'ctype assignedAt parentContainer location wellName currentStatus barcode',
+          populate : {
+            path: 'parentContainer',
+            select: 'ctype barcode location currentStatus',
+            populate: {
+              path: 'location',
+            }
+          }
+        })
+        .exec();
+      ctx.body = {parts, partIds,};
+  });
 
-  //   try {
-  //     const user = await User.findOne({_id:userId});
-  //     // verify
-  //     const pickList = await PersonalPickList.findOne({_id:pickListId, owner:userId});
-  //     if (!pickList) {
-  //       res.status(404).json({message:'pickList doesn\'t match'});
-  //     } else {
-  //       pickList.name = newPickListName;
-  //       pickList.updatedAt = new Date();
-  //       await pickList.save();
-  //       res.json({pickListName:newPickListName});
-  //     }
-  //   } catch (err) {
-  //     res.status(404).json({message:err.message});
-  //   }
-  // });
+  router.get(
+    '/api/pickList/:id/partBarcodes',
+    userMust(beUser, beScanner),
+    async (ctx:Ctx, next:Next) => {
+      // const userId = req.currentUser.id;
+      const pickListId = ctx.params.id;
+      // const user = await User.findOne({_id:userId});
+      // verify
+      const pickList = await PersonalPickList.findOne({_id:pickListId}).exec();
 
-  // /**
-  //  * create a new pickList with name
-  //  */
-  // app.put('/api/pickList/:name', or(beUser), async (req :Request, res: Response) => {
-  //   const userId = req.currentUser.id;
-  //   const pickListName = req.params.name;
-  //   let pickList;
-  //   const now = new Date();  
-  //   pickList = await PersonalPickList.findOne({name: pickListName}).exec();
-  //   if (!pickList) {
-  //     pickList = new PersonalPickList({
-  //       name: pickListName,
-  //       owner: userId,
-  //       createdAt: now,
-  //       updatedAt: now,
-  //       parts: [],
-  //       partsCount: 0,
-  //     });
-  //   await pickList.save();
-  //   res.json(pickList);
-  //   } else {
-  //     res.status(406).json({message:'wrong part ids'});
-  //     return;
-  //   }
-  // });
-
-  // /**
-  //  * get tubes location of parts in a plickList
-  //  */
-
-  // app.get('/api/pickList/:id/partLocations', or(beUser, beScanner), async (req :Request, res: Response) => {
-  //   try {
-  //     // const userId = req.currentUser.id;
-  //     const pickListId = req.params.id;
-  //     // const user = await User.findOne({_id:userId});
-  //     // verify
-  //     const pickList = await PersonalPickList.findOne({_id:pickListId}).exec();
-
-  //     if (!pickList) {
-  //       res.status(404).json({message:'unable to find picklist'});
-  //       return;
-  //     }
-  //     const partIds = pickList.parts.map(v=>v._id);
-  //     const parts = await Part
-  //       .find({_id:partIds}, 'personalName containers')
-  //       .populate({
-  //         path: 'containers',
-  //         select: 'ctype assignedAt parentContainer location wellName currentStatus barcode',
-  //         populate : {
-  //           path: 'parentContainer',
-  //           select: 'ctype barcode location currentStatus',
-  //           populate: {
-  //             path: 'location',
-  //           }
-  //         }
-  //       })
-  //       .exec();
-  //     res.json({parts, partIds,});
-  //   } catch (err) {
-  //     res.status(404).json({message:err.message});
-  //   }
-  // });
-
-  //   app.get('/api/pickList/:id/partBarcodes', or(beUser, beScanner), async (req :Request, res: Response) => {
-  //   try {
-  //     // const userId = req.currentUser.id;
-  //     const pickListId = req.params.id;
-  //     // const user = await User.findOne({_id:userId});
-  //     // verify
-  //     const pickList = await PersonalPickList.findOne({_id:pickListId}).exec();
-
-  //     if (!pickList) {
-  //       res.status(404).json({message:'unable to find picklist'});
-  //       return;
-  //     }
-  //     const partIds = pickList.parts.map(v=>v._id);
-  //     const parts = await Part
-  //       .find({_id:partIds}, 'personalName containers')
-  //       .populate({
-  //         path: 'containers',
-  //         select: 'ctype assignedAt parentContainer wellName currentStatus barcode',
-  //         populate : {
-  //           path: 'parentContainer',
-  //           select: 'ctype barcode currentStatus',
-  //         }
-  //       })
-  //       .exec();
-  //     res.json({parts, partIds,});
-  //   } catch (err) {
-  //     res.status(404).json({message:err.message});
-  //   }
-  // });
+      if (!pickList) {
+        ctx.throw(404, {message:'unable to find picklist'});
+        return;
+      }
+      const partIds = pickList.parts;
+      const parts = await Part
+        .find({_id:partIds}, 'personalName containers')
+        .populate({
+          path: 'containers',
+          select: 'ctype assignedAt parentContainer wellName currentStatus barcode',
+          populate : {
+            path: 'parentContainer',
+            select: 'ctype barcode currentStatus',
+          }
+        })
+        .exec();
+      ctx.body = {parts, partIds,};
+  });
 
 }
