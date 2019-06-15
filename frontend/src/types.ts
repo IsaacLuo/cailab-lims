@@ -98,7 +98,7 @@ export interface IStoreState {
 }
 
 export interface IUserInfo {
-  id: string,
+  _id: string,
   name: string,
   email: string,
 }
@@ -143,10 +143,10 @@ export interface IPart {
     customData?: any,
   },
   attachments?: [{
-    fileName: string,
+    name: string,
     contentType: string,
-    fileSize: number,
-    fileId: string,
+    size: number,
+    file: string,
   }],
   containers?: IContainer[],
 }

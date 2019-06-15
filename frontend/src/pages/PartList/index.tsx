@@ -331,7 +331,7 @@ export class PartList extends React.Component<IProps, IState> {
               onChange = {this.onFilterUserChange}
             >
               {
-                allUsers.map(user => <Select.Option key={user.id} label={user.name} value={user.id} />)
+                allUsers.map(user => <Select.Option key={user._id} label={user.name} value={user._id} />)
               }
             </Select>
 

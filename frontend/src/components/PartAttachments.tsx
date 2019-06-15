@@ -22,12 +22,12 @@ export default class PartAttachments extends React.Component<IProps, IState> {
     {
       part.attachments && part.attachments.length > 0 ?
         part.attachments.map(att => 
-          <div key={att.fileId}>
+          <div key={att.file}>
             <a
-              onClick={this.onClickAttachment.bind(this,att.fileId, att.fileName)}
+              onClick={this.onClickAttachment.bind(this,att.file, att.name)}
             >
-              {att.fileName},
-              {fileSizeHumanReadable(att.fileSize)}
+              {att.name},
+              {fileSizeHumanReadable(att.size)}
             </a>
           </div>) :
         <div>no attachments</div>
