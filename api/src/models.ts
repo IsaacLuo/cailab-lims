@@ -9,6 +9,7 @@ import {
   ILocation,
   IPersonalPickList,
   IRackScannerRecord,
+  IAttachment,
 } from './types';
 import mongoose, { Model, Document } from 'mongoose'
 import {Schema} from 'mongoose'
@@ -309,3 +310,35 @@ export const RackScannerRecordSchema = new Schema({
 export interface RackScannerRecordModel extends IRackScannerRecord, Document{}
 
 export const RackScannerRecord:Model<RackScannerRecordModel> = mongoose.model('RackScannerRecord', RackScannerRecordSchema, 'rack_scanner_records');
+
+export const CommentSchema = new Schema({
+  part: {
+    type: Schema.Types.ObjectId,
+    ref: 'Part',
+  },
+  text: String,
+  attachments: [{
+    type: Schema.Types.ObjectId,
+    ref: 'FileData',
+  }],
+  author: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  createdAt: Date,
+  reference: {
+    type: Schema.Types.ObjectId,
+    ref: 'Comment',
+  },
+});
+export interface IComment {
+  part: string | IPart,
+  text: string,
+  attachments: string[]|IFileData[],
+  author: string | IUser,
+  createdAt: Date,
+  reference: string | IComment,
+
+}
+export interface ICommentModel extends IComment, Document{}
+export const Comment:Model<ICommentModel> = mongoose.model('Comment', CommentSchema, 'comments');
