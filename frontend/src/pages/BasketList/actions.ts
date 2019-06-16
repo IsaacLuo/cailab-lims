@@ -13,6 +13,8 @@ export const SUBMIT_DEFAULT_BASKET_ID = 'SUBMIT_DEFAULT_BASKET_ID';
 export const SUBMIT_A_BASKET_NAME = 'SUBMIT_A_BASKET_NAME';
 export const CLEAR_BASKET = 'CLEAR_BASKET';
 
+export const SET_CURRENT_BASKET_ID = 'SET_CURRENT_BASKET_ID';
+
 
 // dispatched when 'basket name' changes when it is edited
 export const SET_A_BASKET_NAME = 'SET_A_BASKET_NAME'

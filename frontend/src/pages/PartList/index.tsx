@@ -41,7 +41,7 @@ import {
   } from './actions';
 
 import {
-  GET_BASKET_LIST,
+  GET_BASKET_LIST, SET_CURRENT_BASKET_ID,
 } from '../BasketList/actions';
 
 // react-router
@@ -141,6 +141,7 @@ export interface IProps extends IReactRouterProps {
   basketList: IBasket[],
   // the default basket id
   defaultBasketId: string,
+  currentBasketId: string,
 
   getUserList: () => void,
   setNewPartDialogVisible: (visible: boolean) => void,
@@ -158,12 +159,13 @@ export interface IProps extends IReactRouterProps {
   dispatchDeletePart: (id: string) => void,
   dispatchDeletePartRequest: (id: string) => void,
   dispatchGetBasketList: () => void,
+  setCurrentBasketId:(basketId:string) => void,
 }
 
 export interface IState {
   columns: Array<IColumn|IExpandedPanel>,
   selectedIds: string[],
-  currentBasketId: string,
+  // currentBasketId: string,
 }
 
 export const mapStateToProps = (state :IStoreState) => ({
@@ -176,6 +178,7 @@ export const mapStateToProps = (state :IStoreState) => ({
 
   basketList: state.basket.basketList,
   defaultBasketId: state.basket.defaultBasketId,
+  currentBasketId: state.basket.currentBasket ? state.basket.currentBasket._id : undefined,
 
   defaultBasket: state.partList.currentBasket,
   searchKeyword: state.partList.searchKeyword,
@@ -199,6 +202,7 @@ export const mapDispatchToProps = (dispatch :Dispatch) => ({
   dispatchDeletePart: data => dispatch({type:DELETE_PART, data}),
   dispatchDeletePartRequest: data => dispatch({type:DELETE_PART_REQUEST, data}),
   dispatchGetBasketList: () => dispatch({type: GET_BASKET_LIST}),
+  setCurrentBasketId: (data) => dispatch({type:SET_CURRENT_BASKET_ID, data}),
 
   setSearchKeyword: (val:string) => dispatch({type:SET_SEARCH_KEYWORD, data: val}),
   setUserFilter: (val:string) => dispatch({type:SET_USER_FILTER, data: val}),
@@ -215,7 +219,7 @@ export class PartList extends React.Component<IProps, IState> {
     this.state = {
       columns: this.generateColumnTitle(),
       selectedIds: [],
-      currentBasketId: props.defaultBasketId,
+      // currentBasketId: props.defaultBasketId,
     };
     this.props.getUserList();
   }
@@ -280,11 +284,11 @@ export class PartList extends React.Component<IProps, IState> {
       this.pushHistory(nextProps);
     }
     if (nextProps.defaultBasketId !== this.props.defaultBasketId) {
-      this.setState({currentBasketId: nextProps.defaultBasketId})
+      // this.setState({currentBasketId: nextProps.defaultBasketId})
     } else {
       // update "selected" label in select by setting the value to empty and back, there might be a better way but I don't know.
-      const currentBasketId = this.state.currentBasketId;
-      this.setState({currentBasketId: ''}, ()=>{ this.setState({currentBasketId})});
+      // const currentBasketId = this.state.currentBasketId;
+      // this.setState({currentBasketId: ''}, ()=>{ this.setState({currentBasketId})});
     }
     
   }
@@ -343,7 +347,7 @@ export class PartList extends React.Component<IProps, IState> {
             <Button onClick = {this.exportToXlsxCurrentPage}>export page</Button>
             <Button onClick = {this.exportToXlsxAllPages}>export all</Button>
             <Select
-              value={this.state.currentBasketId}
+              value={this.props.currentBasketId}
               placeholder="choose basket"
               onChange = {this.onChangeCurrentBasketId}
             >
@@ -459,7 +463,7 @@ export class PartList extends React.Component<IProps, IState> {
   }
 
   protected addPartsToBasket = async () => {
-    this.props.addPartToBasket(this.state.selectedIds, this.state.currentBasketId);
+    this.props.addPartToBasket(this.state.selectedIds, this.props.currentBasketId);
   }
 
     protected generateExpandTablePanel() {
@@ -706,7 +710,8 @@ export class PartList extends React.Component<IProps, IState> {
 
   protected onChangeCurrentBasketId = (newId: string) => {
     console.debug('selected new ID = ', newId)
-    this.setState({currentBasketId: newId});
+    // this.setState({currentBasketId: newId});
+    this.props.setCurrentBasketId(newId);
   }
 
   protected rowStyle = ()=>({border:0, textAlign:'left'})

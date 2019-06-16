@@ -8,11 +8,13 @@ import {
   SET_DEFAULT_BASKET_ID,
   FILL_PARTS_INTO_BASKET_LIST,
   SET_A_BASKET_NAME,
+  SET_CURRENT_BASKET_ID,
 } from './actions'
 
 const DEFAULT_STATE:IBasketState = {
   basketList: [],
   defaultBasketId: '',
+  currentBasket:undefined,
 }
 
 function basketReducer(state :IBasketState = DEFAULT_STATE, action: IAction) {
@@ -27,7 +29,14 @@ function basketReducer(state :IBasketState = DEFAULT_STATE, action: IAction) {
       return {
         ...state,
         defaultBasketId: action.data,
+        currentBasket: state.currentBasket || state.basketList.find(v=>v._id === action.data),
       }
+
+    case SET_CURRENT_BASKET_ID:
+        return {
+          ...state,
+          currentBasket: state.basketList[action.data],
+        }
 
     case FILL_PARTS_INTO_BASKET_LIST:
       const basket = state.basketList.find(v=>v._id===action.data._id)
