@@ -226,7 +226,7 @@ export default function handlePicklists (app:koa, router:Router) {
     '/api/defaultPickListId',
     userMust(beUser),
     async (ctx:Ctx, next:Next) => {
-      const newPickListId = ctx.body.pickListId;
+      const newPickListId = ctx.request.body.pickListId;
       
         const user = await User.findById(ctx.state.user._id).exec();
         //verify

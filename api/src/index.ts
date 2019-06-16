@@ -22,6 +22,7 @@ import handleContainers from './rest/container';
 import handleAttachment from './rest/attachment';
 import handleLocations from './rest/location';
 import handlePicklists from './rest/picklists';
+import handleTubes from './rest/tube';
 
 
 const app = new koa();
@@ -39,6 +40,7 @@ handleContainers(app, router);
 handleAttachment(app, router);
 handleLocations(app, router);
 handlePicklists(app, router);
+handleTubes(app, router);
 
 router.get('/', async (ctx:Ctx)=> {
   ctx.body={message:'server: cailab-lims'};

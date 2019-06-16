@@ -8,6 +8,7 @@ import {
   IPartHistory,
   ILocation,
   IPersonalPickList,
+  IRackScannerRecord,
 } from './types';
 import mongoose, { Model, Document } from 'mongoose'
 import {Schema} from 'mongoose'
@@ -292,3 +293,19 @@ export const PersonalPickListSchema = new Schema({
 export interface IPersonalPickListModel extends IPersonalPickList, Document{}
 
 export const PersonalPickList:Model<IPersonalPickListModel> = mongoose.model('PersonalPickList', PersonalPickListSchema, 'personal_pickLists');
+
+export const TubesInRackScannerRecordSchema = new Schema({
+  wellName: String,
+  wellId: Number,
+  barcode: String,
+}, {_id: false});
+
+export const RackScannerRecordSchema = new Schema({
+  createdAt: Date,
+  rackBarcode: String,
+  tubes: [TubesInRackScannerRecordSchema],
+});
+
+export interface RackScannerRecordModel extends IRackScannerRecord, Document{}
+
+export const RackScannerRecord:Model<RackScannerRecordModel> = mongoose.model('RackScannerRecord', RackScannerRecordSchema, 'rack_scanner_records');

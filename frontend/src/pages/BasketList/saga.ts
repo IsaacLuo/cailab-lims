@@ -64,7 +64,7 @@ function* getBasketList(action:IAction) {
   try {
     const res = yield call(axios.get, serverURL+'/api/pickLists/', getAuthHeader());
     yield put({type:SET_BASKET_LIST, data:res.data.pickLists.map(v=>({...v, parts:[]})) });
-    yield put({type:SET_DEFAULT_BASKET_ID, data:res.data.defaultPickListId})
+    yield put({type:SET_DEFAULT_BASKET_ID, data:res.data.defaultPickList})
   } catch (err) {
     Notification.error('failed load basket list');
   }
@@ -75,7 +75,7 @@ function* submitDefaultBasketId(action:IAction) {
   try{
     yield put({type:SET_DEFAULT_BASKET_ID, data:action.data});
     const res = yield call(axios.put, serverURL+'/api/defaultPickListId',{pickListId:basketId}, getAuthHeader());
-    if (res.data.pickListId !== basketId) {
+    if (res.data.pickList !== basketId) {
       yield put({type:SET_DEFAULT_BASKET_ID, data:res.data.basketId});
     }
   } catch (err) {

@@ -192,3 +192,15 @@ export interface IPersonalPickList {
   partsCount: number,
   default: boolean,
 }
+
+export interface IRackScannerRecord {
+  createdAt: Date,
+  rackBarcode: String,
+  tubes: ITubesInRackScannerRecord[],
+}
+
+export interface ITubesInRackScannerRecord {
+  wellName: string,
+  wellId: number,
+  barcode: string,
+}
