@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import {Schema} from 'mongoose'
 
-import secret from '../../secret.json'
+import secret from '../../secret'
 import {Part, FileData, PartsIdCounter, User, LogLogin, LogOperation} from '../models'
 import fs from 'fs'
 import readline from 'readline'
@@ -49,23 +49,9 @@ function loadYeasts() {
     const yeast = JSON.parse(line);
     const [labName, labPrefix, labId] = /([A-Za-z]+)(\d+)(.*)/.exec(yeast.labName);
     const [personalName, personalPrefix, personalId] = /([A-Za-z]+)(\d+)(.*)/.exec(yeast.personalName);
-    let date = yeast.date as Date;
-    if (!date || new Date(date) < new Date('2010-01-01T00:00:00.000Z')) {
-      try {
-        if(!date) {
-          throw '';
-        }
-        const y = date.getFullYear() % 100
-        const m = date.getMonth();
-        const d = date.getDate();
-        //guess y<->d
-        const guessDate = new Date(d<20?d+2000:d+1900, m, y);
-        if (guessDate > new Date('2010-01-01T00:00:00.000Z')) {
-          console.warn (`${date.toDateString()} -> ${guessDate}`)
-        }
-      } catch (err) {
-        date = yeast.createdAt;
-      }
+    let date = yeast.date;
+    if (!date || new Date(date) < new Date('1989-01-01T00:00:00.000Z')) {
+      date = yeast.createdAt;
     }
 
     let x = new Part({
@@ -80,7 +66,7 @@ function loadYeasts() {
         id: yeast.id,
         locationComment: yeast.location,
       },
-      ownerId: usersDict[yeast.userId]._id,
+      owner: usersDict[yeast.userId]._id,
       ownerName: usersDict[yeast.userId].name,
       sampleType: yeast.sampleType,
       comment: yeast.comment,
@@ -107,7 +93,7 @@ interface Attachment {
   fileName: string,
   contentType: string,
   fileSize: number,
-  fileId: ObjectId,
+  file: ObjectId,
 }
 
 const usersDict:any = {};
@@ -115,7 +101,9 @@ const usersDict:any = {};
 async function loadUserDict() {
   const users = await User.find({dbV1:{ $exists: true }}).exec();
   for(const user of users) {
-    usersDict[user.dbV1.id] = user;
+    console.log(user);
+    console.log((user as any).dbV1)
+    usersDict[(user as any).dbV1.id] = user;
   }
 }
 
@@ -174,7 +162,7 @@ function loadBateria() {
           fileName: bacterium.attachment.fileName,
           contentType: bacterium.attachment.contentType,
           fileSize: bacterium.attachment.size,
-          fileId: file._id as ObjectId,
+          file: file._id as ObjectId,
         }];
       }
 
@@ -198,7 +186,7 @@ function loadBateria() {
           id: bacterium.id,
           locationComment: bacterium.location,
         },
-        ownerId: usersDict[bacterium.userId]._id,
+        owner: usersDict[bacterium.userId]._id,
         ownerName: usersDict[bacterium.userId].name,
         sampleType: bacterium.sampleType,
         comment: bacterium.comment,
@@ -251,7 +239,7 @@ function loadPrimers() {
         id: primer.id,
         locationComment: primer.location,
       },
-      ownerId: usersDict[primer.userId]._id,
+      owner: usersDict[primer.userId]._id,
       ownerName: usersDict[primer.userId].name,
       sampleType: primer.sampleType,
       comment: primer.comment,
