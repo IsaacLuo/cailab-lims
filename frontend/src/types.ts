@@ -1,4 +1,5 @@
 import {History, Location} from 'history' 
+import Discussion from 'components/Discussion';
 
 // interface of all actions
 export interface IAction {
@@ -94,6 +95,8 @@ export interface IStoreState {
 
   // containers
   container: IContainerState,
+
+  discussion: IDiscussionState,
 
 }
 
@@ -272,6 +275,11 @@ export interface ILoginDialogState {
   busy: boolean,
 }
 
+export interface IDiscussionState {
+  comments: any,
+  newCommentText: string,
+}
+
 export interface IExpandedPanel {
   type: string,
   expandPannel?: (data:any) => JSX.Element,
@@ -286,4 +294,14 @@ export interface IContainer {
   locationBarcode?: string,
   currentStatus: string,
   submitStatus?: 'pending' | 'verified' | 'failed' | 'deleting',
+}
+
+export interface IComment {
+  part: string | IPart,
+  text: string,
+  attachments: string[],
+  author: string | IUserInfo,
+  createdAt: Date,
+  reference: string | IComment,
+
 }

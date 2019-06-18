@@ -40,6 +40,7 @@ import { QUERY_MY_USER_BARCODE } from 'components/TokenBarcode/actions';
 import { getTokenIssuedAt } from 'tools';
 
 import watchContainers from 'pages/ContainerList/saga';
+import watchDiscussions from 'components/Discussion/saga';
 
 // get current user's status from the server, and ask again in 60 seconds
 export function* getMyStatus() {
@@ -214,5 +215,6 @@ export default function* rootSaga() {
     fork(watchPart),
     fork(watchLoginDialog),
     fork(watchContainers),
+    fork(watchDiscussions),
   ]);
 }

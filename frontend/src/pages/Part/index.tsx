@@ -54,6 +54,7 @@ import PartTable from 'components/PartTable';
 import ContainerTable from 'components/ContainerTable';
 import { getParts } from 'saga';
 import PartAttachments from 'components/PartAttachments';
+import Discussion from 'components/Discussion';
 
 const MainPanel = styled.div`
   width:90%;
@@ -101,6 +102,8 @@ class Part extends React.Component<IProps, IState> {
         <ContainerTable containers={part.containers} />
         <h3>attachments</h3>
         <PartAttachments part={part}/>
+        <h3>discussion</h3>
+        <Discussion/>
       </div>
       :
       <h1>invalid part</h1>

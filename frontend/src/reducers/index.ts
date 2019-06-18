@@ -8,6 +8,7 @@ import searchTubeBarcodeReducer from 'pages/SearchTubeBarcode/reducer';
 import searchRackBarcodeReducer from 'pages/SearchRackBarcode/reducer';
 import partReducer from 'pages/Part/reducer';
 import containerReducer from 'pages/ContainerList/reducer';
+import discussionReducer from 'components/Discussion/reducer';
 
 export default combineReducers({
   app: appReducer,
@@ -19,4 +20,5 @@ export default combineReducers({
   searchRackBarcode: searchRackBarcodeReducer,
   part: partReducer,
   container: containerReducer,
+  discussion: discussionReducer,
 });

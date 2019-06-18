@@ -81,14 +81,18 @@ export default function handleComments (app:koa, router:Router) {
     userMust(beUser),
     async (ctx:Ctx, next:Next) => {
       const {partId} = ctx.params;
-      ctx.body = await Comment.find({part:partId}).populate('attachments', 'name size contentType').exec();
+      ctx.body = await Comment.find({part:partId})
+      .populate('attachments', 'name size contentType')
+      .populate('author')
+      .exec();
     }
   );
-  router.get(
-    '/api/part/:partId/comments',
+  router.delete(
+    '/api/part/:partId/comment/:commentId',
     userMust(beUser),
     async (ctx:Ctx, next:Next) => {
-      
+      const {partId, commentId} = ctx.params;
+      ctx.body = await Comment.deleteOne({_id:commentId, part:partId}).exec();
     }
   );
 
