@@ -29,6 +29,11 @@ export const UserSchema = new Schema({
   defaultPickList: {
     type: Schema.Types.ObjectId,
     ref: 'PersonalPickList'
+  },
+  dbV1:{
+    id:Number,
+    admin: Boolean,
+    canEdit: Boolean,
   }
 });
 export interface IUserModel extends IUser, Document{}
