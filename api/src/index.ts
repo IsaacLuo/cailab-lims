@@ -24,6 +24,7 @@ import handleLocations from './rest/location';
 import handlePicklists from './rest/picklists';
 import handleTubes from './rest/tube';
 import handleComments from './rest/comment';
+import handleTubeRacks from './rest/tubeRacks';
 
 
 const app = new koa();
@@ -43,6 +44,7 @@ handleLocations(app, router);
 handlePicklists(app, router);
 handleTubes(app, router);
 handleComments(app, router);
+handleTubeRacks(app, router);
 
 router.get('/', async (ctx:Ctx)=> {
   ctx.body={message:'server: cailab-lims'};

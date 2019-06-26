@@ -279,7 +279,7 @@ export const LocationHistorySchema = new Schema({
   locationBarcode: String,
 })
 
-export const LocationHistory = mongoose.model('LocationHistory', ContainerSchema, 'locationHistories');
+export const LocationHistory = mongoose.model('LocationHistory', ContainerSchema, 'location_histories');
 
 export const PersonalPickListSchema = new Schema({
   name: String,

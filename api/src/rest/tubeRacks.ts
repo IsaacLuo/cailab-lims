@@ -34,6 +34,7 @@ export default function handleTubeRacks (app:koa, router:Router) {
           barcode: rackBarcode,
         }).exec();
         if (!rack) {
+          ctx.state.logger.debug('no rack, create one')
           rack = new ContainerGroup({
             ctype: 'rack',
             createdAt: now,
@@ -53,6 +54,7 @@ export default function handleTubeRacks (app:koa, router:Router) {
           verifiedAt: now,
         }
       )
+      // console.debug(result)
 
       // save tubes
       const promises = ctx.request.body.tubes.map(v=> Container.updateMany(
@@ -118,7 +120,9 @@ export default function handleTubeRacks (app:koa, router:Router) {
   async function getTubeRack(ctx:Ctx) {
     const {rackBarcode, full} = ctx.state.data;
     const rack = await ContainerGroup.findOne({barcode: rackBarcode}).exec();
-
+    if(!rack) {
+      ctx.throw(404, 'no such a rack');
+    }
     if (full) {
       const tubes = await Container.find({parentContainer: rack._id}).populate('part').exec();
       const re = JSON.parse(JSON.stringify(rack));
