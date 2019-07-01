@@ -89,16 +89,38 @@ export default function middleware (app:koa) {
     await next();
   });
 
-  app.use(koaJwt({
+
+    app.use(koaJwt({
     secret: conf.secret.jwt.key,
     cookie: 'token',
-  }).unless({
-    path: [
-      '/',
-      '/api/statistic',
-    ]
-  }));
-
+    passthrough: true,
+    // getToken: (ctx) => { 
+    //   const auth = ctx.headers['authorization'];
+    //   if(auth) {
+    //     const [first, second] = auth.split(' ');
+    //     if (first === 'Bearer') {
+    //       return second;
+    //     }
+    //   }
+    //   if(ctx.headers['token']) {
+    //     return ctx.headers['token']
+    //   }
+    //   const urlToken = ctx.URL.searchParams.get('token');
+    //   if(urlToken) {
+    //     return urlToken;
+    //   }
+    //   return null;
+    // }
+  })
+  // .unless({
+  //   path: [
+  //     '/',
+  //     '/api/statistic',
+  //     /^\/api\/tubeRack\/\w+$/,
+  //     // {url: /^\/api\/tubeRack\/\w+$/, method: ['PUT']},
+  //   ]
+  // })
+  )
   // record user token
   app.use( async (ctx:Ctx, next:Next)=> {
     if (ctx.headers.authorization) {

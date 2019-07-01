@@ -1,5 +1,6 @@
 import koa from 'koa';
 import { ICustomState } from './types';
+import secret from '../secret';
 
 export function userMust (...args: Array<(ctx:koa.ParameterizedContext<any, {}>, next:()=>Promise<any>)=>boolean>) {
   const arg = arguments;
@@ -21,7 +22,11 @@ export function beAdmin (ctx:koa.ParameterizedContext<ICustomState, {}>, next:()
 }
 
 export function beScanner (ctx:koa.ParameterizedContext<ICustomState, {}>, next:()=>Promise<any>) {
-  return ctx.state.user && (ctx.state.user.groups.indexOf('lims/scanners')>=0);
+  return  ctx.state.user && (ctx.state.user.groups.indexOf('lims/scanners')>=0);
+}
+
+export function beRackScanner (ctx:koa.ParameterizedContext<ICustomState, {}>, next:()=>Promise<any>) {
+  return ctx.request.headers.token && ctx.request.headers.token === secret.rackScannerToken;
 }
 
 export function beGuest (ctx:koa.ParameterizedContext<ICustomState, {}>, next:()=>Promise<any>) {

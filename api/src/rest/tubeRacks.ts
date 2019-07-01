@@ -9,7 +9,7 @@ import {
 
 import koa from 'koa';
 import Router from 'koa-router';
-import {userMust, beAdmin, beUser, beScanner} from '../identifyUsers'
+import {userMust, beAdmin, beUser, beScanner, beRackScanner} from '../identifyUsers'
 
 /**
  * handles the CURD of containers
@@ -21,7 +21,7 @@ export default function handleTubeRacks (app:koa, router:Router) {
    */
   router.put(
     '/api/tubeRack/:rackBarcode',
-    userMust(beUser, beScanner),
+    userMust(beUser, beRackScanner),
     async (ctx:Ctx, next:Next) => {
       console.log('pub tube rack');
       const {rackBarcode} = ctx.params;
@@ -53,7 +53,7 @@ export default function handleTubeRacks (app:koa, router:Router) {
           parentContainer: undefined,
           verifiedAt: now,
         }
-      )
+      ).exec();
       // console.debug(result)
 
       // save tubes
@@ -87,9 +87,9 @@ export default function handleTubeRacks (app:koa, router:Router) {
       await Promise.all(promises);
 
       // rack is on scanner
-      rack.currentStatus = `checked out by ${ctx.state.user._id}`
-      rack.verifiedAt = now;
-      rack.save();
+      // rack.currentStatus = `checked out by ${ctx.state.user._id}`
+      // rack.verifiedAt = now;
+      // rack.save();
 
       // send a push notification
       // if (config.enablePushService) {
