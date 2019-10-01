@@ -10,6 +10,8 @@ import {
 import koa from 'koa';
 import Router from 'koa-router';
 import {userMust, beAdmin, beUser, beScanner, beRackScanner} from '../identifyUsers'
+import conf from '../../conf';
+import pushNotification from '../pushNotification';
 
 /**
  * handles the CURD of containers
@@ -92,14 +94,14 @@ export default function handleTubeRacks (app:koa, router:Router) {
       // rack.save();
 
       // send a push notification
-      // if (config.enablePushService) {
-      //   pushNotification({
-      //     ctype:'event',
-      //     origin: config.publicURL,
-      //     eventType:'rackScanned', 
-      //     id:rack._id, 
-      //     barcode: rack.barcode});
-      // }
+      if (conf.enablePushService) {
+        pushNotification({
+          ctype:'event',
+          origin: conf.serverAddress,
+          eventType:'rackScanned', 
+          id:rack._id, 
+          barcode: rack.barcode});
+      }
 
       ctx.body = {message:'OK'};
 
