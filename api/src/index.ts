@@ -114,4 +114,5 @@ router.get(
 app.use(router.routes());
 
 app.listen(8000, '0.0.0.0');
+log4js.getLogger().info('env = ', process.env.NODE_ENV);
 log4js.getLogger().info('start listening at 8000 ' );
