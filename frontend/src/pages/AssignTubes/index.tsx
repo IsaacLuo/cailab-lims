@@ -204,7 +204,7 @@ class AssignTubes extends React.Component<IProps, IState> {
     this.props.getBasketList();
   }
 
-  public componentDidmount() {
+  public componentDidMount() {
     const {currentBasketIdx, currentBarcodeInputIdx} = this.state;
     if (currentBasketIdx>=0 && this.props.basketList[currentBasketIdx]) {
       if (this.inputRefs[currentBarcodeInputIdx]) {

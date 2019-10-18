@@ -27,7 +27,7 @@ import './App.css';
 import 'element-theme-default'
 import { i18n, Loading } from 'element-react'
 import locale from 'element-react/src/locale/lang/en'
-i18n.use(locale);
+
 
 // react redux router
 import {Route} from 'react-router'
@@ -55,6 +55,8 @@ import YeastPartList from 'pages/PartList/YeastPartList';
 import ContainerList from 'pages/ContainerList';
 import {hot} from 'react-hot-loader/root';
 import RegisterUser from 'pages/RegisterUser';
+
+i18n.use(locale);
 
 interface IProps {
   initializing: boolean,

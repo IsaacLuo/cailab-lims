@@ -107,9 +107,9 @@ class NavBar extends React.Component<INavBarProps, any> {
         console.log('login');
         // this.props.setDialogVisible(true);
             const width = 400;
-    const height = 560;
-    const top = (screen.availHeight / 2) - (height / 2);
-    const left = (screen.availWidth / 2) - (width / 2);
+    const height = 650;
+    const top = (window.screen.availHeight / 2) - (height / 2);
+    const left = (window.screen.availWidth / 2) - (width / 2);
 
     window.addEventListener('message', this.onLogginWindowClosed, false);
     const subWindow = window.open(
