@@ -1,6 +1,5 @@
 /element-react
-/api-server/logs
-/api-server/.vscode
+/api-server
 /.vscode
 /api/logs
 /api/secret.ts
