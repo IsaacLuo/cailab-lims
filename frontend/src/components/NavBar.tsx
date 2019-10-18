@@ -21,6 +21,15 @@ import {
 import {Menu} from 'element-react'
 import { SEND_CAILAB_LOGIN_INFO_TO_SERVER } from './LoginDialog/actions';
 
+import styled from 'styled-components';
+
+const PortraitImg = styled.img`
+  margin:0px;
+  margin-right:0px;
+  border-radius: 50px;
+  height:55px;
+`;
+
 export interface INavBarProps {
   loggedIn: boolean,
   username: string,
@@ -94,9 +103,14 @@ class NavBar extends React.Component<INavBarProps, any> {
         </Menu.SubMenu> :
         <Menu.Item index="login">log in.</Menu.Item>
         }
+        {loggedIn && 
+          <div style={{float:'right'}}>
+            <PortraitImg src='https://api.auth.cailab.org/api/user/current/portrait/s/profile.jpg'/>
+          </div>
+        }
         </Menu>
-        <div>{this.props.token.substr(this.props.token.length-10, 9)}</div>
-        <div>{this.props.tokenRefreshTime.toLocaleTimeString()}</div>
+        {/* <div>{this.props.token.substr(this.props.token.length-10, 9)}</div> */}
+        {/* <div>{this.props.tokenRefreshTime.toLocaleTimeString()}</div> */}
       </div>
     );
   }

@@ -83,7 +83,7 @@ function* sendCailabLoginInfoToServer (action:IAction) {
     // localStorage.setItem('tokenTimeStamp', new Date().toLocaleString());
     yield put({type: SET_LOGIN_INFORMATION, data: res.data.user});
     yield put({type:LOGIN_DIALOG_VISIBLE, data: false});
-    Message.success(res.data.message);
+    Message.success('logged in');
   } catch (err) {
     console.error(err);
     Message.error({message:err.toLocaleString()});

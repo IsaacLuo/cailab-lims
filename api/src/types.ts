@@ -1,11 +1,11 @@
-import koa from 'koa';
+import koa, { DefaultContext } from 'koa';
 import { Logger } from 'log4js';
 import { Schema } from 'mongoose';
 import {
   IUserModel, IPartModel,
 } from './models';
 
-export type Ctx = koa.ParameterizedContext<ICustomState, {}>;
+export type Ctx = koa.ParameterizedContext<ICustomState, DefaultContext>;
 export type Next = ()=>Promise<any>;
 
 export interface IGLobalConfig {

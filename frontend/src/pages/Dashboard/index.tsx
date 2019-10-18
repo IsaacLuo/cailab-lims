@@ -47,8 +47,6 @@ class Dashboard extends React.Component<IProps, IState> {
   public render() {
     return (
       <div>
-        <h1>WARNING</h1>
-        <p>this is a project still in developing, all data submited to this database might be deleted soon</p>
         <p>version {process.env.REACT_APP_VERSION}{process.env.NODE_ENV}</p>
         <p>{this.state.message}</p>
         {
