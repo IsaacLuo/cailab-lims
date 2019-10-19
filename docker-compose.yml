@@ -1,6 +1,7 @@
 version: '3.0'
 services:
   api:
+    container_name: cailab-lims-api
     build: ./api
     # ports:
       # - "11080:8000"
@@ -12,6 +13,7 @@ services:
     network_mode: bridge
 
   frontend:
+    container_name: cailab-lims-frontend
     build: ./frontend
     # ports:
       # - "11180:80"
