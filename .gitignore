@@ -3,3 +3,4 @@
 /.vscode
 /api/logs
 /api/secret.ts
+/frontend/.vscode
