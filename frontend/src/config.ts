@@ -15,6 +15,12 @@ if (process.env.NODE_ENV === 'production') {
 
 config.cailabAuthURL = `https://auth.cailab.org`;
 
+if ((process.env as any).REACT_APP_SERVER_URL) {
+  config.serverURL = (process.env as any).SERVER_URL;
+}
+
+console.log('processenv', process.env);
+
 export const serverURL = config.serverURL;
 export const googleAuthURL = config.googleAuthURL;
 export const cailabAuthURL = config.cailabAuthURL;

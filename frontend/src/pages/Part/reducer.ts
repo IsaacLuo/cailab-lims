@@ -5,7 +5,7 @@ import {
   IAction,
   ISearchRackBarcodeState,
   IPartState,
-} from 'types'
+} from '../../types'
 
 import { 
   SET_MESSAGE,

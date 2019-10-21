@@ -1,7 +1,7 @@
 import {
   IAction,
   IDiscussionState,
-} from 'types'
+} from '../../types'
 
 import {
   SET_COMMENT_LIST, SET_NEW_COMMENT_TEXT,

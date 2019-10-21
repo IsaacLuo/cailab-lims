@@ -36,6 +36,7 @@ export default class ObjectTable extends React.Component<IProps, IState> {
     return <Table
       columns = {this.columns}
       data = {tableData}
+      emptyText = "no data"
     />
   }
 }

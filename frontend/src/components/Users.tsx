@@ -5,7 +5,7 @@ import getAuthHeader from '../authHeader'
 import { Checkbox, Button, Notification } from 'element-react'
 // import {TableColumn} from 'element-react/typings/index'
 import {Table} from 'element-react'
-import { IReactRouterProps } from 'types';
+import { IReactRouterProps } from '../types';
 
 
 interface IUser {

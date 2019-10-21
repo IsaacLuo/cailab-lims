@@ -1,4 +1,4 @@
-import {IColumn, IAttachment, IStoreState} from 'types'
+import {IColumn, IAttachment, IStoreState} from '../types'
 import * as React from 'react'
 import { Input, Loading, DatePicker, Tag, Button, Notification } from 'element-react'
 import Dropzone from 'react-dropzone'
@@ -12,8 +12,8 @@ import { Link } from 'react-router-dom'
 import { Dispatch } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { ActionSetUploadPartsDialogVisible} from 'actions/appActions'
-import { ActionClearLoginInformation } from 'actions/userActions'
+import { ActionSetUploadPartsDialogVisible} from '../actions/appActions'
+import { ActionClearLoginInformation } from '../actions/userActions'
 
 // helpers
 import { serverURL } from '../config'
@@ -127,6 +127,7 @@ class UploadPartsDialog extends React.Component<IProps, IState> {
         :
         <div style={{width:'100%'}}>
           <Table
+            emptyText = "no data"
             style={{width: '100%'}}
             columns={formTitles}
             data={partsForm}

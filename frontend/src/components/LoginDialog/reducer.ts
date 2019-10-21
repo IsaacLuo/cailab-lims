@@ -1,7 +1,7 @@
 import {
   IAction,
   ILoginDialogState,
-} from 'types'
+} from '../../types'
 
 import {
   SET_BUSY

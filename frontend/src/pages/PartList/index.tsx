@@ -11,7 +11,7 @@ import {
   IColumn,
   IPartListRowData,
   IPart,
-} from 'types'
+} from '../../types'
 
 // react
 import * as React from 'react'
@@ -25,7 +25,7 @@ import { connect } from 'react-redux'
 import {
   ActionSetNewPartDialogVisible,
   ActionSetEditPartDialogVisible,
-} from 'actions/appActions'
+} from '../../actions/appActions'
 import {
   GET_DEFAULT_BASKET,
   GET_PARTS,
@@ -49,9 +49,9 @@ import {Redirect} from 'react-router'
 import {Link} from 'react-router-dom'
 
 // helpers
-import { serverURL } from 'config'
-import getAuthHeader from 'authHeader'
-import {fileSizeHumanReadable, toPlural} from 'tools'
+import { serverURL } from '../../config'
+import getAuthHeader from '../../authHeader'
+import {fileSizeHumanReadable, toPlural} from '../../tools'
 
 // components
 import {
@@ -65,10 +65,10 @@ import {
   Input,
 } from 'element-react'
 import styled from 'styled-components'
-import ErrorBoundary from 'components/ErrorBoundary'
-import EditPartDialog from 'components/EditPartDialog';
+import ErrorBoundary from '../../components/ErrorBoundary'
+import EditPartDialog from '../../components/EditPartDialog';
 import { format } from 'path';
-import PartsSearchBar from 'components/PartsSearchBar';
+import PartsSearchBar from '../../components/PartsSearchBar';
 
 
 const MyClickableIcon = styled(Button)`
@@ -368,6 +368,7 @@ export class PartList extends React.Component<IProps, IState> {
           <div style={{width:'100%'}}>
           <Loading loading={loading} text={'loading'}>
             <Table
+              emptyText = "no data"
               style={{width: '100%'}}
               columns={this.state.columns}
               data={this.props.parts}

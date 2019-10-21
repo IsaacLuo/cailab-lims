@@ -4,7 +4,7 @@
 
 import * as React from 'react'
 import QRCode from 'qrcode'
-import { IStoreState } from 'types';
+import { IStoreState } from '../../types';
 
 // react-router-redux
 import { withRouter, Link } from 'react-router-dom'

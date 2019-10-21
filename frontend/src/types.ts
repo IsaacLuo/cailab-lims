@@ -1,5 +1,4 @@
 import {History, Location} from 'history' 
-import Discussion from 'components/Discussion';
 
 // interface of all actions
 export interface IAction {

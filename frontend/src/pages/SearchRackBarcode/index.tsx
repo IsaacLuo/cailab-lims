@@ -5,19 +5,12 @@
 // types
 import {
   IStoreState,
-  IBasket,
   IReactRouterProps,
-  IUserInfo,
-  IColumn,
-  IPartListRowData,
-  IPart,
   ITube,
-} from 'types'
+} from '../../types'
 
 // react
 import * as React from 'react'
-import axios from 'axios'
-import qs from 'qs'
 
 // redux
 import { Dispatch } from 'redux'
@@ -25,32 +18,16 @@ import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 
 // react-router
-import {Redirect} from 'react-router'
 import {Link} from 'react-router-dom'
 
-// helpers
-import { serverURL } from 'config'
-import getAuthHeader from 'authHeader'
-import {fileSizeHumanReadable, toPlural} from 'tools'
 
 // components
 import {
-  Pagination,
-  Loading,
-  Select,
-  Button,
-  MessageBox,
-  Message,
-  Table,
   Input,
 } from 'element-react'
 import styled from 'styled-components'
-import ErrorBoundary from 'components/ErrorBoundary'
-import EditPartDialog from 'components/EditPartDialog';
-import { GET_BASKET_LIST, GET_BASKET } from 'pages/BasketList/actions';
-import ClickableIcon from 'components/ClickableIcon';
 import { GET_RACK } from './actions';
-import CentralPanel from 'components/CentralPanel';
+import CentralPanel from '../../components/CentralPanel';
 
 const MainPanel = styled.div`
   width:90%;

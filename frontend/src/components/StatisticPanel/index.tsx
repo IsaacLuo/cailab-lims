@@ -12,8 +12,8 @@ import { Dispatch } from 'redux'
 
 // tools
 import Axios from 'axios';
-import { serverURL } from 'config';
-import getAuthHeader from 'authHeader';
+import { serverURL } from '../../config';
+import getAuthHeader from '../../authHeader';
 import {Notification} from 'element-react'
 
 // components

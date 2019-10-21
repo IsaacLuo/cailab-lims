@@ -37,24 +37,23 @@ import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 
 // components
-import Users from 'components/Users'
-import NavBar from 'components/NavBar'
-import LoginDialog from './components/LoginDialog'
-import UploadParts from 'pages/UploadParts';
-import DeletionRequestsList from 'pages/DeletionRequestsList';
-import Dashboard from 'pages/Dashboard';
-import BasketList from 'pages/BasketList';
-import AssignTubes from 'pages/AssignTubes';
-import SearchTubeBarcode from 'pages/SearchTubeBarcode';
-import SearchRackBarcode from 'pages/SearchRackBarcode';
-import Part from 'pages/Part';
-import PartList from 'pages/PartList';
-import BateriumPartList from 'pages/PartList/BacteriumPartList.tsx'
-import PrimerPartList from 'pages/PartList/PrimerPartList';
-import YeastPartList from 'pages/PartList/YeastPartList';
-import ContainerList from 'pages/ContainerList';
+import Users from './components/Users'
+import NavBar from './components/NavBar'
+import UploadParts from './pages/UploadParts';
+import DeletionRequestsList from './pages/DeletionRequestsList';
+import Dashboard from './pages/Dashboard';
+import BasketList from './pages/BasketList';
+import AssignTubes from './pages/AssignTubes';
+import SearchTubeBarcode from './pages/SearchTubeBarcode';
+import SearchRackBarcode from './pages/SearchRackBarcode';
+import Part from './pages/Part';
+import PartList from './pages/PartList';
+import BateriumPartList from './pages/PartList/BacteriumPartList';
+import PrimerPartList from './pages/PartList/PrimerPartList';
+import YeastPartList from './pages/PartList/YeastPartList';
+import ContainerList from './pages/ContainerList';
 import {hot} from 'react-hot-loader/root';
-import RegisterUser from 'pages/RegisterUser';
+import RegisterUser from './pages/RegisterUser';
 
 i18n.use(locale);
 

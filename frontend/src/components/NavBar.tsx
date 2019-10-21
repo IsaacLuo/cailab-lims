@@ -2,7 +2,7 @@
  * the navbar component on the top of the pages.
  */
 
-import { IStoreState } from 'types';
+import { IStoreState } from '../types';
 
 import * as React from 'react'
 
@@ -10,13 +10,10 @@ import * as React from 'react'
 import { withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
-import {
-  ActionLoginDialogVisible,
-} from 'actions/appActions'
 
 import {
   ActionClearLoginInformation,
-} from 'actions/userActions'
+} from '../actions/userActions'
 
 import {Menu} from 'element-react'
 import { SEND_CAILAB_LOGIN_INFO_TO_SERVER } from './LoginDialog/actions';

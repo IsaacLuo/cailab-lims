@@ -3,7 +3,7 @@
  */
 
 // types
-import { IStoreState, IComment, IUserInfo, IPart } from 'types';
+import { IStoreState, IComment, IUserInfo, IPart } from '../../types';
 
 // react
 import * as React from 'react'

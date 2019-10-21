@@ -2,13 +2,13 @@ import { TOKEN_REFRESHED } from './../actions/userActions';
 import {
   IAction,
   IUserState,
-} from 'types'
+} from '../types'
 
 import {
   SET_LOGIN_INFORMATION,
   CLEAR_LOGIN_INFORMATION,
-} from 'actions/userActions'
-import { SET_MY_USER_BARCODE } from 'components/TokenBarcode/actions';
+} from '../actions/userActions'
+import { SET_MY_USER_BARCODE } from '../components/TokenBarcode/actions';
 
 const DEFAULT_STATE:IUserState = {
   loggedIn: false,

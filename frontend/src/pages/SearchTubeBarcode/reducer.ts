@@ -6,7 +6,7 @@ import {
   IAssignTubesState,
   IPart,
   ISearchTubeBarcodeState,
-} from 'types'
+} from '../../types'
 
 import { 
   SET_PART, SET_MESSAGE,

@@ -1,7 +1,7 @@
 import {
   IAction,
   IPartListState,
-} from 'types'
+} from '../../types'
 
 import {
   SET_CURRENT_BASKET,

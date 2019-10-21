@@ -1,4 +1,4 @@
-import { IPart, IContainer } from "types";
+import { IPart, IContainer } from "../types";
 import * as React from 'react';
 import { Table } from "element-react";
 
@@ -20,7 +20,7 @@ export default class ContainerTable extends React.Component<IProps, IState> {
       prop: "ctype",
     }, {
       label: "date",
-      render: (data:IContainer) => <div>{new Date(data.assignedAt).toLocaleDateString()}</div>
+      render: (data:any) => <div>{new Date((data as any).assignedAt).toLocaleDateString()}</div>
     },
     {
       label: "locationBarcode",
@@ -42,7 +42,6 @@ export default class ContainerTable extends React.Component<IProps, IState> {
     return containers ? <Table
       columns = {this.columns}
       data = {containers}
-      emptyText = {'no containers'}
     /> : <div>no containers</div>
   }
 }

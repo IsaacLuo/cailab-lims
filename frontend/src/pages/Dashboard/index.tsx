@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 // types
-import { IStoreState, IReactRouterProps } from 'types';
+import { IStoreState, IReactRouterProps } from '../../types';
 
 import Axios from 'axios';
 import { serverURL } from '../../config';
@@ -13,9 +13,9 @@ import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 
 // components
-import StatisticPanel from 'components/StatisticPanel';
+import StatisticPanel from '../../components/StatisticPanel';
 import { Input } from 'element-react';
-import { SEARCH_PART } from 'pages/PartList/actions';
+import { SEARCH_PART } from '../../pages/PartList/actions';
 
 
 interface IProps extends IReactRouterProps {

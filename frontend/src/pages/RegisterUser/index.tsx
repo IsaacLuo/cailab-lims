@@ -3,7 +3,7 @@
  */
 
 // types
-import { IStoreState, IReactRouterProps } from 'types';
+import { IStoreState, IReactRouterProps } from '../../types';
 
 // react
 import * as React from 'react'
@@ -12,28 +12,19 @@ import * as React from 'react'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
-import {
-  ActionLoginDialogVisible,
-} from 'actions/appActions'
-
-import {
-  ActionSetLoginInformation,
-} from 'actions/userActions'
-
 // tools
-import {googleAuthURL, serverURL} from 'config';
+import {googleAuthURL, serverURL} from '../../config';
 
 // components
 import { Dialog, Message, Input, Button } from 'element-react'
-import GoogleLogin from 'react-google-login';
-import { 
-  REGISTER,
-} from './actions';
-import logo from 'img/logo.png';
-import {Link} from 'react-router-dom'
+// import GoogleLogin from 'react-google-login';
+// import { 
+//   REGISTER,
+// } from './actions';
+import logo from '../../img/logo.png';
 import styled from 'styled-components'
 import Axios from 'axios';
-import getAuthHeader from 'authHeader';
+import getAuthHeader from '../../authHeader';
 
 const Row = styled.div`
   display:flex;

@@ -6,7 +6,7 @@ import {
   IAction,
   IAssignTubesState,
   IPart,
-} from 'types'
+} from '../../types'
 
 import { 
   NEW_BARCODE_ASSIGNED,

@@ -2,7 +2,7 @@ import { cailabAuthURL } from './../../config';
 // types
 import {
   IAction,
-} from 'types'
+} from '../../types'
 // redux saga
 import {call, all, fork, put, take, select, takeLatest, takeEvery} from 'redux-saga/effects'
 // redux actions
@@ -19,10 +19,9 @@ import {Message} from 'element-react'
 
 
 // helpers
-import {serverURL} from 'config'
-import getAuthHeader from 'authHeader'
-import { SET_LOGIN_INFORMATION } from 'actions/userActions';
-import { LOGIN_DIALOG_VISIBLE } from 'actions/appActions';
+import {serverURL} from '../../config'
+import { SET_LOGIN_INFORMATION } from '../../actions/userActions';
+import { LOGIN_DIALOG_VISIBLE } from '../../actions/appActions';
 
 function* sendGoogleAuthInfoToServer (action:IAction) {
   const googleResponse = action.data;

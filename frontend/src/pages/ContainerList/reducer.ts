@@ -2,7 +2,7 @@ import {
   IAction,
   IPartListState,
   IContainerState,
-} from 'types'
+} from '../../types'
 
 import {
   SET_CONTAINER_LIST,

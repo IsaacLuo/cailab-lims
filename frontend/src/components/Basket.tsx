@@ -1,6 +1,6 @@
 import * as React from 'react'
 // react-router-redux
-import { IStoreState } from 'types';
+import { IStoreState } from '../types';
 import { withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'

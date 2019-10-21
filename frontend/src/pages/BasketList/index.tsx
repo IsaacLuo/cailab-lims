@@ -1,7 +1,7 @@
 import {
   IStoreState,
   IBasket,
-} from 'types'
+} from '../../types'
 
 import * as React from 'react'
 // react-router-redux
@@ -20,7 +20,7 @@ import {
 } from './actions'
 
 import {Button, Radio, Table, Input, Notification, Tag} from 'element-react'
-import TokenBarcode from 'components/TokenBarcode'
+import TokenBarcode from '../../components/TokenBarcode'
 import styled from 'styled-components'
 
 const MyTokenBarcode = styled(TokenBarcode)`
@@ -190,6 +190,7 @@ class BasketList extends React.Component<IProps, IState> {
 
         {length > 0 && 
           <Table 
+            emptyText = "no data"
             style={{margin:'auto'}}
             columns = {tableColumns}
             data = {basketList}

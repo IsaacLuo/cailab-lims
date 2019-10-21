@@ -3,7 +3,7 @@
  */
 
 // types
-import { IStoreState } from 'types';
+import { IStoreState } from '../../types';
 
 // react
 import * as React from 'react'
@@ -14,14 +14,14 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import {
   ActionLoginDialogVisible,
-} from 'actions/appActions'
+} from '../../actions/appActions'
 
 import {
   SET_LOGIN_INFORMATION,
-} from 'actions/userActions'
+} from '../../actions/userActions'
 
 // tools
-import {googleAuthURL, cailabAuthURL} from 'config';
+import {googleAuthURL, cailabAuthURL} from '../../config';
 
 // components
 import { Dialog, Message, Input, Button } from 'element-react'

@@ -2,14 +2,14 @@
 // delete some parts but they are not allowed to delete by themselves, administrators
 // can review, confirm or cancel the requests
 
-import { IStoreState } from 'types'
+import { IStoreState } from '../../types'
 
 import * as React from 'react'
 import axios from 'axios'
 
 // components
 import { Pagination, Icon, Loading, Select, Button, MessageBox, Message } from 'element-react'
-import ErrorBoundary from 'components/ErrorBoundary'
+import ErrorBoundary from '../../components/ErrorBoundary'
 import {Table} from 'element-react'
 import styled from 'styled-components'
 
@@ -20,8 +20,8 @@ import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 
 // helpers
-import { serverURL } from 'config'
-import getAuthHeader from 'authHeader'
+import { serverURL } from '../../config'
+import getAuthHeader from '../../authHeader'
 
 interface IProps {
   loggedIn: boolean,

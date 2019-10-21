@@ -12,7 +12,7 @@ import {
   IPartListRowData,
   IPart,
   IContainer,
-} from 'types'
+} from '../../types'
 
 // react
 import * as React from 'react'
@@ -44,7 +44,7 @@ import {
   Input,
 } from 'element-react'
 import styled from 'styled-components'
-import ErrorBoundary from 'components/ErrorBoundary'
+import ErrorBoundary from '../../components/ErrorBoundary'
 
 
 const MyClickableIcon = styled(Button)`
@@ -200,6 +200,7 @@ class ContainerList extends React.Component<IProps, IState> {
           <div style={{width:'100%'}}>
             <Loading loading={loading} text={'loading'}>
               <Table
+                emptyText = "no data"
                 style={{width: '100%'}}
                 columns={columns}
                 data={this.props.containers}

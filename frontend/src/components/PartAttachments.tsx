@@ -1,10 +1,9 @@
-import { IPart } from "types";
+import { IPart } from "../types";
 import * as React from 'react';
-import { Table } from "element-react";
 import axios from 'axios';
-import { serverURL } from "config";
-import { fileSizeHumanReadable } from "tools";
-import getAuthHeader from "authHeader";
+import { serverURL } from "../config";
+import { fileSizeHumanReadable } from "../tools";
+import getAuthHeader from "../authHeader";
 
 interface IProps {
   part: IPart

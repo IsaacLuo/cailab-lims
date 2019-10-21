@@ -12,10 +12,10 @@ import { connect } from 'react-redux'
 import { ActionSetEditPartDialogVisible } from '../actions/appActions'
 
 import Axios from 'axios';
-import { serverURL } from 'config';
-import getAuthHeader from 'authHeader';
+import { serverURL } from '../config';
+import getAuthHeader from '../authHeader';
 
-import {IPart, IPartForm, IPartFormAttachment} from 'types'
+import {IPart, IPartForm, IPartFormAttachment} from '../types'
 // import Dropzone from 'react-dropzone';
 import {useDropzone} from 'react-dropzone'
 import {fileSizeHumanReadable, readFileAsDataURL} from '../tools'

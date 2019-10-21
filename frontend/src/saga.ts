@@ -1,5 +1,5 @@
 
-import {IAction} from 'types'
+import {IAction} from './types'
 // redux saga
 import { delay} from 'redux-saga/effects';
 import {call, all, fork, put, take, takeLatest} from 'redux-saga/effects'
@@ -14,7 +14,7 @@ import {
 ActionSetLoginInformation, 
 ActionClearLoginInformation,
 TOKEN_REFRESHED,
-} from 'actions/userActions'
+} from './actions/userActions'
 
 // other libs
 import axios from 'axios'
@@ -26,21 +26,19 @@ import {serverURL} from './config'
 import getAuthHeader from './authHeader'
 
 // other saga
-import watchBasket from 'pages/BasketList/saga'
-import watchPartList from 'pages/PartList/saga'
+import watchBasket from './pages/BasketList/saga'
+import watchPartList from './pages/PartList/saga'
 
-import watchUserBasket from 'components/TokenBarcode/saga'
-import watchAssignTubes from 'pages/AssignTubes/saga'
-import watchSearchTubeBarcode from 'pages/SearchTubeBarcode/saga'
-import watchSearchRackBarcode from 'pages/SearchRackBarcode/saga'
-import watchPart from 'pages/Part/saga'
-import watchLoginDialog from 'components/LoginDialog/saga'
+import watchUserBasket from './components/TokenBarcode/saga'
+import watchAssignTubes from './pages/AssignTubes/saga'
+import watchSearchTubeBarcode from './pages/SearchTubeBarcode/saga'
+import watchSearchRackBarcode from './pages/SearchRackBarcode/saga'
+import watchPart from './pages/Part/saga'
+import watchLoginDialog from './components/LoginDialog/saga'
 
-import { QUERY_MY_USER_BARCODE } from 'components/TokenBarcode/actions';
-import { getTokenIssuedAt } from 'tools';
-
-import watchContainers from 'pages/ContainerList/saga';
-import watchDiscussions from 'components/Discussion/saga';
+import { QUERY_MY_USER_BARCODE } from './components/TokenBarcode/actions';
+import watchContainers from './pages/ContainerList/saga';
+import watchDiscussions from './components/Discussion/saga';
 
 // get current user's status from the server, and ask again in 60 seconds
 export function* getMyStatus() {

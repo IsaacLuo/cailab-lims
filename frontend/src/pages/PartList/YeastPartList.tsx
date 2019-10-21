@@ -11,7 +11,7 @@ import {
   IColumn,
   IPartListRowData,
   IPart,
-} from 'types'
+} from '../../types'
 
 // react
 import * as React from 'react'
@@ -25,7 +25,7 @@ import { connect } from 'react-redux'
 import {
   ActionSetNewPartDialogVisible,
   ActionSetEditPartDialogVisible,
-} from 'actions/appActions'
+} from '../../actions/appActions'
 import {
   GET_DEFAULT_BASKET,
   GET_PARTS,
@@ -41,11 +41,6 @@ import {
 import {Redirect} from 'react-router'
 import {Link} from 'react-router-dom'
 
-// helpers
-import { serverURL } from 'config'
-import getAuthHeader from 'authHeader'
-import {fileSizeHumanReadable, toPlural} from 'tools'
-
 // components
 import {
   Pagination,
@@ -58,9 +53,7 @@ import {
   Input,
 } from 'element-react'
 import styled from 'styled-components'
-import ErrorBoundary from 'components/ErrorBoundary'
-import EditPartDialog from 'components/EditPartDialog';
-import {PartList, mapDispatchToProps, mapStateToProps} from 'pages/PartList';
+import {PartList, mapDispatchToProps, mapStateToProps} from '../../pages/PartList';
 
 
 const MyClickableIcon = styled(Button)`

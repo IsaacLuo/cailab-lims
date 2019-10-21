@@ -1,4 +1,4 @@
-import {IAction, IStoreState, IBasketState, IPart} from 'types'
+import {IAction, IStoreState, IBasketState, IPart} from '../../types'
 // redux saga
 import { delay} from 'redux-saga/effects';
 import {call, all, fork, put, take, select, takeLatest, takeEvery} from 'redux-saga/effects'
@@ -23,8 +23,8 @@ import qs from 'qs'
 import {Notification} from 'element-react'
 
 // helpers
-import {serverURL} from 'config'
-import getAuthHeader from 'authHeader'
+import {serverURL} from '../../config'
+import getAuthHeader from '../../authHeader'
 
 function* getBasketFull(action:IAction) {
   const basketId = action.data;

@@ -1,7 +1,7 @@
 import {
   IAction,
   IBasketState,
-} from 'types'
+} from '../../types'
 
 import {
   SET_BASKET_LIST,
