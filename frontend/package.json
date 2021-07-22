@@ -30,7 +30,7 @@
     "redux-saga": "^1.1.1",
     "styled-components": "^4.4.0",
     "typescript": "3.6.4",
-    "xlsx": "^0.15.1"
+    "xlsx": "^0.17.0"
   },
   "scripts": {
     "start": "cross-env PORT=9000 react-scripts start",
