@@ -16,7 +16,7 @@
     "koa-jwt": "^3.6.0",
     "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
-    "log4js": "^5.2.2",
+    "log4js": "^6.4.0",
     "mongoose": "^5.7.5",
     "node-xlsx": "^0.15.0",
     "util": "^0.12.1"
